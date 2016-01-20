@@ -65,8 +65,8 @@ public class RectangleTest extends InputAdapter implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 3f, 120f);
-        camera.lookAt(0, 0, 0);
+        camera.position.set(0f, 50f, 200f);
+        camera.lookAt(0, 50, 0);
         camera.near = 1f;
         camera.far = 300f;
         camera.update();
@@ -76,7 +76,7 @@ public class RectangleTest extends InputAdapter implements Screen {
         loading = true;
 
         cameraInputController = new CameraInputController(camera);
-        Gdx.input.setInputProcessor(new InputMultiplexer(this,cameraInputController));
+        Gdx.input.setInputProcessor(new InputMultiplexer(this));
 //        Gdx.input.setInputProcessor(this);
 
         ModelBuilder modelBuilder = new ModelBuilder();
@@ -107,10 +107,10 @@ public class RectangleTest extends InputAdapter implements Screen {
         float halfWallWidth = 50;
 
         Model leftWallModel = modelBuilder.createRect(
-                -(halfWallWidth * 3), -halfWallHeight, 100,
-                -halfWallWidth, -halfWallHeight, 0,
-                -halfWallWidth, halfWallHeight, 0,
-                -(halfWallWidth * 3), halfWallHeight, 100,
+                -(halfWallWidth * 3), 0, 100,
+                -halfWallWidth, 0, 0,
+                -halfWallWidth, halfWallHeight * 2, 0,
+                -(halfWallWidth * 3), halfWallHeight * 2, 100,
                 1, 1, 1,
                 material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
@@ -119,10 +119,10 @@ public class RectangleTest extends InputAdapter implements Screen {
         instances.add(leftWallModelInstance);
 
         Model rightWallModel = modelBuilder.createRect(
-                halfWallWidth, -halfWallHeight, 0,
-                (halfWallWidth * 3), -halfWallHeight, 100,
-                (halfWallWidth * 3), halfWallHeight, 100,
-                halfWallWidth, halfWallHeight, 0,
+                halfWallWidth, 0, 0,
+                (halfWallWidth * 3), 0, 100,
+                (halfWallWidth * 3), halfWallHeight * 2, 100,
+                halfWallWidth, halfWallHeight * 2, 0,
                 1, 1, 1,
                 material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
@@ -134,10 +134,10 @@ public class RectangleTest extends InputAdapter implements Screen {
         material.set(blendingAttribute);
 
         Model backWallModel = modelBuilder.createRect(
-                -halfWallWidth, -halfWallHeight, 0,
-                halfWallWidth, -halfWallHeight, 0,
-                halfWallWidth, halfWallHeight, 0,
-                -halfWallWidth, halfWallHeight, 0,
+                -halfWallWidth, 0, 0,
+                halfWallWidth, 0, 0,
+                halfWallWidth, halfWallHeight * 2, 0,
+                -halfWallWidth, halfWallHeight * 2, 0,
                 1, 1, 1,
                 material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
@@ -148,13 +148,17 @@ public class RectangleTest extends InputAdapter implements Screen {
 
     private void doneLoading() {
         sofa = new Furniture(assets.get("sofa.obj", Model.class));
+
+        sofa.transform.rotate(Vector3.X, -90);
+        sofa.transform.scale(3, 3, 3);
+
         sofa.calculateTransforms();
         BoundingBox bounds = new BoundingBox();
         sofa.calculateBoundingBox(bounds);
         sofa.shape = new Box(bounds);
 
-        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
-        sofa.transform.rotate(Vector3.Y, 0).trn(0, 0, 6f);
+//        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
+
         instances.add(sofa);
 
         background = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
@@ -187,7 +191,7 @@ public class RectangleTest extends InputAdapter implements Screen {
 
         if(background != null){
             spriteBatch.begin();
-//            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             spriteBatch.end();
         }
 
@@ -244,8 +248,8 @@ public class RectangleTest extends InputAdapter implements Screen {
 //
 //        return super.touchDown(screenX, screenY, pointer, button);
 
-        System.out.println("x = " + screenX);
-        System.out.println("y = " + screenY);
+//        System.out.println("x = " + screenX);
+//        System.out.println("y = " + screenY);
         selecting = getObject(screenX, screenY);
         return selecting >= 0;
     }
@@ -258,13 +262,18 @@ public class RectangleTest extends InputAdapter implements Screen {
 
 
             final float distance = -ray.origin.y / ray.direction.y;
+
+            System.out.println(distance);
+
             position.set(ray.direction).scl(distance).add(ray.origin);
-            if(instances.get(selected) instanceof  Furniture){
-                Furniture furniture = (Furniture) instances.get(selected);
-                BoundingBox bounds = new BoundingBox();
-                furniture.calculateBoundingBox(bounds);
-                position.set(position.x,bounds.getHeight() - 50f,position.z);
-            }
+
+//            if(instances.get(selected) instanceof  Furniture){
+//                Furniture furniture = (Furniture) instances.get(selected);
+//                BoundingBox bounds = new BoundingBox();
+//                furniture.calculateBoundingBox(bounds);
+//                position.set(position.x,bounds.getHeight() - 50f,position.z);
+//            }
+
 
             instances.get(selected).transform.setTranslation(position);
 
