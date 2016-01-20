@@ -62,7 +62,6 @@ public class Designer extends InputAdapter implements ApplicationListener {
     private Material originalMaterial;
 
     private Texture roomTexture;
-    private Texture redTexture;
 
     @Override
     public void create() {
@@ -78,18 +77,18 @@ public class Designer extends InputAdapter implements ApplicationListener {
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0f, 1f, 10f);
+        cam.position.set(0f, 2f, 10f);
         cam.lookAt(0, 0, 0);
         cam.near = 1f;
         cam.far = 300f;
         cam.update();
 
-        camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(new InputMultiplexer(this, camController));
+//        camController = new CameraInputController(cam);
+        Gdx.input.setInputProcessor(new InputMultiplexer(this));
 
 
         roomTexture = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
-        redTexture = new Texture(Gdx.files.internal("red.png"));
+
         assets = new AssetManager();
         assets.load("sofa.obj", Model.class);
         loading = true;
@@ -104,7 +103,8 @@ public class Designer extends InputAdapter implements ApplicationListener {
         Model model = assets.get("sofa.obj", Model.class);
 //        for (float x = -5f; x <= 5f; x += 2f) {
             Furniture sofa = new Furniture(model);
-            sofa.transform.setToTranslation(0, 0, 3f);
+
+            sofa.transform.setToTranslation(0, -5f, -20f);
             sofa.calculateBoundingBox(bounds);
             sofa.shape = new Box(bounds);
             furnitureInstances.add(sofa);
@@ -116,15 +116,13 @@ public class Designer extends InputAdapter implements ApplicationListener {
     @Override
     public void render() {
         if (loading && assets.update()) doneLoading();
-        camController.update();
+//        camController.update();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         spriteBatch.begin();
-        spriteBatch.draw(roomTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        spriteBatch.draw(redTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        spriteBatch.draw(roomTexture, 0, 10f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         spriteBatch.end();
 
         modelBatch.begin(cam);
@@ -148,6 +146,8 @@ public class Designer extends InputAdapter implements ApplicationListener {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
+        System.out.println("x = " + screenX);
+        System.out.println("y = " + screenY);
         selecting = getObject(screenX, screenY);
         return selecting >= 0;
     }
@@ -157,9 +157,13 @@ public class Designer extends InputAdapter implements ApplicationListener {
         if (selecting < 0) return false;
         if (selected == selecting) {
             Ray ray = cam.getPickRay(screenX, screenY);
-            final float distance = -ray.origin.y / ray.direction.y;
-            position.set(ray.direction).scl(distance).add(ray.origin);
-            furnitureInstances.get(selected).transform.setTranslation(position);
+
+            if(ray.origin.z < 300){
+                final float distance = -ray.origin.y / ray.direction.y;
+                position.set(ray.direction).scl(distance).add(ray.origin);
+
+                furnitureInstances.get(selected).transform.setTranslation(position);
+            }
         }
         return true;
     }
@@ -183,7 +187,7 @@ public class Designer extends InputAdapter implements ApplicationListener {
         }
         selected = value;
         if (selected >= 0) {
-            Material mat = furnitureInstances.get(selected).materials.get(0);
+            Material mat = furnitureInstances.get(selected).materials.get(1);
             originalMaterial.clear();
             originalMaterial.set(mat);
             mat.clear();
@@ -196,6 +200,7 @@ public class Designer extends InputAdapter implements ApplicationListener {
         int result = -1;
         float distance = -1;
         for (int i = 0; i < furnitureInstances.size; ++i) {
+            System.out.println("instance of furniture");
             final Furniture instance = furnitureInstances.get(i);
             float dist2 = instance.intersects(ray);
             if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {

@@ -2,6 +2,7 @@ package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -22,8 +23,12 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.ggwp.interiordesigner.object.Box;
+import com.ggwp.interiordesigner.object.Furniture;
+
 
 public class RectangleTest extends InputAdapter implements Screen {
 
@@ -33,7 +38,7 @@ public class RectangleTest extends InputAdapter implements Screen {
     private ShapeRenderer shapeRenderer;
 
     private ModelBatch modelBatch;
-    private ModelInstance sofa;
+    private Furniture sofa;
 
     private SpriteBatch spriteBatch;
     private Texture background;
@@ -43,6 +48,12 @@ public class RectangleTest extends InputAdapter implements Screen {
 
     public AssetManager assets;
     public boolean loading;
+
+    private int selected = -1, selecting = -1;
+    private Vector3 position = new Vector3();
+
+    private Material selectionMaterial;
+    private Material originalMaterial;
 
     public RectangleTest () {
         spriteBatch = new SpriteBatch();
@@ -54,7 +65,7 @@ public class RectangleTest extends InputAdapter implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 0f, 100f);
+        camera.position.set(0f, 3f, 120f);
         camera.lookAt(0, 0, 0);
         camera.near = 1f;
         camera.far = 300f;
@@ -65,7 +76,8 @@ public class RectangleTest extends InputAdapter implements Screen {
         loading = true;
 
         cameraInputController = new CameraInputController(camera);
-        Gdx.input.setInputProcessor(this);
+        Gdx.input.setInputProcessor(new InputMultiplexer(this,cameraInputController));
+//        Gdx.input.setInputProcessor(this);
 
         ModelBuilder modelBuilder = new ModelBuilder();
         Model square = modelBuilder.createBox(5f, 5f, 5f,
@@ -73,7 +85,13 @@ public class RectangleTest extends InputAdapter implements Screen {
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         instances.add(new ModelInstance(square));
 
+        selectionMaterial = new Material();
+        selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
+        originalMaterial = new Material();
+
         createWalls(modelBuilder);
+
+
     }
 
     private void createWalls(ModelBuilder modelBuilder) {
@@ -129,8 +147,14 @@ public class RectangleTest extends InputAdapter implements Screen {
     }
 
     private void doneLoading() {
-        sofa = new ModelInstance(assets.get("sofa.obj", Model.class));
-        sofa.transform.setToRotation(Vector3.Y, 180).trn(0, 0, 6f);
+        sofa = new Furniture(assets.get("sofa.obj", Model.class));
+        sofa.calculateTransforms();
+        BoundingBox bounds = new BoundingBox();
+        sofa.calculateBoundingBox(bounds);
+        sofa.shape = new Box(bounds);
+
+        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
+        sofa.transform.rotate(Vector3.Y, 0).trn(0, 0, 6f);
         instances.add(sofa);
 
         background = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
@@ -143,7 +167,7 @@ public class RectangleTest extends InputAdapter implements Screen {
             doneLoading();
         }
 
-        cameraInputController.update();
+//        cameraInputController.update();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -163,13 +187,13 @@ public class RectangleTest extends InputAdapter implements Screen {
 
         if(background != null){
             spriteBatch.begin();
-            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             spriteBatch.end();
         }
 
 
         modelBatch.begin(camera);
-        modelBatch.render(walls, environment);
+        modelBatch.render(instances, environment);
         modelBatch.end();
     }
 
@@ -209,15 +233,89 @@ public class RectangleTest extends InputAdapter implements Screen {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//        Ray ray = camera.getPickRay(screenX, screenY);
+//        float distanceY = -ray.origin.y / ray.direction.y;
+//        float distanceX = -ray.origin.x / ray.direction.x;
+//        float distanceZ = -ray.origin.z / ray.direction.z;
+//
+//        System.out.println("X: " + distanceX);
+//        System.out.println("Y: " + distanceY);
+//        System.out.println("Z: " + distanceZ);
+//
+//        return super.touchDown(screenX, screenY, pointer, button);
+
+        System.out.println("x = " + screenX);
+        System.out.println("y = " + screenY);
+        selecting = getObject(screenX, screenY);
+        return selecting >= 0;
+    }
+
+    @Override
+    public boolean touchDragged (int screenX, int screenY, int pointer) {
+        if (selecting < 0) return false;
+        if (selected == selecting) {
+            Ray ray = camera.getPickRay(screenX, screenY);
+
+
+            final float distance = -ray.origin.y / ray.direction.y;
+            position.set(ray.direction).scl(distance).add(ray.origin);
+            if(instances.get(selected) instanceof  Furniture){
+                Furniture furniture = (Furniture) instances.get(selected);
+                BoundingBox bounds = new BoundingBox();
+                furniture.calculateBoundingBox(bounds);
+                position.set(position.x,bounds.getHeight() - 50f,position.z);
+            }
+
+            instances.get(selected).transform.setTranslation(position);
+
+        }
+        return true;
+    }
+
+    @Override
+    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+        if (selecting >= 0) {
+            if (selecting == getObject(screenX, screenY)) setSelected(selecting);
+            selecting = -1;
+            return true;
+        }
+        return false;
+    }
+
+    public void setSelected (int value) {
+        if (selected == value) return;
+        if (selected >= 0) {
+//            for(Material mat : instances.get(selected).materials){
+//                mat.clear();
+//                mat.set(originalMaterial);
+//            }
+        }
+        selected = value;
+        if (selected >= 0) {
+//            for(Material mat : instances.get(selected).materials){
+//                originalMaterial.clear();
+//                originalMaterial.set(mat);
+//                mat.clear();
+//                mat.set(selectionMaterial);
+//            }
+
+        }
+    }
+
+    public int getObject (int screenX, int screenY) {
         Ray ray = camera.getPickRay(screenX, screenY);
-        float distanceY = -ray.origin.y / ray.direction.y;
-        float distanceX = -ray.origin.x / ray.direction.x;
-        float distanceZ = -ray.origin.z / ray.direction.z;
-
-        System.out.println("X: " + distanceX);
-        System.out.println("Y: " + distanceY);
-        System.out.println("Z: " + distanceZ);
-
-        return super.touchDown(screenX, screenY, pointer, button);
+        int result = -1;
+        float distance = -1;
+        for (int i = 0; i < instances.size; ++i) {
+            if(instances.get(i) instanceof  Furniture){
+                final Furniture instance = (Furniture) instances.get(i);
+                float dist2 = instance.intersects(ray);
+                if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
+                    result = i;
+                    distance = dist2;
+                }
+            }
+        }
+        return result;
     }
 }
