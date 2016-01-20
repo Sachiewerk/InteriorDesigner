@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -27,7 +28,7 @@ public class RoomSetupScreen implements Screen {
     private SpriteBatch sprithBatch;
     private ModelBatch modelBatch;
     private Texture roomImage;
-
+    public BitmapFont font;
     private ModelInstance wallLeft;
     private ModelInstance wallRight;
     private ModelInstance wallBack;
@@ -41,7 +42,7 @@ public class RoomSetupScreen implements Screen {
     public RoomSetupScreen(){
         sprithBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
-
+        font = new BitmapFont();
         viewport = new FitViewport(800, 480, camera);
         roomImage = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
 
@@ -107,11 +108,13 @@ public class RoomSetupScreen implements Screen {
         cameraController.update();
         sprithBatch.begin();
         sprithBatch.draw(roomImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        font.draw(sprithBatch, "fps: " + Gdx.graphics.getFramesPerSecond(), 20, 30);
         sprithBatch.end();
 
         modelBatch.begin(camera);
         modelBatch.render(instances);
         modelBatch.end();
+
 
     }
 
