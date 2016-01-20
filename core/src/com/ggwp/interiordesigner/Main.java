@@ -11,7 +11,7 @@ public class Main extends Game {
 
 	@Override
 	public void create () {
-		setScreen(new RoomSetupScreen());
+		setScreen(new MenuScreen());
 		dispose();
 	}
 
