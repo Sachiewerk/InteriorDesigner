@@ -25,11 +25,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -114,7 +112,6 @@ public class RoomWithHUD extends AppScreen  {
     private void removeScreenInputProcessor(){
         InputMultiplexer im = (InputMultiplexer) Gdx.input.getInputProcessor();
         im.getProcessors().clear();
-        stage.addActor(catalogWindow);
         im.addProcessor(stage);
     }
 
@@ -165,6 +162,7 @@ public class RoomWithHUD extends AppScreen  {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 removeScreenInputProcessor();
+                stage.addActor(catalogWindow);
             }
         });
 
@@ -202,6 +200,7 @@ public class RoomWithHUD extends AppScreen  {
         catalogWindow.setModal(true);
 
         TextButton frames = new TextButton("Frames", defaultTextButtonStyle);
+        frames.align(Align.left);
         TextButton Bed = new TextButton("Bed with pillow and mattresses", defaultTextButtonStyle);
         TextButton sideTables = new TextButton("Side Tables", defaultTextButtonStyle);
         TextButton vase = new TextButton("Vase", defaultTextButtonStyle);
@@ -222,105 +221,70 @@ public class RoomWithHUD extends AppScreen  {
         TextButton aircon = new TextButton("Aircon", defaultTextButtonStyle);
         TextButton refridgerator = new TextButton("Refridgerator", defaultTextButtonStyle);
         TextButton oven = new TextButton("Oven", defaultTextButtonStyle);
-        TextButton oven1 = new TextButton("Oven1", defaultTextButtonStyle);
-        TextButton oven2 = new TextButton("Oven2", defaultTextButtonStyle);
-        TextButton oven3 = new TextButton("Oven3", defaultTextButtonStyle);
-        TextButton oven4 = new TextButton("Oven4", defaultTextButtonStyle);
-        TextButton oven5 = new TextButton("Oven5", defaultTextButtonStyle);
-        TextButton oven6 = new TextButton("Oven6", defaultTextButtonStyle);
-        TextButton oven7 = new TextButton("Oven7", defaultTextButtonStyle);
-        TextButton oven8 = new TextButton("Oven8", defaultTextButtonStyle);
-        TextButton oven9 = new TextButton("Oven9", defaultTextButtonStyle);
-        TextButton oven10 = new TextButton("Oven10", defaultTextButtonStyle);
-        TextButton oven11 = new TextButton("Oven11", defaultTextButtonStyle);
-        TextButton oven12 = new TextButton("Oven12", defaultTextButtonStyle);
-        TextButton oven13 = new TextButton("Oven13", defaultTextButtonStyle);
+
+        sofa.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Model model = assets.get("sofa.obj", Model.class);
+                GameObject instance = new GameObject(model);
+                instances.add(instance);
+                stage.getActors().removeValue(catalogWindow, true);
+                initInputProcessors();
+            }
+        });
 
 
 
-        Table table = new Table();
-//        table.setFillParent(true);
-
-        VerticalGroup categories = new VerticalGroup();
-        categories.setFillParent(true);
+        Table categories = new Table();
         categories.align(Align.left);
+        categories.defaults().align(Align.left);
 
 
-        table.addActor(frames);
-        table.row();
-        table.add(Bed);
-        table.row();
-        table.add(sideTables);
-        table.row();
-        table.add(vase);
-        table.row();
-        table.add(lamps);
-        table.row();
-        table.add(dresser);
-        table.row();
-        table.add(vanityTables);
-        table.row();
-        table.add(sofa);
-        table.row();
-        table.add(coffeeTables);
-        table.row();
-        table.add(tvRack);
-        table.row();
-        table.add(bookShelves);
-        table.row();
-        table.add(Mirrors);
-        table.row();
-        table.add(diningSet);
-        table.row();
-        table.add(kitchenCabinets);
-        table.row();
-        table.add(wallClock);
-        table.row();
-        table.add(washingMachine);
-        table.row();
-        table.add(electricFan);
-        table.row();
-        table.add(aircon);
-        table.row();
-        table.add(refridgerator);
-        table.row();
-        table.add(closeWindow);
-        table.row();
-        table.add(oven);
-        table.row();
-        table.add(oven1);
-        table.row();
-        table.add(oven2);
-        table.row();
-        table.add(oven3);
-        table.row();
-        table.add(oven4);
-        table.row();
-        table.add(oven5);
-        table.row();
-        table.add(oven6);
-        table.row();
-        table.add(oven7);
-        table.row();
-        table.add(oven8);
-        table.row();
-        table.add(oven9);
-        table.row();
-        table.add(oven10);
-        table.row();
-        table.add(oven11);
-        table.row();
-        table.add(oven12);
-        table.row();
-        table.add(oven13);
+        categories.add(frames);
+        categories.row();
+        categories.add(Bed);
+        categories.row();
+        categories.add(sideTables);
+        categories.row();
+        categories.add(vase);
+        categories.row();
+        categories.add(lamps);
+        categories.row();
+        categories.add(dresser);
+        categories.row();
+        categories.add(vanityTables);
+        categories.row();
+        categories.add(sofa);
+        categories.row();
+        categories.add(coffeeTables);
+        categories.row();
+        categories.add(tvRack);
+        categories.row();
+        categories.add(bookShelves);
+        categories.row();
+        categories.add(Mirrors);
+        categories.row();
+        categories.add(diningSet);
+        categories.row();
+        categories.add(kitchenCabinets);
+        categories.row();
+        categories.add(wallClock);
+        categories.row();
+        categories.add(washingMachine);
+        categories.row();
+        categories.add(electricFan);
+        categories.row();
+        categories.add(aircon);
+        categories.row();
+        categories.add(refridgerator);
+        categories.row();
+        categories.add(oven);
+        categories.row();
+        categories.add(closeWindow);
 
-        ScrollPane scrollPane = new ScrollPane(table);
+        catalogWindow.align(Align.left);
+        catalogWindow.add(categories);
 
-
-        Table table2 = new Table();
-        table2.setFillParent(true);
-        table2.add(scrollPane).fill().expand();
-        catalogWindow.addActor(table2);
         closeWindow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
