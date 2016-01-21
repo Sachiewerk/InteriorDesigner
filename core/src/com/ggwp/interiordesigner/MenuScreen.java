@@ -252,7 +252,7 @@ public class MenuScreen extends AppScreen{
 
 
     private void createFonts() {
-        FileHandle fontFile = Gdx.files.internal("Data/Bernardo-Moda-Bold.ttf");
+        FileHandle fontFile = Gdx.files.internal("data/Bernardo-Moda-Bold.ttf");
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = 14;
