@@ -1,7 +1,6 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -12,10 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -23,10 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.AppScreens;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
@@ -158,15 +153,29 @@ public class MenuScreen extends AppScreen{
         newDesignOption.add(emptyRoomBtn).width(150);
 
 
-        takePictureBtn.addListener(new ClickListener(){
+        takePictureBtn.addListener(new ClickListener() {
             @Override
-            public void clicked (InputEvent il,float x,float y) {
+            public void clicked(InputEvent il, float x, float y) {
                 System.out.println(x + ":" + y);
                 //Main.aoi .toast("test toast");
                 String imagePath = Main.aoi.takeSnapShot("test toast");
                 //ObjectCatalog.getCurrentInstance().show(stage);
                 try {
                     Main.getInstance().setScreen(AppScreens.RoomSetup.getClazz().newInstance());
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        emptyRoomBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                try {
+//                    Main.getInstance().setScreen(new RoomWithHUD());
+                    Main.getInstance().setScreen(AppScreens.EmptyRoom.getClazz().newInstance());
                 } catch (InstantiationException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {

@@ -25,7 +25,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
-import com.ggwp.interiordesigner.object.Box;
 import com.ggwp.interiordesigner.object.Furniture;
 import com.ggwp.interiordesigner.object.Shape;
 
@@ -77,13 +76,13 @@ public class Designer extends InputAdapter implements ApplicationListener {
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0f, 2f, 10f);
+        cam.position.set(0f, 0f, 120f);
         cam.lookAt(0, 0, 0);
         cam.near = 1f;
         cam.far = 300f;
         cam.update();
 
-//        camController = new CameraInputController(cam);
+        camController = new CameraInputController(cam);
         Gdx.input.setInputProcessor(new InputMultiplexer(this));
 
 
@@ -102,14 +101,14 @@ public class Designer extends InputAdapter implements ApplicationListener {
     private void doneLoading () {
         Model model = assets.get("sofa.obj", Model.class);
 //        for (float x = -5f; x <= 5f; x += 2f) {
-            Furniture sofa = new Furniture(model);
-
-            sofa.transform.setToTranslation(0, -5f, -20f);
-            sofa.calculateBoundingBox(bounds);
-            sofa.shape = new Box(bounds);
-            furnitureInstances.add(sofa);
-            floorFurnitures.add(sofa);
-//        }
+//            Furniture sofa = new Furniture(model);
+//
+//            sofa.transform.setToTranslation(0, -5f, -20f);
+//            sofa.calculateBoundingBox(bounds);
+//            sofa.shape = new Box(bounds);
+//            furnitureInstances.add(sofa);
+//            floorFurnitures.add(sofa);
+////        }
         loading = false;
     }
 
@@ -127,12 +126,12 @@ public class Designer extends InputAdapter implements ApplicationListener {
 
         modelBatch.begin(cam);
         visibleCount = 0;
-        for (final Furniture instance : furnitureInstances) {
-            if (instance.isVisible(cam)) {
-                modelBatch.render(instance, environment);
-                visibleCount++;
-            }
-        }
+//        for (final Furniture instance : furnitureInstances) {
+//            if (instance.isVisible(cam)) {
+//                modelBatch.render(instance, environment);
+//                visibleCount++;
+//            }
+//        }
 //        if (space != null) modelBatch.render(space);
         modelBatch.end();
 
@@ -158,12 +157,11 @@ public class Designer extends InputAdapter implements ApplicationListener {
         if (selected == selecting) {
             Ray ray = cam.getPickRay(screenX, screenY);
 
-            if(ray.origin.z < 300){
-                final float distance = -ray.origin.y / ray.direction.y;
-                position.set(ray.direction).scl(distance).add(ray.origin);
-
+            final float distance = -ray.origin.y / ray.direction.y;
+            position.set(ray.direction).scl(distance).add(ray.origin);
+//            if(position.z < 100){
                 furnitureInstances.get(selected).transform.setTranslation(position);
-            }
+//            }
         }
         return true;
     }
@@ -181,17 +179,19 @@ public class Designer extends InputAdapter implements ApplicationListener {
     public void setSelected (int value) {
         if (selected == value) return;
         if (selected >= 0) {
-            Material mat = furnitureInstances.get(selected).materials.get(0);
-            mat.clear();
-            mat.set(originalMaterial);
+            for(Material mat :  furnitureInstances.get(selected).materials){
+                mat.clear();
+                mat.set(originalMaterial);
+            }
         }
         selected = value;
         if (selected >= 0) {
-            Material mat = furnitureInstances.get(selected).materials.get(1);
-            originalMaterial.clear();
-            originalMaterial.set(mat);
-            mat.clear();
-            mat.set(selectionMaterial);
+            for(Material mat :  furnitureInstances.get(selected).materials){
+                originalMaterial.clear();
+                originalMaterial.set(mat);
+                mat.clear();
+                mat.set(selectionMaterial);
+            }
         }
     }
 
@@ -200,13 +200,13 @@ public class Designer extends InputAdapter implements ApplicationListener {
         int result = -1;
         float distance = -1;
         for (int i = 0; i < furnitureInstances.size; ++i) {
-            System.out.println("instance of furniture");
-            final Furniture instance = furnitureInstances.get(i);
-            float dist2 = instance.intersects(ray);
-            if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
-                result = i;
-                distance = dist2;
-            }
+//            System.out.println("instance of furniture");
+//            final Furniture instance = furnitureInstances.get(i);
+//            float dist2 = instance.intersects(ray);
+//            if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
+//                result = i;
+//                distance = dist2;
+//            }
         }
         return result;
     }

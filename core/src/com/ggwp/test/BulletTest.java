@@ -41,9 +41,6 @@ import com.badlogic.gdx.utils.Disposable;
  * Created by Raymond on 1/20/2016.
  */
 public class BulletTest implements ApplicationListener {
-    final static short GROUND_FLAG = 1 << 8;
-    final static short OBJECT_FLAG = 1 << 9;
-    final static short ALL_FLAG = -1;
 
     class MyContactListener extends ContactListener {
         @Override
@@ -164,7 +161,7 @@ public class BulletTest implements ApplicationListener {
         instances = new Array<GameObject>();
         GameObject object = constructors.get("ground").construct();
         instances.add(object);
-        collisionWorld.addCollisionObject(object.body, GROUND_FLAG, ALL_FLAG);
+        collisionWorld.addCollisionObject(object.body);
     }
 
     public void spawn () {
@@ -176,7 +173,7 @@ public class BulletTest implements ApplicationListener {
         obj.body.setUserValue(instances.size);
         obj.body.setCollisionFlags(obj.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         instances.add(obj);
-        collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
+        collisionWorld.addCollisionObject(obj.body);
     }
 
     @Override

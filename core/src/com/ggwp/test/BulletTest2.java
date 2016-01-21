@@ -223,14 +223,14 @@ public class BulletTest2 implements ApplicationListener {
         obj.body.setContactCallbackFilter(GROUND_FLAG);
     }
 
-    float angle, speed = 90f;
+//    float angle, speed = 90f;
 
     @Override
     public void render () {
         final float delta = Math.min(1f / 30f, Gdx.graphics.getDeltaTime());
 
-        angle = (angle + delta * speed) % 360f;
-        instances.get(0).transform.setTranslation(0, MathUtils.sinDeg(angle) * 2.5f, 0f);
+//        angle = (angle + delta * speed) % 360f;
+//        instances.get(0).transform.setTranslation(0, MathUtils.sinDeg(angle) * 2.5f, 0f);
 
         dynamicsWorld.stepSimulation(delta, 5, 1f / 60f);
 

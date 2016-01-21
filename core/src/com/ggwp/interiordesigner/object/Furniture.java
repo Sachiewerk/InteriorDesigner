@@ -1,28 +1,48 @@
 package com.ggwp.interiordesigner.object;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.utils.Disposable;
 
 /**
  * Created by Raymond on 1/20/2016.
  */
-public class Furniture extends ModelInstance {
+public class Furniture extends ModelInstance implements Disposable {
 
-    public Shape shape;
+    public final btCollisionObject body;
+    public boolean moving;
 
-    public Furniture(Model model){
-        super(model);
+    public Furniture (Model model, String node, btCollisionShape shape) {
+        super(model, node);
+        body = new btCollisionObject();
+        body.setCollisionShape(shape);
     }
 
-    public boolean isVisible(Camera cam) {
-        return shape == null ? false : shape.isVisible(transform, cam);
+    @Override
+    public void dispose () {
+        body.dispose();
     }
 
-    /** @return -1 on no intersection, or when there is an intersection: the squared distance between the center of this
-     * object and the point on the ray closest to this object when there is intersection. */
-    public float intersects(Ray ray) {
-        return shape == null ? -1f : shape.intersects(transform, ray);
+    public static class Constructor implements Disposable {
+        public final Model model;
+        public final String node;
+        public final btCollisionShape shape;
+
+        public Constructor (Model model, String node, btCollisionShape shape) {
+            this.model = model;
+            this.node = node;
+            this.shape = shape;
+        }
+
+        public Furniture construct () {
+            return new Furniture(model, node, shape);
+        }
+
+        @Override
+        public void dispose () {
+            shape.dispose();
+        }
     }
 }
