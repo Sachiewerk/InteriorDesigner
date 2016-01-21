@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,9 +18,12 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -34,6 +38,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.ggwp.interiordesigner.object.AppScreen;
+import com.ggwp.interiordesigner.object.Box;
+import com.ggwp.interiordesigner.object.Furniture;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -68,17 +74,18 @@ public class RoomWithHUD extends AppScreen  {
     protected SpriteBatch batch;
     protected ModelBatch modelBatch;
     protected AssetManager assets;
-    protected Array<GameObject> instances = new Array<GameObject>();
     protected Environment environment;
     protected boolean loading;
+    private ShapeRenderer shapeRenderer;
+    private Furniture sofa;
 
-    protected Array<GameObject> blocks = new Array<GameObject>();
-    protected Array<GameObject> invaders = new Array<GameObject>();
-    protected ModelInstance ship;
-    protected ModelInstance space;
+    private SpriteBatch spriteBatch;
+    private Texture background;
+
+    private Array<ModelInstance> walls = new Array<ModelInstance>();
+    private Array<ModelInstance> instances = new Array<ModelInstance>();
 
     protected Stage stage;
-
     private Vector3 position = new Vector3();
 
     private int selected = -1, selecting = -1;
@@ -120,6 +127,96 @@ public class RoomWithHUD extends AppScreen  {
     private Texture whiteTexture;
     private Texture blackTexture;
 
+    public RoomWithHUD(){
+        initEnvironment();
+        initCamera();
+        initHUD();
+
+        spriteBatch = new SpriteBatch();
+
+        modelBatch = new ModelBatch();
+        shapeRenderer = new ShapeRenderer();
+
+        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam.position.set(0f, 50f, 100f);
+        cam.lookAt(0, 50, 0);
+        cam.near = 1f;
+        cam.far = 300f;
+        cam.update();
+
+        assets = new AssetManager();
+        assets.load("sofa.obj", Model.class);
+        loading = true;
+
+        camController = new CameraInputController(cam);
+        Gdx.input.setInputProcessor(new InputMultiplexer(this,stage));
+//        Gdx.input.setInputProcessor(this);
+
+        ModelBuilder modelBuilder = new ModelBuilder();
+        Model square = modelBuilder.createBox(5f, 5f, 5f,
+                new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+                VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        instances.add(new ModelInstance(square));
+
+        selectionMaterial = new Material();
+        selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
+        originalMaterial = new Material();
+
+        createWalls(modelBuilder);
+    }
+
+    private void createWalls(ModelBuilder modelBuilder) {
+        Color dodgerBlue = new Color(0.2f, 0.6f, 1f, 0.5f);
+
+        BlendingAttribute blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        blendingAttribute.opacity = 0.5f;
+
+        Material material = new Material(ColorAttribute.createDiffuse(dodgerBlue));
+        material.set(blendingAttribute);
+
+        float halfWallHeight = 50;
+        float halfWallWidth = 50;
+
+        Model leftWallModel = modelBuilder.createRect(
+                -(halfWallWidth * 3), 0, 100,
+                -halfWallWidth, 0, 0,
+                -halfWallWidth, halfWallHeight * 2, 0,
+                -(halfWallWidth * 3), halfWallHeight * 2, 100,
+                1, 1, 1,
+                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+        );
+        ModelInstance leftWallModelInstance = new ModelInstance(leftWallModel);
+        walls.add(leftWallModelInstance);
+        instances.add(leftWallModelInstance);
+
+        Model rightWallModel = modelBuilder.createRect(
+                halfWallWidth, 0, 0,
+                (halfWallWidth * 3), 0, 100,
+                (halfWallWidth * 3), halfWallHeight * 2, 100,
+                halfWallWidth, halfWallHeight * 2, 0,
+                1, 1, 1,
+                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+        );
+        ModelInstance rightWallModelInstance = new ModelInstance(rightWallModel);
+        walls.add(rightWallModelInstance);
+        instances.add(rightWallModelInstance);
+
+        blendingAttribute.opacity = 0.8f;
+        material.set(blendingAttribute);
+
+        Model backWallModel = modelBuilder.createRect(
+                -halfWallWidth, 0, 0,
+                halfWallWidth, 0, 0,
+                halfWallWidth, halfWallHeight * 2, 0,
+                -halfWallWidth, halfWallHeight * 2, 0,
+                1, 1, 1,
+                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+        );
+        ModelInstance backWallModelInstance = new ModelInstance(backWallModel);
+        walls.add(backWallModelInstance);
+        instances.add(backWallModelInstance);
+    }
+
     private void initSkins(){
         defaultSkin = new Skin();
         Pixmap blackPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -154,7 +251,8 @@ public class RoomWithHUD extends AppScreen  {
 
         TextButton addFurniture = new TextButton("+", defaultTextButtonStyle);
         TextButton removeFurniture = new TextButton("x", defaultTextButtonStyle);
-
+        addFurniture.getLabel().setFontScale(2);
+        removeFurniture.getLabel().setFontScale(2);
         addFurniture.setBounds(Gdx.graphics.getWidth() - 100f, Gdx.graphics.getHeight() - 50f, 40f, 40f);
         removeFurniture.setBounds(Gdx.graphics.getWidth() - 50f, Gdx.graphics.getHeight() - 50f, 40f, 40f);
 
@@ -170,7 +268,7 @@ public class RoomWithHUD extends AppScreen  {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selected > -1) {
-                    GameObject instance = instances.get(selected);
+                    ModelInstance instance = instances.get(selected);
                     if (instance != null) {
                         instances.removeIndex(selected);
                         selected = -1;
@@ -225,9 +323,26 @@ public class RoomWithHUD extends AppScreen  {
         sofa.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("sofa.obj", Model.class);
-                GameObject instance = new GameObject(model);
-                instances.add(instance);
+//                Model model = assets.get("sofa.obj", Model.class);
+//                GameObject instance = new GameObject(model);
+//                instances.add(instance);
+//                stage.getActors().removeValue(catalogWindow, true);
+
+
+
+                Furniture sofa = new Furniture(assets.get("sofa.obj", Model.class));
+
+                sofa.transform.rotate(Vector3.X, -90);
+//        sofa.transform.scale(3, 3, 3);
+
+                sofa.calculateTransforms();
+                BoundingBox bounds = new BoundingBox();
+                sofa.calculateBoundingBox(bounds);
+                sofa.shape = new Box(bounds);
+
+//        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
+
+                instances.add(sofa);
                 stage.getActors().removeValue(catalogWindow, true);
                 initInputProcessors();
             }
@@ -240,46 +355,46 @@ public class RoomWithHUD extends AppScreen  {
         categories.defaults().align(Align.left);
 
 
-        categories.add(frames);
-        categories.row();
-        categories.add(Bed);
-        categories.row();
-        categories.add(sideTables);
-        categories.row();
-        categories.add(vase);
-        categories.row();
-        categories.add(lamps);
-        categories.row();
-        categories.add(dresser);
-        categories.row();
-        categories.add(vanityTables);
-        categories.row();
+//        categories.add(frames);
+//        categories.row();
+//        categories.add(Bed);
+//        categories.row();
+//        categories.add(sideTables);
+//        categories.row();
+//        categories.add(vase);
+//        categories.row();
+//        categories.add(lamps);
+//        categories.row();
+//        categories.add(dresser);
+//        categories.row();
+//        categories.add(vanityTables);
+//        categories.row();
         categories.add(sofa);
         categories.row();
-        categories.add(coffeeTables);
+//        categories.add(coffeeTables);
         categories.row();
-        categories.add(tvRack);
-        categories.row();
-        categories.add(bookShelves);
-        categories.row();
-        categories.add(Mirrors);
-        categories.row();
-        categories.add(diningSet);
-        categories.row();
-        categories.add(kitchenCabinets);
-        categories.row();
-        categories.add(wallClock);
-        categories.row();
-        categories.add(washingMachine);
-        categories.row();
-        categories.add(electricFan);
-        categories.row();
-        categories.add(aircon);
-        categories.row();
-        categories.add(refridgerator);
-        categories.row();
-        categories.add(oven);
-        categories.row();
+//        categories.add(tvRack);
+//        categories.row();
+//        categories.add(bookShelves);
+//        categories.row();
+//        categories.add(Mirrors);
+//        categories.row();
+//        categories.add(diningSet);
+//        categories.row();
+//        categories.add(kitchenCabinets);
+//        categories.row();
+//        categories.add(wallClock);
+//        categories.row();
+//        categories.add(washingMachine);
+//        categories.row();
+//        categories.add(electricFan);
+//        categories.row();
+//        categories.add(aircon);
+//        categories.row();
+//        categories.add(refridgerator);
+//        categories.row();
+//        categories.add(oven);
+//        categories.row();
         categories.add(closeWindow);
 
         catalogWindow.align(Align.left);
@@ -294,68 +409,63 @@ public class RoomWithHUD extends AppScreen  {
         });
     }
 
-    public RoomWithHUD(){
-        modelBatch = new ModelBatch();
-        initEnvironment();
-        initCamera();
-        initHUD();
-        Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
-
-        assets = new AssetManager();
-        assets.load("data/invaderscene.g3db", Model.class);
-        assets.load("sofa.obj", Model.class);
-        loading = true;
-
-        selectionMaterial = new Material();
-        selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
-        originalMaterial = new Material();
-    }
-
-
     private void doneLoading () {
-        Model model = assets.get("data/invaderscene.g3db", Model.class);
-        for (int i = 0; i < model.nodes.size; i++) {
-            String id = model.nodes.get(i).id;
-            GameObject instance = new GameObject(model, id, true);
+        sofa = new Furniture(assets.get("sofa.obj", Model.class));
 
-            if (id.equals("space")) {
-                space = instance;
-                continue;
-            }
+        sofa.transform.rotate(Vector3.X, -90);
+//        sofa.transform.scale(3, 3, 3);
 
-            instances.add(instance);
+        sofa.calculateTransforms();
+        BoundingBox bounds = new BoundingBox();
+        sofa.calculateBoundingBox(bounds);
+        sofa.shape = new Box(bounds);
 
-            if (id.equals("ship"))
-                ship = instance;
-            else if (id.startsWith("block"))
-                blocks.add(instance);
-            else if (id.startsWith("invader")) invaders.add(instance);
-        }
+//        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
 
+        instances.add(sofa);
+
+        background = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
         loading = false;
     }
 
     @Override
     public void render(float delta) {
-    if (loading && assets.update()) doneLoading();
-        camController.update();
+        if (loading && assets.update()){
+            doneLoading();
+        }
+
+//        cameraInputController.update();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        modelBatch.begin(cam);
-        for (final GameObject instance : instances) {
-            if (isVisible(cam, instance)) {
-                modelBatch.render(instance, environment);
-            }
+//        shapeRenderer.setProjectionMatrix(camera.combined);
+//        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+//        shapeRenderer.setColor(0.2f, 0.6f, 1f, 1f);
+//        shapeRenderer.rect(-25, -25, 50, 50);
+//        float points[] = new float[]{
+//                -25, -25,
+//                25, -25,
+//                25, 25,
+//                -25, 25
+//        };
+//        shapeRenderer.polygon(points);
+//        shapeRenderer.end();
+
+        if(background != null){
+            spriteBatch.begin();
+            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            spriteBatch.draw(hudBackgroud, 0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
+            spriteBatch.end();
         }
-        if (space != null) modelBatch.render(space);
+
+
+        modelBatch.begin(cam);
+        modelBatch.render(instances, environment);
         modelBatch.end();
 
-        stage.getBatch().begin();
-        stage.getBatch().draw(hudBackgroud, 0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
-        stage.getBatch().end();
         stage.draw();
+
     }
 
     protected boolean isVisible (final Camera cam, final GameObject instance) {
@@ -413,27 +523,16 @@ public class RoomWithHUD extends AppScreen  {
 
     public int getObject (int screenX, int screenY) {
         Ray ray = cam.getPickRay(screenX, screenY);
-
         int result = -1;
         float distance = -1;
-
         for (int i = 0; i < instances.size; ++i) {
-            final GameObject instance = instances.get(i);
-
-            instance.transform.getTranslation(position);
-            position.add(instance.center);
-
-            final float len = ray.direction.dot(position.x-ray.origin.x, position.y-ray.origin.y, position.z-ray.origin.z);
-            if (len < 0f)
-                continue;
-
-            float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
-            if (distance >= 0f && dist2 > distance)
-                continue;
-
-            if (dist2 <= instance.radius * instance.radius) {
-                result = i;
-                distance = dist2;
+            if(instances.get(i) instanceof  Furniture){
+                final Furniture instance = (Furniture) instances.get(i);
+                float dist2 = instance.intersects(ray);
+                if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
+                    result = i;
+                    distance = dist2;
+                }
             }
         }
         return result;
@@ -443,6 +542,8 @@ public class RoomWithHUD extends AppScreen  {
     public void dispose () {
         modelBatch.dispose();
         instances.clear();
+        walls.clear();
+        spriteBatch.dispose();
         assets.dispose();
     }
 

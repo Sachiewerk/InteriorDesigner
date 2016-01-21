@@ -65,7 +65,7 @@ public class RectangleTest extends InputAdapter implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 50f, 200f);
+        camera.position.set(0f, 50f, 100f);
         camera.lookAt(0, 50, 0);
         camera.near = 1f;
         camera.far = 300f;
@@ -150,7 +150,7 @@ public class RectangleTest extends InputAdapter implements Screen {
         sofa = new Furniture(assets.get("sofa.obj", Model.class));
 
         sofa.transform.rotate(Vector3.X, -90);
-        sofa.transform.scale(3, 3, 3);
+//        sofa.transform.scale(3, 3, 3);
 
         sofa.calculateTransforms();
         BoundingBox bounds = new BoundingBox();
@@ -294,19 +294,19 @@ public class RectangleTest extends InputAdapter implements Screen {
     public void setSelected (int value) {
         if (selected == value) return;
         if (selected >= 0) {
-//            for(Material mat : instances.get(selected).materials){
-//                mat.clear();
-//                mat.set(originalMaterial);
-//            }
+            for(Material mat : instances.get(selected).materials){
+                mat.clear();
+                mat.set(originalMaterial);
+            }
         }
         selected = value;
         if (selected >= 0) {
-//            for(Material mat : instances.get(selected).materials){
-//                originalMaterial.clear();
-//                originalMaterial.set(mat);
-//                mat.clear();
-//                mat.set(selectionMaterial);
-//            }
+            for(Material mat : instances.get(selected).materials){
+                originalMaterial.clear();
+                originalMaterial.set(mat);
+                mat.clear();
+                mat.set(selectionMaterial);
+            }
 
         }
     }

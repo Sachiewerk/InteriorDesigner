@@ -11,11 +11,11 @@ public class FurnitureContactListener extends com.badlogic.gdx.physics.bullet.co
 
     @Override
     public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-        if(instances == null){
-            return false;
-        }
-        instances.get(userValue0).moving = false;
-        instances.get(userValue1).moving = false;
+//        if(instances == null){
+//            return false;
+//        }
+//        instances.get(userValue0).moving = false;
+//        instances.get(userValue1).moving = false;
         return true;
     }
 }
