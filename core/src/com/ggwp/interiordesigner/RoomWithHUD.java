@@ -27,11 +27,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -45,6 +51,12 @@ import com.ggwp.interiordesigner.object.Furniture;
  * Created by Raymond on 1/19/2016.
  */
 public class RoomWithHUD extends AppScreen  {
+
+    final static class TransformTool {
+        static final int MOVE = 0;
+        static final int ROTATE = 1;
+    }
+
     public static class GameObject extends ModelInstance {
         public final Vector3 center = new Vector3();
         public final Vector3 dimensions = new Vector3();
@@ -127,6 +139,8 @@ public class RoomWithHUD extends AppScreen  {
     private Texture whiteTexture;
     private Texture blackTexture;
 
+    private int tranformTool = 0;
+
     public RoomWithHUD(){
         initEnvironment();
         initCamera();
@@ -149,7 +163,7 @@ public class RoomWithHUD extends AppScreen  {
         loading = true;
 
         camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(new InputMultiplexer(this,stage));
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
 //        Gdx.input.setInputProcessor(this);
 
         ModelBuilder modelBuilder = new ModelBuilder();
@@ -249,14 +263,18 @@ public class RoomWithHUD extends AppScreen  {
 
         hudBackgroud = whiteTexture;
 
-        TextButton addFurniture = new TextButton("+", defaultTextButtonStyle);
-        TextButton removeFurniture = new TextButton("x", defaultTextButtonStyle);
-        addFurniture.getLabel().setFontScale(2);
-        removeFurniture.getLabel().setFontScale(2);
-        addFurniture.setBounds(Gdx.graphics.getWidth() - 100f, Gdx.graphics.getHeight() - 50f, 40f, 40f);
-        removeFurniture.setBounds(Gdx.graphics.getWidth() - 50f, Gdx.graphics.getHeight() - 50f, 40f, 40f);
+        ImageButton addButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/add.png"))));
+        ImageButton removeButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
+        ImageButton moveButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/move.png"))));
+        ImageButton rotateButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/rotate.png"))));
 
-        addFurniture.addListener(new ClickListener() {
+        addButton.setBounds(0,10f,40f,40f);
+        removeButton.setBounds(60f,10f,40f,40f);
+        moveButton.setBounds(120,10f,40f,40f);
+        rotateButton.setBounds(180f,10f,40f,40f);
+
+
+        addButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 removeScreenInputProcessor();
@@ -264,7 +282,7 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        removeFurniture.addListener(new ClickListener() {
+        removeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selected > -1) {
@@ -277,14 +295,63 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        stage.addActor(addFurniture);
-        stage.addActor(removeFurniture);
+        moveButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tranformTool = TransformTool.MOVE;
+            }
+        });
 
+        rotateButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tranformTool = TransformTool.ROTATE;
+            }
+        });
+
+        Table tools = new Table();
+        tools.setDebug(true);
+        tools.setBackground(new SpriteDrawable(new Sprite(whiteTexture)));
+        tools.setBounds(0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
+
+        tools.defaults().pad(10f);
+        tools.defaults().width(40f).height(40f);
+        tools.columnDefaults(2).width(40f).height(40f);
+        tools.columnDefaults(3).width(40f).height(40f);
+
+        tools.addActor(addButton);
+        tools.addActor(removeButton);
+        tools.addActor(moveButton);
+        tools.addActor(rotateButton);
+
+        stage.addActor(tools);
+//        stage.addActor(removeFurniture);
+//        stage.addActor(moveButton);
+//        stage.addActor(rotateButton);
         initCatalogWindow();
     }
 
-    private void initCatalogWindow(){
+    private Container createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener){
+        Table table = new Table();
+        Image image = new Image((new Texture(img)));
+        TextButton button = new TextButton(label,buttonStyle);
+        button.getLabel().setColor(Color.WHITE);
+        button.getLabel().setAlignment(Align.left);
+        if(listener != null){
+            button.addListener(listener);
+        }
 
+        table.columnDefaults(0).center().pad(10f);
+        table.columnDefaults(1).left().padRight(10f);
+
+        table.add(image).width(40f).height(40f);
+        table.add(button).width(180f).height(40f);
+        table.setDebug(true);
+        Container container = new Container(table);
+        return  container;
+    }
+
+    private void initCatalogWindow(){
         TextButton closeWindow = new TextButton("Close", defaultTextButtonStyle);
 
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -297,108 +364,62 @@ public class RoomWithHUD extends AppScreen  {
         catalogWindow.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         catalogWindow.setModal(true);
 
-        TextButton frames = new TextButton("Frames", defaultTextButtonStyle);
-        frames.align(Align.left);
-        TextButton Bed = new TextButton("Bed with pillow and mattresses", defaultTextButtonStyle);
-        TextButton sideTables = new TextButton("Side Tables", defaultTextButtonStyle);
-        TextButton vase = new TextButton("Vase", defaultTextButtonStyle);
-        TextButton lamps = new TextButton("Lamps", defaultTextButtonStyle);
-        TextButton dresser = new TextButton("Dresser Cabinets / Orocan  / Drawers", defaultTextButtonStyle);
-        TextButton vanityTables = new TextButton("Vanity Tables and Chairs", defaultTextButtonStyle);
-        TextButton sofa = new TextButton("Sofa Set / Couch", defaultTextButtonStyle);
-        TextButton coffeeTables = new TextButton("Coffee Tables", defaultTextButtonStyle);
-        TextButton tvRack = new TextButton("Tv Rack", defaultTextButtonStyle);
-        TextButton bookShelves = new TextButton("Book Shelves", defaultTextButtonStyle);
-        TextButton Mirrors = new TextButton("Mirrors( Different Sizes)", defaultTextButtonStyle);
-        TextButton diningSet = new TextButton("Dining Set ( Tables and Chairs )", defaultTextButtonStyle);
-        TextButton kitchenCabinets = new TextButton("Kitchen Cabinets (dikit sa wall)", defaultTextButtonStyle);
-        TextButton wallClock = new TextButton("Wall Clock", defaultTextButtonStyle);
-        TextButton tv = new TextButton("TV", defaultTextButtonStyle);
-        TextButton washingMachine = new TextButton("Washing Machine", defaultTextButtonStyle);
-        TextButton electricFan = new TextButton("Electric Fan", defaultTextButtonStyle);
-        TextButton aircon = new TextButton("Aircon", defaultTextButtonStyle);
-        TextButton refridgerator = new TextButton("Refridgerator", defaultTextButtonStyle);
-        TextButton oven = new TextButton("Oven", defaultTextButtonStyle);
+        VerticalGroup categories = new VerticalGroup();
+        categories.align(Align.topLeft);
+        categories.setDebug(true);
 
-        sofa.addListener(new ClickListener(){
+        EventListener sofaClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                Model model = assets.get("sofa.obj", Model.class);
-//                GameObject instance = new GameObject(model);
-//                instances.add(instance);
-//                stage.getActors().removeValue(catalogWindow, true);
-
-
-
                 Furniture sofa = new Furniture(assets.get("sofa.obj", Model.class));
-
                 sofa.transform.rotate(Vector3.X, -90);
-//        sofa.transform.scale(3, 3, 3);
-
                 sofa.calculateTransforms();
                 BoundingBox bounds = new BoundingBox();
                 sofa.calculateBoundingBox(bounds);
                 sofa.shape = new Box(bounds);
-
-//        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
-
                 instances.add(sofa);
                 stage.getActors().removeValue(catalogWindow, true);
                 initInputProcessors();
             }
-        });
+        };
 
-
-
-        Table categories = new Table();
-        categories.align(Align.left);
-        categories.defaults().align(Align.left);
-
-
-//        categories.add(frames);
-//        categories.row();
-//        categories.add(Bed);
-//        categories.row();
-//        categories.add(sideTables);
-//        categories.row();
-//        categories.add(vase);
-//        categories.row();
-//        categories.add(lamps);
-//        categories.row();
-//        categories.add(dresser);
-//        categories.row();
-//        categories.add(vanityTables);
-//        categories.row();
-        categories.add(sofa);
-        categories.row();
-//        categories.add(coffeeTables);
-        categories.row();
-//        categories.add(tvRack);
-//        categories.row();
-//        categories.add(bookShelves);
-//        categories.row();
-//        categories.add(Mirrors);
-//        categories.row();
-//        categories.add(diningSet);
-//        categories.row();
-//        categories.add(kitchenCabinets);
-//        categories.row();
-//        categories.add(wallClock);
-//        categories.row();
-//        categories.add(washingMachine);
-//        categories.row();
-//        categories.add(electricFan);
-//        categories.row();
-//        categories.add(aircon);
-//        categories.row();
-//        categories.add(refridgerator);
-//        categories.row();
-//        categories.add(oven);
-//        categories.row();
-        categories.add(closeWindow);
+        categories.addActor(createCategoryContainer("Frames", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("Bed with pillow/mattresses","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Side Tables","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Vase","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Lamps", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", defaultTextButtonStyle, sofaClikListener));
+        categories.addActor(createCategoryContainer("Coffee Tables","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Tv Rack","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Book Shelves","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Mirrors","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Dining Set","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Kitchen Cabinets","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Wall Clock", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("TV","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Washing Machine","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Electric Fan","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Aircon","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Refridgerator","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Oven","Common/no-image.png",defaultTextButtonStyle,null));
 
         catalogWindow.align(Align.left);
-        catalogWindow.add(categories);
+
+        ScrollPane scrollPane = new ScrollPane(categories);
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.defaults().left();
+
+        table.columnDefaults(0).width(250f);
+        table.columnDefaults(1).width(Gdx.graphics.getWidth() - 250f);
+
+        table.add(scrollPane);
+        table.add(closeWindow);
+
+        catalogWindow.add(table);
 
         closeWindow.addListener(new ClickListener() {
             @Override
@@ -455,7 +476,7 @@ public class RoomWithHUD extends AppScreen  {
         if(background != null){
             spriteBatch.begin();
             spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            spriteBatch.draw(hudBackgroud, 0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
+//            spriteBatch.draw(hudBackgroud, 0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
             spriteBatch.end();
         }
 
@@ -488,7 +509,16 @@ public class RoomWithHUD extends AppScreen  {
             Ray ray = cam.getPickRay(screenX, screenY);
             final float distance = -ray.origin.y / ray.direction.y;
             position.set(ray.direction).scl(distance).add(ray.origin);
-            instances.get(selected).transform.setTranslation(position);
+            if(tranformTool == TransformTool.MOVE){
+                instances.get(selected).transform.setTranslation(position);
+            }else{
+                if(ray.direction.x > ray.origin.x){
+                    instances.get(selected).transform.rotate(Vector3.Z,-3f);
+                }else{
+                    instances.get(selected).transform.rotate(Vector3.Z,3f);
+                }
+            }
+
         }
         return true;
     }

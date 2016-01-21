@@ -5,11 +5,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.Main;
-import com.ggwp.test.ShapeTest2;
-
-import org.omg.CORBA.Environment;
-
-import java.io.Console;
 
 public class DesktopLauncher implements AndroidOnlyInterface{
 
@@ -17,7 +12,8 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-
+		config.width = 1280;
+		config.height = 720;
 		launcher = new DesktopLauncher();
 			new LwjglApplication(new Main( launcher), config);
 	}
