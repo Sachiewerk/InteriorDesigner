@@ -3,6 +3,7 @@ package com.ggwp.interiordesigner;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,12 +17,18 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.ggwp.interiordesigner.object.AppScreen;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 
 /**
  * Created by Raymond on 1/17/2016.
  */
-public class RoomSetupScreen implements Screen {
+public class RoomSetupScreen extends AppScreen{
 
     private Viewport viewport;
     private PerspectiveCamera  camera;
@@ -44,8 +51,34 @@ public class RoomSetupScreen implements Screen {
         modelBatch = new ModelBatch();
         font = new BitmapFont();
         viewport = new FitViewport(800, 480, camera);
-        roomImage = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
 
+        System.out.println(Main.aoi.getScreenTemplateDir());
+
+        FileHandle[] tmplates = Gdx.files.absolute(Main.aoi.getScreenTemplateDir()).list();
+        /*File[] files = new File[tmplates.length];
+        int i = 0;
+        for (FileHandle fh:tmplates) {
+            System.out.println(fh.file().getName());
+            files[i++] = fh.file();
+        }*/
+
+        Arrays.sort(tmplates, new Comparator<FileHandle>() {
+            public int compare(FileHandle f1, FileHandle f2) {
+                // sort latest first
+                return Long.compare(f2.lastModified(), f1.lastModified());
+            }
+        });
+
+        for (FileHandle fhx:tmplates) {
+            System.out.println(fhx.file().getName());
+        }
+
+        if(tmplates.length==0) {
+            roomImage = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
+        }
+        else{
+            roomImage = new Texture(tmplates[0]);
+        }
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 30f, 1f);
