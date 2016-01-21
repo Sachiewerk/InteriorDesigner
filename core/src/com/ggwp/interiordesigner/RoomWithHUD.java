@@ -266,6 +266,7 @@ public class RoomWithHUD extends AppScreen  {
         categories.addActor(electricFan);
         categories.addActor(aircon);
         categories.addActor(refridgerator);
+        categories.addActor(closeWindow);
         categories.addActor(oven);
         categories.addActor(oven1);
         categories.addActor(oven2);
@@ -281,12 +282,10 @@ public class RoomWithHUD extends AppScreen  {
         categories.addActor(oven12);
         categories.addActor(oven13);
 
-        categories.addActor(closeWindow);
-
         table.add(categories);
         ScrollPane scrollPane = new ScrollPane(table);
-
-        catalogWindow.add(table);
+        scrollPane.setOverscroll(true,true);
+        catalogWindow.add(scrollPane);
         closeWindow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
