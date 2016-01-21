@@ -198,11 +198,10 @@ public class RoomWithHUD extends AppScreen  {
 
         Window.WindowStyle windowStyle = new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture)));
         catalogWindow = new Window("", windowStyle);
-        catalogWindow.setFillParent(true);
+        catalogWindow.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         catalogWindow.setModal(true);
 
         TextButton frames = new TextButton("Frames", defaultTextButtonStyle);
-        frames.setHeight(50);
         TextButton Bed = new TextButton("Bed with pillow and mattresses", defaultTextButtonStyle);
         TextButton sideTables = new TextButton("Side Tables", defaultTextButtonStyle);
         TextButton vase = new TextButton("Vase", defaultTextButtonStyle);
@@ -223,8 +222,21 @@ public class RoomWithHUD extends AppScreen  {
         TextButton aircon = new TextButton("Aircon", defaultTextButtonStyle);
         TextButton refridgerator = new TextButton("Refridgerator", defaultTextButtonStyle);
         TextButton oven = new TextButton("Oven", defaultTextButtonStyle);
-        TextButton oven1 = new TextButton("Oven", defaultTextButtonStyle);
-        TextButton oven2 = new TextButton("Oven", defaultTextButtonStyle);
+        TextButton oven1 = new TextButton("Oven1", defaultTextButtonStyle);
+        TextButton oven2 = new TextButton("Oven2", defaultTextButtonStyle);
+        TextButton oven3 = new TextButton("Oven3", defaultTextButtonStyle);
+        TextButton oven4 = new TextButton("Oven4", defaultTextButtonStyle);
+        TextButton oven5 = new TextButton("Oven5", defaultTextButtonStyle);
+        TextButton oven6 = new TextButton("Oven6", defaultTextButtonStyle);
+        TextButton oven7 = new TextButton("Oven7", defaultTextButtonStyle);
+        TextButton oven8 = new TextButton("Oven8", defaultTextButtonStyle);
+        TextButton oven9 = new TextButton("Oven9", defaultTextButtonStyle);
+        TextButton oven10 = new TextButton("Oven10", defaultTextButtonStyle);
+        TextButton oven11 = new TextButton("Oven11", defaultTextButtonStyle);
+        TextButton oven12 = new TextButton("Oven12", defaultTextButtonStyle);
+        TextButton oven13 = new TextButton("Oven13", defaultTextButtonStyle);
+
+
 
         Table table = new Table();
 //        table.setFillParent(true);
@@ -233,6 +245,8 @@ public class RoomWithHUD extends AppScreen  {
         VerticalGroup categories = new VerticalGroup();
         categories.setFillParent(true);
         categories.align(Align.left);
+
+
         categories.addActor(frames);
         categories.addActor(Bed);
         categories.addActor(sideTables);
@@ -253,12 +267,26 @@ public class RoomWithHUD extends AppScreen  {
         categories.addActor(aircon);
         categories.addActor(refridgerator);
         categories.addActor(oven);
+        categories.addActor(oven1);
+        categories.addActor(oven2);
+        categories.addActor(oven3);
+        categories.addActor(oven4);
+        categories.addActor(oven5);
+        categories.addActor(oven6);
+        categories.addActor(oven7);
+        categories.addActor(oven8);
+        categories.addActor(oven9);
+        categories.addActor(oven10);
+        categories.addActor(oven11);
+        categories.addActor(oven12);
+        categories.addActor(oven13);
+
         categories.addActor(closeWindow);
 
         table.add(categories);
         ScrollPane scrollPane = new ScrollPane(table);
 
-        catalogWindow.add(scrollPane).fill().expand();
+        catalogWindow.add(table);
         closeWindow.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -428,7 +456,7 @@ public class RoomWithHUD extends AppScreen  {
 
     @Override
     public void resize (int width, int height) {
-        stage.getViewport().update(width, height, true);
+//        stage.getViewport().update(width, height, true);
     }
 
     @Override
