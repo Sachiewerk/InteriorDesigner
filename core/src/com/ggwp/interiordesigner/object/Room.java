@@ -9,152 +9,208 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.collision.BoundingBox;
-
-import java.util.Arrays;
-import java.util.List;
+import com.badlogic.gdx.utils.Array;
 
 public class Room {
 
     private static final float SCALE_AMOUNT = 1;
 
+    private Array<Wall> walls = new Array<Wall>();
+
     private Wall leftWall;
     private Wall backWall;
     private Wall rightWall;
 
+    private Material backWallMaterial;
+    private Material sideWallMaterial;
+
+    private ModelBuilder modelBuilder;
+    private BlendingAttribute blendingAttribute;
+
+    float height = 100;
+    float width = 100;
+    float depth = 100;
+
     public Room(){
-        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder = new ModelBuilder();
         Color dodgerBlue = new Color(0.2f, 0.6f, 1f, 0.5f);
+        Color emerald = new Color(0.15f, 0.68f, 0.38f, 0.5f);
 
-        BlendingAttribute blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        blendingAttribute.opacity = 0.5f;
+        blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        blendingAttribute.opacity = 0.4f;
 
-        Material material = new Material(ColorAttribute.createDiffuse(dodgerBlue));
-        material.set(blendingAttribute);
+        backWallMaterial = new Material(ColorAttribute.createDiffuse(dodgerBlue));
+        backWallMaterial.set(blendingAttribute);
 
-        float halfWallHeight = 50;
-        float halfWallWidth = 50;
+        sideWallMaterial = new Material(ColorAttribute.createDiffuse(emerald));
+        sideWallMaterial.set(blendingAttribute);
 
-        createLeftWall(modelBuilder, material, halfWallHeight, halfWallWidth);
-        createRightWall(modelBuilder, material, halfWallHeight, halfWallWidth);
-        createBackWall(modelBuilder, blendingAttribute, material, halfWallHeight, halfWallWidth);
+        createLeftWall();
+        createRightWall();
+        createBackWall();
     }
 
-    private void createBackWall(ModelBuilder modelBuilder, BlendingAttribute blendingAttribute, Material material, float halfWallHeight, float halfWallWidth) {
+    private void createBackWall() {
         blendingAttribute.opacity = 0.8f;
-        material.set(blendingAttribute);
+        backWallMaterial.set(blendingAttribute);
 
         Model backWallModel = modelBuilder.createRect(
-                -halfWallWidth, 0, 0,
-                halfWallWidth, 0, 0,
-                halfWallWidth, halfWallHeight * 2, 0,
-                -halfWallWidth, halfWallHeight * 2, 0,
+                0, 0, 0,
+                width, 0, 0,
+                width, height, 0,
+                0, height, 0,
                 1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+                backWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
-        backWall = new Wall(backWallModel);
+
+        backWall = new Wall(backWallModel, false);
+        walls.add(backWall);
     }
 
-    private void createRightWall(ModelBuilder modelBuilder, Material material, float halfWallHeight, float halfWallWidth) {
+    private void createRightWall() {
         Model rightWallModel = modelBuilder.createRect(
-                halfWallWidth, 0, 0,
-                (halfWallWidth * 3), 0, 100,
-                (halfWallWidth * 3), halfWallHeight * 2, 100,
-                halfWallWidth, halfWallHeight * 2, 0,
+                width, 0, 0,
+                width * 2, 0, 0,
+                width * 2, height, 0,
+                width, height, 0,
                 1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+                sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
-        rightWall = new Wall(rightWallModel);
+        rightWall = new Wall(rightWallModel, true);
+
+        rightWall.transform
+                .translate(width, height / 2, 0)
+                .rotateRad(0, height / 2, 0, (float) Math.toRadians(-30))
+                .translate(-width, -(height / 2), 0);
+
+        walls.add(rightWall);
     }
 
-    private void createLeftWall(ModelBuilder modelBuilder, Material material, float halfWallHeight, float halfWallWidth) {
+    private void createLeftWall() {
         Model leftWallModel = modelBuilder.createRect(
-                -(halfWallWidth * 3), 0, 100,
-                -halfWallWidth, 0, 0,
-                -halfWallWidth, halfWallHeight * 2, 0,
-                -(halfWallWidth * 3), halfWallHeight * 2, 100,
+                -width, 0, depth,
+                0, 0, 0,
+                0, height, 0,
+                -width, height, depth,
                 1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+                sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
 
-        leftWall = new Wall(leftWallModel);
+        leftWall = new Wall(leftWallModel, true);
+        leftWall.transform.rotateRad(0, height / 2, 0, (float) Math.toRadians(30));
+        walls.add(leftWall);
     }
 
     public void onBackWallTopPartUpDrag(){
-        System.out.println("TODO onBackWallTopPartUpDrag");
-
-        BoundingBox bounds = new BoundingBox();
-        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
-
-        float wallHeight = bounds.getHeight();
-        float scalePercentage = 1f + (SCALE_AMOUNT / wallHeight);
-
-        backWall.transform.scale(1, scalePercentage, 1);
-        leftWall.transform.scale(1, scalePercentage, 1);
+        System.out.println("top part up");
+        scaleWallsY(1);
     }
 
     public void onBackWallTopPartDownDrag(){
-        System.out.println("TODO onBackWallTopPartDownDrag");
+        System.out.println("top part down");
+        scaleWallsY(-1);
     }
 
     public void onBackWallBottomPartUpDrag(){
-        System.out.println("TODO onBackWallBottomPartUpDrag");
+        System.out.println("bottom part up");
+        scaleAndMoveWallsY(1);
     }
 
     public void onBackWallBottomPartDownDrag(){
-        System.out.println("TODO onBackWallBottomPartDownDrag");
-
-        BoundingBox bounds = new BoundingBox();
-        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
-
-        float wallHeight = bounds.getHeight();
-        float scalePercentage = 1f + (SCALE_AMOUNT / wallHeight);
-
-        System.out.println("Wall Height: " + wallHeight);
-        System.out.println("Scale Percentage: " + scalePercentage);
-
-        backWall.transform.scale(1, scalePercentage, 1).trn(0, -SCALE_AMOUNT, 0);
-        leftWall.transform.scale(1, scalePercentage, 1).trn(0, -SCALE_AMOUNT, 0);
+        System.out.println("bottom part down");
+        scaleAndMoveWallsY(-1);
     }
 
     public void onBackWallLeftPartLeftDrag(){
-        System.out.println("TODO onBackWallLeftPartLeftDrag");
-
-        backWall.transform.translate(-SCALE_AMOUNT, 0, 0);
-        leftWall.transform.translate(-SCALE_AMOUNT, 0, 0);
-        rightWall.transform.translate(-SCALE_AMOUNT, 0, 0);
+        System.out.println("left part. <<<");
+        scaleAndMoveWallsX(-1);
     }
 
     public void onBackWallLeftPartRightDrag(){
-        System.out.println("TODO onBackWallLeftPartRightDrag");
+        System.out.println("left part. >>>");
+        scaleAndMoveWallsX(1);
     }
 
     public void onBackWallRightPartLeftDrag(){
-        System.out.println("TODO onBackWallRightPartLeftDrag");
+        System.out.println("right part. <<<");
+        scaleWallsX(-1);
     }
 
     public void onBackWallRightPartRightDrag(){
-        System.out.println("TODO onBackWallRightPartRightDrag");
-
-        backWall.transform.translate(SCALE_AMOUNT, 0, 0);
-        leftWall.transform.translate(SCALE_AMOUNT, 0, 0);
-        rightWall.transform.translate(SCALE_AMOUNT, 0, 0);
+        System.out.println("right part. >>>");
+        scaleWallsX(1);
     }
 
-    public List<Wall> getWalls(){
-        return Arrays.asList(leftWall, backWall, rightWall);
+    public void onLeftWallUpDrag(){
+        leftWall.transform
+                .translate(0, height / 2, 0)
+                .rotate(0, height / 2, 0 , SCALE_AMOUNT)
+                .translate(0, -(height / 2), 0);
     }
 
-    public Wall getLeftWall(){
-        return leftWall;
+    public void onLeftWallDownDrag(){
+        leftWall.transform
+                .translate(0, height / 2, 0)
+                .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
+                .translate(0, -(height / 2), 0);
     }
 
-    public Wall getBackWall(){
-        return backWall;
+    public void onRightWallUpDrag(){
+        rightWall.transform
+                .translate(width, height / 2, 0)
+                .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
+                .translate(-width, -(height / 2), 0);
     }
 
-    public Wall getRightWall(){
-        return rightWall;
+    public void onRightWallDownDrag(){
+        rightWall.transform
+                .translate(width, height / 2, 0)
+                .rotate(0, height / 2, 0 , SCALE_AMOUNT)
+                .translate(-width, -(height / 2), 0);
     }
 
+    private void scaleWallsX(float multiplier) {
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
+        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
+        backWall.transform.scale(scalePercentage, 1f, 1f);
+        rightWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+    }
+
+    private void scaleWallsY(float multiplier) {
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
+        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * multiplier);
+
+        for(Wall wall : getWalls()){
+            wall.transform.scale(1f, scalePercentage, 1f);
+        }
+    }
+
+    private void scaleAndMoveWallsX(float multiplier) {
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
+        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * -(multiplier));
+        backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * multiplier, 0f, 0f);
+        leftWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+    }
+
+    private void scaleAndMoveWallsY(float multiplier) {
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
+        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * -(multiplier));
+
+        for(Wall wall : getWalls()){
+            wall.transform.scale(1, scalePercentage, 1).trn(0, SCALE_AMOUNT * multiplier, 0);
+        }
+    }
+
+    public Array<Wall> getWalls(){
+        return walls;
+    }
 
 }
