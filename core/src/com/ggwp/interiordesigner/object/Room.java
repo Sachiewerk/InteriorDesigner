@@ -1,5 +1,7 @@
 package com.ggwp.interiordesigner.object;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -8,7 +10,10 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 
 public class Room {
@@ -27,11 +32,26 @@ public class Room {
     private ModelBuilder modelBuilder;
     private BlendingAttribute blendingAttribute;
 
+    private boolean sideSelected = false;
+    private boolean nearTop = false;
+    private boolean nearLeft = false;
+
+    private int dropX = 0;
+    private int dropY = 0;
+
+    private int previousDragX = 0;
+    private int previousDragY = 0;
+
     float height = 100;
     float width = 100;
     float depth = 100;
 
-    public Room(){
+    private Vector3 position = new Vector3();
+    private Camera camera;
+
+    public Room(Camera camera){
+        this.camera = camera;
+
         modelBuilder = new ModelBuilder();
         Color dodgerBlue = new Color(0.2f, 0.6f, 1f, 0.5f);
         Color emerald = new Color(0.15f, 0.68f, 0.38f, 0.5f);
@@ -101,68 +121,68 @@ public class Room {
         walls.add(leftWall);
     }
 
-    public void onBackWallTopPartUpDrag(){
+    private void onBackWallTopPartUpDrag(){
         System.out.println("top part up");
         scaleWallsY(1);
     }
 
-    public void onBackWallTopPartDownDrag(){
+    private void onBackWallTopPartDownDrag(){
         System.out.println("top part down");
         scaleWallsY(-1);
     }
 
-    public void onBackWallBottomPartUpDrag(){
+    private void onBackWallBottomPartUpDrag(){
         System.out.println("bottom part up");
         scaleAndMoveWallsY(1);
     }
 
-    public void onBackWallBottomPartDownDrag(){
+    private void onBackWallBottomPartDownDrag(){
         System.out.println("bottom part down");
         scaleAndMoveWallsY(-1);
     }
 
-    public void onBackWallLeftPartLeftDrag(){
+    private void onBackWallLeftPartLeftDrag(){
         System.out.println("left part. <<<");
         scaleAndMoveWallsX(-1);
     }
 
-    public void onBackWallLeftPartRightDrag(){
+    private void onBackWallLeftPartRightDrag(){
         System.out.println("left part. >>>");
         scaleAndMoveWallsX(1);
     }
 
-    public void onBackWallRightPartLeftDrag(){
+    private void onBackWallRightPartLeftDrag(){
         System.out.println("right part. <<<");
         scaleWallsX(-1);
     }
 
-    public void onBackWallRightPartRightDrag(){
+    private void onBackWallRightPartRightDrag(){
         System.out.println("right part. >>>");
         scaleWallsX(1);
     }
 
-    public void onLeftWallUpDrag(){
+    private void onLeftWallUpDrag(){
         leftWall.transform
                 .translate(0, height / 2, 0)
                 .rotate(0, height / 2, 0 , SCALE_AMOUNT)
                 .translate(0, -(height / 2), 0);
     }
 
-    public void onLeftWallDownDrag(){
+    private void onLeftWallDownDrag(){
         leftWall.transform
                 .translate(0, height / 2, 0)
                 .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
                 .translate(0, -(height / 2), 0);
     }
 
-    public void onRightWallUpDrag(){
+    private void onRightWallUpDrag(){
         rightWall.transform
                 .translate(width, height / 2, 0)
                 .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
                 .translate(-width, -(height / 2), 0);
     }
 
-    public void onRightWallDownDrag(){
+    private void onRightWallDownDrag(){
         rightWall.transform
                 .translate(width, height / 2, 0)
                 .rotate(0, height / 2, 0 , SCALE_AMOUNT)
@@ -211,6 +231,110 @@ public class Room {
 
     public Array<Wall> getWalls(){
         return walls;
+    }
+
+    private void handleSideWallDrag(boolean dragUp) {
+        if(nearLeft){
+            if(dragUp){
+                this.onLeftWallUpDrag();
+            } else {
+                this.onLeftWallDownDrag();
+            }
+        } else {
+            if(dragUp){
+                this.onRightWallUpDrag();
+            } else {
+                this.onRightWallDownDrag();
+            }
+        }
+    }
+
+    private void handleBackWallDrag(int screenX, int screenY, boolean dragUp, boolean dragLeft) {
+        int deltaX = dropX - screenX;
+        int deltaY = dropY - screenY;
+
+        boolean vertical = Math.abs(deltaX) < Math.abs(deltaY);
+
+        if(vertical){
+            if(nearTop){
+                if(dragUp){
+                    this.onBackWallTopPartUpDrag();
+                } else {
+                    this.onBackWallTopPartDownDrag();
+                }
+            } else {
+                if(dragUp){
+                    this.onBackWallBottomPartUpDrag();
+                } else {
+                    this.onBackWallBottomPartDownDrag();
+                }
+            }
+        } else {
+            if(nearLeft){
+                if(dragLeft){
+                    this.onBackWallLeftPartLeftDrag();
+                } else {
+                    this.onBackWallLeftPartRightDrag();
+                }
+            } else {
+                if(dragLeft){
+                    this.onBackWallRightPartLeftDrag();
+                } else {
+                    this.onBackWallRightPartRightDrag();
+                }
+            }
+        }
+    }
+
+    private void checkSelectedWall(int screenX, int screenY) {
+        Ray ray = camera.getPickRay(screenX, screenY);
+
+        sideSelected = false;
+
+        float distance = -1;
+        for (Wall wall : getWalls()) {
+            wall.transform.getTranslation(position);
+
+            BoundingBox bb = new BoundingBox();
+            wall.calculateBoundingBox(bb);
+
+            position.add(wall.center);
+            float dist2 = ray.origin.dst2(position);
+            if (distance >= 0f && dist2 > distance) continue;
+
+
+            if (Intersector.intersectRayBounds(ray, bb, null)) {
+                sideSelected = wall.side;
+                distance = dist2;
+            }
+        }
+    }
+
+    public void onTouchDown(int screenX, int screenY) {
+        checkSelectedWall(screenX, screenY);
+
+        dropX = screenX;
+        dropY = screenY;
+
+        previousDragX = screenX;
+        previousDragY = screenY;
+
+        nearTop = (Gdx.graphics.getHeight() / 2) > screenY;
+        nearLeft = (Gdx.graphics.getWidth() / 2) > screenX;
+    }
+
+    public void onTouchDrag(int screenX, int screenY){
+        boolean dragUp = screenY < previousDragY;
+        boolean dragLeft = screenX < previousDragX;
+
+        if(sideSelected){
+            handleSideWallDrag(dragUp);
+        } else {
+            handleBackWallDrag(screenX, screenY, dragUp, dragLeft);
+        }
+
+        previousDragX = screenX;
+        previousDragY = screenY;
     }
 
 }

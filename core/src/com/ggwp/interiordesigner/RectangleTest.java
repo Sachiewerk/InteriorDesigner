@@ -12,15 +12,12 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Furniture;
 import com.ggwp.interiordesigner.object.Room;
-import com.ggwp.interiordesigner.object.Wall;
 
 
 public class RectangleTest extends AppScreen {
@@ -41,16 +38,6 @@ public class RectangleTest extends AppScreen {
 
     private Material selectionMaterial;
     private Material originalMaterial;
-
-    private boolean sideSelected = false;
-    private boolean nearTop = false;
-    private boolean nearLeft = false;
-
-    private int dropX = 0;
-    private int dropY = 0;
-
-    private int previousDragX = 0;
-    private int previousDragY = 0;
 
     public RectangleTest () {
         spriteBatch = new SpriteBatch();
@@ -73,7 +60,7 @@ public class RectangleTest extends AppScreen {
         selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
         originalMaterial = new Material();
 
-        room = new Room();
+        room = new Room(camera);
         background = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
     }
 
@@ -129,48 +116,14 @@ public class RectangleTest extends AppScreen {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        checkSelectedWall(screenX, screenY);
-
-        dropX = screenX;
-        dropY = screenY;
-
-        previousDragX = screenX;
-        previousDragY = screenY;
-
-        nearTop = (Gdx.graphics.getHeight() / 2) > screenY;
-        nearLeft = (Gdx.graphics.getWidth() / 2) > screenX;
-
+        room.onTouchDown(screenX, screenY);
         selecting = getObject(screenX, screenY);
         return selecting >= 0;
     }
 
-    private void checkSelectedWall(int screenX, int screenY) {
-        Ray ray = camera.getPickRay(screenX, screenY);
-
-        sideSelected = false;
-
-        float distance = -1;
-        for (Wall wall : room.getWalls()) {
-            wall.transform.getTranslation(position);
-
-            BoundingBox bb = new BoundingBox();
-            wall.calculateBoundingBox(bb);
-
-            position.add(wall.center);
-            float dist2 = ray.origin.dst2(position);
-            if (distance >= 0f && dist2 > distance) continue;
-
-
-            if (Intersector.intersectRayBounds(ray, bb, null)) {
-                sideSelected = wall.side;
-                distance = dist2;
-            }
-        }
-    }
-
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        dragWall(screenX, screenY);
+        room.onTouchDrag(screenX, screenY);
 
         if (selecting < 0) return false;
         if (selected == selecting) {
@@ -180,74 +133,6 @@ public class RectangleTest extends AppScreen {
             instances.get(selected).transform.setTranslation(position);
         }
         return true;
-    }
-
-    private Boolean dragWall(int screenX, int screenY){
-        boolean dragUp = screenY < previousDragY;
-        boolean dragLeft = screenX < previousDragX;
-
-        if(sideSelected){
-            handleSideWallDrag(dragUp);
-        } else {
-            handleBackWallDrag(screenX, screenY, dragUp, dragLeft);
-        }
-
-        previousDragX = screenX;
-        previousDragY = screenY;
-        return false;
-    }
-
-    private void handleSideWallDrag(boolean dragUp) {
-        if(nearLeft){
-            if(dragUp){
-                room.onLeftWallUpDrag();
-            } else {
-                room.onLeftWallDownDrag();
-            }
-        } else {
-            if(dragUp){
-                room.onRightWallUpDrag();
-            } else {
-                room.onRightWallDownDrag();
-            }
-        }
-    }
-
-    private void handleBackWallDrag(int screenX, int screenY, boolean dragUp, boolean dragLeft) {
-        int deltaX = dropX - screenX;
-        int deltaY = dropY - screenY;
-
-        boolean vertical = Math.abs(deltaX) < Math.abs(deltaY);
-
-        if(vertical){
-            if(nearTop){
-                if(dragUp){
-                    room.onBackWallTopPartUpDrag();
-                } else {
-                    room.onBackWallTopPartDownDrag();
-                }
-            } else {
-                if(dragUp){
-                    room.onBackWallBottomPartUpDrag();
-                } else {
-                    room.onBackWallBottomPartDownDrag();
-                }
-            }
-        } else {
-            if(nearLeft){
-                if(dragLeft){
-                    room.onBackWallLeftPartLeftDrag();
-                } else {
-                    room.onBackWallLeftPartRightDrag();
-                }
-            } else {
-                if(dragLeft){
-                    room.onBackWallRightPartLeftDrag();
-                } else {
-                    room.onBackWallRightPartRightDrag();
-                }
-            }
-        }
     }
 
     @Override
