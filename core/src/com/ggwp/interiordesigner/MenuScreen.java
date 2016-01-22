@@ -22,9 +22,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interfaces.RequestResultListner;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.AppScreens;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
+import com.ggwp.utils.ToolUtils;
 
 public class MenuScreen extends AppScreen{
 
@@ -40,6 +43,7 @@ public class MenuScreen extends AppScreen{
     final TextButton catalogBtn;
     //createNewBtn.setPosition(200, 150);
     final TextButton exitBtn;
+
 
 
 
@@ -81,7 +85,7 @@ public class MenuScreen extends AppScreen{
         Label.LabelStyle  style1 = new Label.LabelStyle();
         style1.font = skin.getFont("defaultFont");
         skin.add("default",style1,Label.LabelStyle.class);
-
+//"CREATE NEW DESIGN"
         createNewBtn = new TextButton("CREATE NEW DESIGN", createButtonStyle(Color.valueOf("#2ecc71")));
         createNewBtn.pad(10);
         //createNewBtn.setPosition(200, 200);
@@ -157,20 +161,28 @@ public class MenuScreen extends AppScreen{
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 System.out.println(x + ":" + y);
-                //Main.aoi .toast("test toast");
-                String imagePath = Main.aoi.takeSnapShot("test toast");
-                //ObjectCatalog.getCurrentInstance().show(stage);
-                try {
-                    Main.getInstance().setScreen(AppScreens.RoomSetup.getClazz().newInstance());
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+
+                Main.setScreen(AppScreens.RoomSetup);
+
+                Object[][] tests = {{"savedirectory", Main.screenTemplateSaveDirectory}};
+                Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.IMAGE_CAPTURE,
+                        ToolUtils.createMapFromList(tests));
             }
         });
 
-        emptyRoomBtn.addListener(new ClickListener(){
+        fromGallryBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent il, float x, float y) {
+                System.out.println(x + ":" + y);
+
+                Main.setScreen(AppScreens.RoomSetup);
+                Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.GET_IMAGE_FROM_GALLERY,
+                        null);
+            }
+        });
+
+
+        emptyRoomBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
@@ -184,13 +196,6 @@ public class MenuScreen extends AppScreen{
             }
         });
 
-//      TODO Remove
-        fromGallryBtn.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new RectangleTest());
-            }
-        });
     }
 
     private void setDisableMenuButton(boolean disable){
@@ -226,7 +231,7 @@ public class MenuScreen extends AppScreen{
         });
 
 
-        catalogBtn.addListener(new ClickListener() {
+        /*catalogBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 System.out.println(x + ":" + y);
@@ -243,7 +248,7 @@ public class MenuScreen extends AppScreen{
                 }
                 //ObjectCatalog.getCurrentInstance().show(stage);
             }
-        });
+        });*/
 
 
     }

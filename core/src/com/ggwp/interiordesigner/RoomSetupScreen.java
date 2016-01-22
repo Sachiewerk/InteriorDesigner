@@ -17,7 +17,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interfaces.RequestResultListner;
 import com.ggwp.interiordesigner.object.AppScreen;
+import com.ggwp.interiordesigner.object.AppScreens;
+import com.ggwp.utils.ToolUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,6 +45,7 @@ public class RoomSetupScreen extends AppScreen{
     private ModelInstance wallBack;
     private ModelInstance floor;
     private CameraInputController cameraController;
+    private FileHandle roomTemplateImageSource;
 
 
     private AssetManager assets;
@@ -52,33 +57,7 @@ public class RoomSetupScreen extends AppScreen{
         font = new BitmapFont();
         viewport = new FitViewport(800, 480, camera);
 
-        System.out.println(Main.aoi.getScreenTemplateDir());
 
-        FileHandle[] tmplates = Gdx.files.absolute(Main.aoi.getScreenTemplateDir()).list();
-        /*File[] files = new File[tmplates.length];
-        int i = 0;
-        for (FileHandle fh:tmplates) {
-            System.out.println(fh.file().getName());
-            files[i++] = fh.file();
-        }*/
-
-        Arrays.sort(tmplates, new Comparator<FileHandle>() {
-            public int compare(FileHandle f1, FileHandle f2) {
-                // sort latest first
-                return Long.compare(f2.lastModified(), f1.lastModified());
-            }
-        });
-
-        for (FileHandle fhx:tmplates) {
-            System.out.println(fhx.file().getName());
-        }
-
-        if(tmplates.length==0) {
-            roomImage = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
-        }
-        else{
-            roomImage = new Texture(tmplates[0]);
-        }
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0f, 30f, 1f);
@@ -127,6 +106,89 @@ public class RoomSetupScreen extends AppScreen{
 //
 //        floor = new ModelInstance(model);
 
+        flagImageUpdate=true;
+        updateImage();
+
+        Main.aoi.addResultListener(new RequestResultListner() {
+            @Override
+            public void OnRequestDone(Object result) {
+                        /*paramValues.put("path",path);
+                        paramValues.put("result",result);*/
+                String result1 = ToolUtils.getParamValue(result, String.class, "result");
+                if (result1.equals("OK")) {
+                    String path = ToolUtils.getParamValue(result, String.class, "path");
+                    Object[][] tests = {{"title", "test error"},
+                            {"message", "test message"}};
+                    Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                            ToolUtils.createMapFromList(tests));
+
+                    roomTemplateImageSource = ToolUtils.fetchLatestSnapshot();
+                    flagImageUpdate = true;
+                }
+
+            }
+
+            @Override
+            public AndroidOnlyInterface.RequestType getRequestType() {
+                return AndroidOnlyInterface.RequestType.IMAGE_CAPTURE;
+            }
+        });
+
+
+        /*Object[][] tests = {{"savedirectory", Main.screenTemplateSaveDirectory}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.IMAGE_CAPTURE,
+                ToolUtils.createMapFromList(tests));*/
+
+        Main.aoi.addResultListener(new RequestResultListner() {
+            @Override
+            public void OnRequestDone(Object result) {
+                        /*paramValues.put("path",path);
+                        paramValues.put("result",result);*/
+                String result1 = ToolUtils.getParamValue(result, String.class, "imagepath");
+
+                roomTemplateImageSource = ToolUtils.findFileByAbsolutePath(result1);
+                flagImageUpdate = true;
+
+            }
+
+            @Override
+            public AndroidOnlyInterface.RequestType getRequestType() {
+                return AndroidOnlyInterface.RequestType.GET_IMAGE_FROM_GALLERY;
+            }
+        });
+
+
+        /*Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.GET_IMAGE_FROM_GALLERY,
+                null);*/
+
+        //ObjectCatalog.getCurrentInstance().show(stage);
+
+    }
+
+    boolean flagImageUpdate = false;
+    private void updateImage(){
+
+
+        if(flagImageUpdate==false){
+            return;
+        }
+
+        Object[][] tests = {{"title", "test error"},
+                {"message", "updating image"}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));
+       /* Object[][] tests = {{"title", "test error"},
+                {"message", tmplates[0]}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));*/
+
+        if(roomTemplateImageSource==null) {
+            roomImage = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
+        }
+        else{
+            roomImage = new Texture(roomTemplateImageSource);
+        }
+        flagImageUpdate = false;
     }
 
     @Override
@@ -136,6 +198,11 @@ public class RoomSetupScreen extends AppScreen{
 
     @Override
     public void render(float delta) {
+        updateImage();
+        Object[][] tests = {{"title", "test error"},
+                {"message", "rendering.."}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));
 //        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         cameraController.update();
