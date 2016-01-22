@@ -1,6 +1,8 @@
 package com.ggwp.interiordesigner.object;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,9 +18,14 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 public class Room {
 
-    private static final float SCALE_AMOUNT = 1;
+    private static final float SCALE_AMOUNT = 1f;
+    private static final float MINIMUM_DIMENSION = 10f;
 
     private Array<Wall> walls = new Array<Wall>();
 
@@ -42,14 +49,66 @@ public class Room {
     private int previousDragX = 0;
     private int previousDragY = 0;
 
-    float height = 100;
-    float width = 100;
-    float depth = 100;
+    private float defaultHeight = 100f;
+    private float defaultWidth = 100f;
+    private float defaultDepth = 100f;
 
     private Vector3 position = new Vector3();
     private Camera camera;
 
     public Room(Camera camera){
+        Preferences prefs = Gdx.app.getPreferences("Test");
+        System.out.println(prefs.getFloat("screen_w", 0f));
+        System.out.println(prefs.getFloat("screen_h", 0f));
+
+        prefs.putFloat("screen_w", Gdx.graphics.getWidth());
+        prefs.putFloat("screen_h", Gdx.graphics.getHeight());
+        prefs.flush();
+
+        RoomDesignData data = new RoomDesignData();
+        data.setBackgroundImage("Rooms/room2.jpg");
+        data.setVertices(new float[]{
+                -100, 100, 0,
+                0, 100, 0,
+                100, 100, 0,
+                200, 100, 0,
+                -100, 0, 0,
+                0, 0, 0,
+                100, 0, 0,
+                200, 0, 0
+        });
+
+        try {
+            FileHandle handle = Gdx.files.local("data/default-room.xml");
+
+//            if(handle.exists() == false){
+//                System.out.println("Creating file..");
+//                handle.file().createNewFile();
+//            }
+
+            //Save file
+//            System.out.println("Saving file..");
+            JAXBContext jaxb = JAXBContext.newInstance(RoomDesignData.class);
+//            Marshaller marshaller = jaxb.createMarshaller();
+//            marshaller.setProperty(marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            marshaller.marshal(data, handle.file());
+
+            //Load file
+            System.out.println("Loading file..");
+            Unmarshaller unmarshaller = jaxb.createUnmarshaller();
+            RoomDesignData d = (RoomDesignData) unmarshaller.unmarshal(handle.file());
+
+            for(Float f : d.getVertices()){
+                System.out.println(f);
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+        }
+
+
+
         this.camera = camera;
 
         modelBuilder = new ModelBuilder();
@@ -76,9 +135,9 @@ public class Room {
 
         Model backWallModel = modelBuilder.createRect(
                 0, 0, 0,
-                width, 0, 0,
-                width, height, 0,
-                0, height, 0,
+                defaultWidth, 0, 0,
+                defaultWidth, defaultHeight, 0,
+                0, defaultHeight, 0,
                 1, 1, 1,
                 backWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
@@ -89,123 +148,129 @@ public class Room {
 
     private void createRightWall() {
         Model rightWallModel = modelBuilder.createRect(
-                width, 0, 0,
-                width * 2, 0, 0,
-                width * 2, height, 0,
-                width, height, 0,
+                defaultWidth, 0, 0,
+                defaultWidth * 2, 0, defaultDepth,
+                defaultWidth * 2, defaultHeight, defaultDepth,
+                defaultWidth, defaultHeight, 0,
                 1, 1, 1,
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
         rightWall = new Wall(rightWallModel, true);
 
-        rightWall.transform
-                .translate(width, height / 2, 0)
-                .rotateRad(0, height / 2, 0, (float) Math.toRadians(-30))
-                .translate(-width, -(height / 2), 0);
+//        TODO Nagloloko transform pag may ganto
+//        rightWall.transform
+//                .translate(defaultWidth, defaultHeight / 2, 0)
+//                .rotateRad(0, defaultHeight / 2, 0, (float) Math.toRadians(-30))
+//                .translate(-defaultWidth, -(defaultHeight / 2), 0);
 
         walls.add(rightWall);
     }
 
     private void createLeftWall() {
         Model leftWallModel = modelBuilder.createRect(
-                -width, 0, depth,
+                -defaultWidth, 0, defaultDepth,
                 0, 0, 0,
-                0, height, 0,
-                -width, height, depth,
+                0, defaultHeight, 0,
+                -defaultWidth, defaultHeight, defaultDepth,
                 1, 1, 1,
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
 
         leftWall = new Wall(leftWallModel, true);
-        leftWall.transform.rotateRad(0, height / 2, 0, (float) Math.toRadians(30));
+
+//        TODO Nagloloko transform pag may ganto
+//        TODO Option: REMOVE + CREATE WALL AGAIN
+//        leftWall.transform.rotateRad(0, defaultHeight / 2, 0, (float) Math.toRadians(30));
+
         walls.add(leftWall);
     }
 
     private void onBackWallTopPartUpDrag(){
-        System.out.println("top part up");
         scaleWallsY(1);
     }
 
     private void onBackWallTopPartDownDrag(){
-        System.out.println("top part down");
         scaleWallsY(-1);
     }
 
     private void onBackWallBottomPartUpDrag(){
-        System.out.println("bottom part up");
         scaleAndMoveWallsY(1);
     }
 
     private void onBackWallBottomPartDownDrag(){
-        System.out.println("bottom part down");
         scaleAndMoveWallsY(-1);
     }
 
     private void onBackWallLeftPartLeftDrag(){
-        System.out.println("left part. <<<");
         scaleAndMoveWallsX(-1);
     }
 
     private void onBackWallLeftPartRightDrag(){
-        System.out.println("left part. >>>");
         scaleAndMoveWallsX(1);
     }
 
     private void onBackWallRightPartLeftDrag(){
-        System.out.println("right part. <<<");
         scaleWallsX(-1);
     }
 
     private void onBackWallRightPartRightDrag(){
-        System.out.println("right part. >>>");
         scaleWallsX(1);
     }
 
     private void onLeftWallUpDrag(){
-        leftWall.transform
-                .translate(0, height / 2, 0)
-                .rotate(0, height / 2, 0 , SCALE_AMOUNT)
-                .translate(0, -(height / 2), 0);
+        leftWallDrag(SCALE_AMOUNT);
     }
 
     private void onLeftWallDownDrag(){
-        leftWall.transform
-                .translate(0, height / 2, 0)
-                .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
-                .translate(0, -(height / 2), 0);
+        leftWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallUpDrag(){
-        rightWall.transform
-                .translate(width, height / 2, 0)
-                .rotate(0, height / 2, 0 , -SCALE_AMOUNT)
-                .translate(-width, -(height / 2), 0);
+        rightWallDrag(-SCALE_AMOUNT);
     }
 
-    private void onRightWallDownDrag(){
+    private void onRightWallDownDrag() {
+        rightWallDrag(SCALE_AMOUNT);
+    }
+
+    private void leftWallDrag(float degrees) {
+        leftWall.transform
+                .translate(0, defaultHeight / 2, 0)
+                .rotate(0, defaultHeight / 2, 0 , degrees)
+                .translate(0, -(defaultHeight / 2), 0);
+    }
+
+    private void rightWallDrag(float degrees){
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
         rightWall.transform
-                .translate(width, height / 2, 0)
-                .rotate(0, height / 2, 0 , SCALE_AMOUNT)
-                .translate(-width, -(height / 2), 0);
+                .translate(defaultWidth, defaultHeight / 2, 0)
+                .rotate(0, defaultHeight / 2, 0, degrees)
+                .translate(-defaultWidth, -(defaultHeight / 2), 0);
     }
 
     private void scaleWallsX(float multiplier) {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
-        backWall.transform.scale(scalePercentage, 1f, 1f);
-        rightWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+        if(bounds.getWidth() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
+            backWall.transform.scale(scalePercentage, 1f, 1f);
+            rightWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+        }
     }
-
+ 
     private void scaleWallsY(float multiplier) {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * multiplier);
+        if(bounds.getHeight() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * multiplier);
 
-        for(Wall wall : getWalls()){
-            wall.transform.scale(1f, scalePercentage, 1f);
+            for(Wall wall : getWalls()){
+                wall.transform.scale(1f, scalePercentage, 1f);
+            }
         }
     }
 
@@ -213,19 +278,22 @@ public class Room {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * -(multiplier));
-        backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * multiplier, 0f, 0f);
-        leftWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+        if(bounds.getWidth() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * -(multiplier));
+            backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * multiplier, 0f, 0f);
+            leftWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+        }
     }
 
     private void scaleAndMoveWallsY(float multiplier) {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * -(multiplier));
-
-        for(Wall wall : getWalls()){
-            wall.transform.scale(1, scalePercentage, 1).trn(0, SCALE_AMOUNT * multiplier, 0);
+        if(bounds.getHeight() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * -(multiplier));
+            for(Wall wall : getWalls()){
+                wall.transform.scale(1, scalePercentage, 1).trn(0, SCALE_AMOUNT * multiplier, 0);
+            }
         }
     }
 
