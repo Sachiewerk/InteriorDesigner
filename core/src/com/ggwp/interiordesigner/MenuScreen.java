@@ -183,6 +183,14 @@ public class MenuScreen extends AppScreen{
                 }
             }
         });
+
+//      TODO Remove
+        fromGallryBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getInstance().setScreen(new RectangleTest());
+            }
+        });
     }
 
     private void setDisableMenuButton(boolean disable){
