@@ -16,6 +16,10 @@ public class Furniture extends ModelInstance {
         super(model);
     }
 
+    public Furniture(Model model,String id){
+        super(model,id);
+    }
+
     public boolean isVisible(Camera cam) {
         return shape == null ? false : shape.isVisible(transform, cam);
     }

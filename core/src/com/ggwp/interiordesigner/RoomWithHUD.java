@@ -3,6 +3,7 @@ package com.ggwp.interiordesigner;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -43,8 +45,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Box;
+import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.Furniture;
 
 /**
@@ -115,9 +120,8 @@ public class RoomWithHUD extends AppScreen  {
 
     private void initCamera(){
         cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0f, 7f, 10f);
-        cam.lookAt(0, 0, 0);
-        cam.near = 1f;
+        cam.position.set(0f, 50f, 100f);
+        cam.lookAt(0, 50, 0);
         cam.far = 300f;
         cam.update();
 
@@ -142,28 +146,27 @@ public class RoomWithHUD extends AppScreen  {
     private int tranformTool = 0;
 
     public RoomWithHUD(){
+        stage = new Stage(new ScreenViewport());
+        stage.setDebugAll(true);
+        assets = new AssetManager();
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
+
         initEnvironment();
         initCamera();
         initHUD();
+
 
         spriteBatch = new SpriteBatch();
 
         modelBatch = new ModelBatch();
         shapeRenderer = new ShapeRenderer();
 
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0f, 50f, 100f);
-        cam.lookAt(0, 50, 0);
-        cam.near = 1f;
-        cam.far = 300f;
-        cam.update();
 
-        assets = new AssetManager();
-        assets.load("sofa.obj", Model.class);
+
+        assets.load("test.g3db", Model.class);
         loading = true;
 
-        camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
+
 //        Gdx.input.setInputProcessor(this);
 
         ModelBuilder modelBuilder = new ModelBuilder();
@@ -244,21 +247,27 @@ public class RoomWithHUD extends AppScreen  {
         whiteTexture = new Texture(whitePixmap);
 
 
+
+        FileHandle fontFile = Gdx.files.internal("data/arial.ttf");
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 16;
+        BitmapFont textFont = generator.generateFont(parameter);
+        generator.dispose();
+
+
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
-        BitmapFont bitmapFont = new BitmapFont();
-        defaultSkin.add("defaultFont", bitmapFont);
+        defaultSkin.add("defaultFont", textFont);
         blackPixmap.dispose();
         whitePixmap.dispose();
         defaultTextButtonStyle = new TextButton.TextButtonStyle();
-//        defaultTextButtonStyle.up = defaultSkin.newDrawable("defaultButton");
-//        defaultTextButtonStyle.down = defaultSkin.newDrawable("defaultButton");
         defaultTextButtonStyle.font = defaultSkin.getFont("defaultFont");
         defaultTextButtonStyle.fontColor = Color.BLACK;
         defaultSkin.add("default", defaultTextButtonStyle);
     }
 
     private void initHUD(){
-        stage = new Stage();
+
         initSkins();
 
         hudBackgroud = whiteTexture;
@@ -269,16 +278,17 @@ public class RoomWithHUD extends AppScreen  {
         ImageButton rotateButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/rotate.png"))));
 
         addButton.setBounds(0,10f,40f,40f);
-        removeButton.setBounds(60f,10f,40f,40f);
-        moveButton.setBounds(120,10f,40f,40f);
-        rotateButton.setBounds(180f,10f,40f,40f);
+        removeButton.setBounds(60f, 10f, 40f, 40f);
+        moveButton.setBounds(120, 10f, 40f, 40f);
+        rotateButton.setBounds(180f, 10f, 40f, 40f);
 
+       final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
 
         addButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 removeScreenInputProcessor();
-                stage.addActor(catalogWindow);
+                stage.addActor(c);
             }
         });
 
@@ -295,7 +305,7 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        moveButton.addListener(new ClickListener(){
+        moveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 tranformTool = TransformTool.MOVE;
@@ -310,7 +320,6 @@ public class RoomWithHUD extends AppScreen  {
         });
 
         Table tools = new Table();
-        tools.setDebug(true);
         tools.setBackground(new SpriteDrawable(new Sprite(whiteTexture)));
         tools.setBounds(0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
 
@@ -325,18 +334,16 @@ public class RoomWithHUD extends AppScreen  {
         tools.addActor(rotateButton);
 
         stage.addActor(tools);
-//        stage.addActor(removeFurniture);
-//        stage.addActor(moveButton);
-//        stage.addActor(rotateButton);
         initCatalogWindow();
     }
 
-    private Container createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener){
+    private Container createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener) {
         Table table = new Table();
         Image image = new Image((new Texture(img)));
         TextButton button = new TextButton(label,buttonStyle);
         button.getLabel().setColor(Color.WHITE);
         button.getLabel().setAlignment(Align.left);
+
         if(listener != null){
             button.addListener(listener);
         }
@@ -346,7 +353,6 @@ public class RoomWithHUD extends AppScreen  {
 
         table.add(image).width(40f).height(40f);
         table.add(button).width(180f).height(40f);
-        table.setDebug(true);
         Container container = new Container(table);
         return  container;
     }
@@ -361,12 +367,14 @@ public class RoomWithHUD extends AppScreen  {
 
         Window.WindowStyle windowStyle = new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture)));
         catalogWindow = new Window("", windowStyle);
-        catalogWindow.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//        catalogWindow.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        catalogWindow.setFillParent(true);
         catalogWindow.setModal(true);
 
+
+
+
         VerticalGroup categories = new VerticalGroup();
-        categories.align(Align.topLeft);
-        categories.setDebug(true);
 
         EventListener sofaClikListener = new ClickListener(){
             @Override
@@ -383,27 +391,27 @@ public class RoomWithHUD extends AppScreen  {
             }
         };
 
-        categories.addActor(createCategoryContainer("Frames", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Bed with pillow/mattresses","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Side Tables","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Vase","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Lamps", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", defaultTextButtonStyle, sofaClikListener));
-        categories.addActor(createCategoryContainer("Coffee Tables","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Tv Rack","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Book Shelves","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Mirrors","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Dining Set","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Kitchen Cabinets","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Wall Clock", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("TV","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Washing Machine","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Electric Fan","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Aircon","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Refridgerator","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Oven","Common/no-image.png",defaultTextButtonStyle,null));
+        categories.addActor(createCategoryContainer("Frames", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
+        categories.addActor(createCategoryContainer("Bed with pillow/mattresses","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Side Tables","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Vase","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Lamps", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
+        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
+        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
+        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), sofaClikListener));
+        categories.addActor(createCategoryContainer("Coffee Tables","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Tv Rack","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Book Shelves","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Mirrors","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Dining Set","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Kitchen Cabinets","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Wall Clock", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
+        categories.addActor(createCategoryContainer("TV","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Washing Machine","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Electric Fan","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Aircon","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Refridgerator","Common/no-image.png",SkinManager.getDefaultTextButtonStyle(),null));
+        categories.addActor(createCategoryContainer("Oven", "Common/no-image.png", SkinManager.getDefaultTextButtonStyle(), null));
 
         catalogWindow.align(Align.left);
 
@@ -419,7 +427,7 @@ public class RoomWithHUD extends AppScreen  {
         table.add(scrollPane);
         table.add(closeWindow);
 
-        catalogWindow.add(table);
+        catalogWindow.addActor(table);
 
         closeWindow.addListener(new ClickListener() {
             @Override
@@ -431,7 +439,8 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void doneLoading () {
-        sofa = new Furniture(assets.get("sofa.obj", Model.class));
+        Model model = assets.get("test.g3db", Model.class);
+        sofa = new Furniture(model,"sofa_root");
 
         sofa.transform.rotate(Vector3.X, -90);
 //        sofa.transform.scale(3, 3, 3);
@@ -484,7 +493,7 @@ public class RoomWithHUD extends AppScreen  {
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
         modelBatch.end();
-
+        stage.act();
         stage.draw();
 
     }
