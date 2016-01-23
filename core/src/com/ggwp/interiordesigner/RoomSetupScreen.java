@@ -106,8 +106,11 @@ public class RoomSetupScreen extends AppScreen {
         textButtonStyle.down = skin.newDrawable("defaultButton");
         textButtonStyle.font = skin.getFont("defaultFont");
 
+        TextButton backToGallery = new TextButton("BACK", textButtonStyle);
+        backToGallery.setBounds(5f, 5f, 70f, 40f);
+
         TextButton doneButton = new TextButton("DONE", textButtonStyle);
-        doneButton.setBounds(5f, 5f, 70f, 40f);
+        doneButton.setBounds(80f, 5f, 70f, 40f);
 
         doneButton.addListener(new ClickListener() {
             @Override
@@ -117,7 +120,17 @@ public class RoomSetupScreen extends AppScreen {
             }
         });
 
+        backToGallery.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Back to Gallery..");
+                MenuScreen.openDeviceGallery();
+                dispose();
+            }
+        });
+
         stage.addActor(doneButton);
+        stage.addActor(backToGallery);
     }
 
     @Override

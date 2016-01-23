@@ -105,6 +105,15 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void initCamera(){
+        if(camera == null){
+            camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            camera.position.set(50f, 50f, 100f);
+            camera.lookAt(50, 50, 0);
+            camera.near = 1f;
+            camera.far = 300f;
+            camera.update();
+        }
+
         camController = new CameraInputController(camera);
     }
 
@@ -116,6 +125,10 @@ public class RoomWithHUD extends AppScreen  {
 
     private int tranformTool = 0;
 
+    public RoomWithHUD(){
+        this(null, null);
+    }
+
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls){
         this.camera = camera;
         stage = new Stage(new ScreenViewport());
@@ -125,22 +138,14 @@ public class RoomWithHUD extends AppScreen  {
         initCamera();
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
 
-
         initHUD();
 
-
         spriteBatch = new SpriteBatch();
-
         modelBatch = new ModelBatch();
         shapeRenderer = new ShapeRenderer();
 
-
-
         assets.load("sofa.obj", Model.class);
         loading = true;
-
-
-//        Gdx.input.setInputProcessor(this);
 
         ModelBuilder modelBuilder = new ModelBuilder();
         Model square = modelBuilder.createBox(5f, 5f, 5f,
@@ -152,13 +157,9 @@ public class RoomWithHUD extends AppScreen  {
         selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
         originalMaterial = new Material();
 
-
-        System.out.println("Loading walls..");
-        for(Wall wall : walls){
-            System.out.println(wall.side);
+        if(walls != null){
+            instances.addAll(walls);
         }
-
-        instances.addAll(walls);
     }
 
     private void initHUD(){
