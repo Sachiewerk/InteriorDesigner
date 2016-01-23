@@ -1,8 +1,6 @@
 package com.ggwp.interiordesigner.object;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,14 +16,11 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
 public class Room {
 
     private static final float SCALE_AMOUNT = 1f;
     private static final float MINIMUM_DIMENSION = 10f;
+    private static final float DEFAULT_DIMENSION = 100f;
 
     private Array<Wall> walls = new Array<Wall>();
 
@@ -49,65 +44,15 @@ public class Room {
     private int previousDragX = 0;
     private int previousDragY = 0;
 
-    private float defaultHeight = 100f;
-    private float defaultWidth = 100f;
-    private float defaultDepth = 100f;
-
     private Vector3 position = new Vector3();
     private Camera camera;
 
+    private RoomDesignData data;
+
     public Room(Camera camera){
-        Preferences prefs = Gdx.app.getPreferences("Test");
-        System.out.println(prefs.getFloat("screen_w", 0f));
-        System.out.println(prefs.getFloat("screen_h", 0f));
-
-        prefs.putFloat("screen_w", Gdx.graphics.getWidth());
-        prefs.putFloat("screen_h", Gdx.graphics.getHeight());
-        prefs.flush();
-
-        RoomDesignData data = new RoomDesignData();
-        data.setBackgroundImage("Rooms/room2.jpg");
-        data.setVertices(new float[]{
-                -100, 100, 0,
-                0, 100, 0,
-                100, 100, 0,
-                200, 100, 0,
-                -100, 0, 0,
-                0, 0, 0,
-                100, 0, 0,
-                200, 0, 0
-        });
-
-        try {
-            FileHandle handle = Gdx.files.local("data/default-room.xml");
-
-//            if(handle.exists() == false){
-//                System.out.println("Creating file..");
-//                handle.file().createNewFile();
-//            }
-
-            //Save file
-//            System.out.println("Saving file..");
-            JAXBContext jaxb = JAXBContext.newInstance(RoomDesignData.class);
-//            Marshaller marshaller = jaxb.createMarshaller();
-//            marshaller.setProperty(marshaller.JAXB_FORMATTED_OUTPUT, true);
-//            marshaller.marshal(data, handle.file());
-
-            //Load file
-            System.out.println("Loading file..");
-            Unmarshaller unmarshaller = jaxb.createUnmarshaller();
-            RoomDesignData d = (RoomDesignData) unmarshaller.unmarshal(handle.file());
-
-            for(Float f : d.getVertices()){
-                System.out.println(f);
-            }
-        } catch (JAXBException e) {
-            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
+        if(data == null){
+            data = RoomDesignData.getDefaultInstance();
         }
-
-
 
         this.camera = camera;
 
@@ -130,14 +75,15 @@ public class Room {
     }
 
     private void createBackWall() {
+
         blendingAttribute.opacity = 0.8f;
         backWallMaterial.set(blendingAttribute);
 
         Model backWallModel = modelBuilder.createRect(
-                0, 0, 0,
-                defaultWidth, 0, 0,
-                defaultWidth, defaultHeight, 0,
-                0, defaultHeight, 0,
+                data.getVertices()[15], data.getVertices()[16], data.getVertices()[17],
+                data.getVertices()[18], data.getVertices()[19], data.getVertices()[20],
+                data.getVertices()[6], data.getVertices()[7], data.getVertices()[8],
+                data.getVertices()[3], data.getVertices()[4], data.getVertices()[5],
                 1, 1, 1,
                 backWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
@@ -148,40 +94,35 @@ public class Room {
 
     private void createRightWall() {
         Model rightWallModel = modelBuilder.createRect(
-                defaultWidth, 0, 0,
-                defaultWidth * 2, 0, defaultDepth,
-                defaultWidth * 2, defaultHeight, defaultDepth,
-                defaultWidth, defaultHeight, 0,
+                data.getVertices()[18], data.getVertices()[19], data.getVertices()[20],
+                data.getVertices()[21], data.getVertices()[22], data.getVertices()[23],
+                data.getVertices()[9], data.getVertices()[10], data.getVertices()[11],
+                data.getVertices()[6], data.getVertices()[7], data.getVertices()[8],
                 1, 1, 1,
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
         rightWall = new Wall(rightWallModel, true);
 
-//        TODO Nagloloko transform pag may ganto
-//        rightWall.transform
-//                .translate(defaultWidth, defaultHeight / 2, 0)
-//                .rotateRad(0, defaultHeight / 2, 0, (float) Math.toRadians(-30))
-//                .translate(-defaultWidth, -(defaultHeight / 2), 0);
+        rightWall.transform
+                .translate(DEFAULT_DIMENSION, DEFAULT_DIMENSION / 2, 0)
+                .rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(-30))
+                .translate(-DEFAULT_DIMENSION, -(DEFAULT_DIMENSION / 2), 0);
 
         walls.add(rightWall);
     }
 
     private void createLeftWall() {
         Model leftWallModel = modelBuilder.createRect(
-                -defaultWidth, 0, defaultDepth,
-                0, 0, 0,
-                0, defaultHeight, 0,
-                -defaultWidth, defaultHeight, defaultDepth,
+                data.getVertices()[12], data.getVertices()[13], data.getVertices()[14],
+                data.getVertices()[15], data.getVertices()[16], data.getVertices()[17],
+                data.getVertices()[3], data.getVertices()[4], data.getVertices()[5],
+                data.getVertices()[0], data.getVertices()[1], data.getVertices()[2],
                 1, 1, 1,
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
 
         leftWall = new Wall(leftWallModel, true);
-
-//        TODO Nagloloko transform pag may ganto
-//        TODO Option: REMOVE + CREATE WALL AGAIN
-//        leftWall.transform.rotateRad(0, defaultHeight / 2, 0, (float) Math.toRadians(30));
-
+        leftWall.transform.rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(30));
         walls.add(leftWall);
     }
 
@@ -234,10 +175,13 @@ public class Room {
     }
 
     private void leftWallDrag(float degrees) {
+        BoundingBox bounds = new BoundingBox();
+        backWall.calculateBoundingBox(bounds).mul(backWall.transform);
+
         leftWall.transform
-                .translate(0, defaultHeight / 2, 0)
-                .rotate(0, defaultHeight / 2, 0 , degrees)
-                .translate(0, -(defaultHeight / 2), 0);
+                .translate(0, bounds.getHeight() / 2, 0)
+                .rotate(0, bounds.getHeight() / 2, 0 , degrees)
+                .translate(0, -(bounds.getHeight() / 2), 0);
     }
 
     private void rightWallDrag(float degrees){
@@ -245,9 +189,9 @@ public class Room {
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
         rightWall.transform
-                .translate(defaultWidth, defaultHeight / 2, 0)
-                .rotate(0, defaultHeight / 2, 0, degrees)
-                .translate(-defaultWidth, -(defaultHeight / 2), 0);
+                .translate(DEFAULT_DIMENSION, bounds.getHeight() / 2, 0)
+                .rotate(0, bounds.getHeight() / 2, 0, degrees)
+                .translate(-DEFAULT_DIMENSION, -(bounds.getHeight() / 2), 0);
     }
 
     private void scaleWallsX(float multiplier) {

@@ -1,7 +1,6 @@
 package com.ggwp.interiordesigner.object;
 
 import com.ggwp.interiordesigner.MenuScreen;
-import com.ggwp.interiordesigner.RoomSetupScreen;
 import com.ggwp.interiordesigner.RoomWithHUD;
 
 /**
