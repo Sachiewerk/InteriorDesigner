@@ -100,10 +100,6 @@ public class ToolUtils {
         try {
             System.out.println("Saving room data design..");
 
-            for(float f : data.getVertices()){
-                System.out.println(f);
-            }
-
             FileHandle directory = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY);
             createDirectoryIfNotExists(directory);
 
@@ -112,64 +108,10 @@ public class ToolUtils {
 
             FileHandle newFile = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY + nextFileName);
 
-//            if(newFile.exists()){
-//                newFile.file().createNewFile();
-//            }
-
-//            newFile.file().createNewFile();
-
             System.out.println("Saving file..");
-
             Gson gson = new Gson();
             String json = gson.toJson(data);
             newFile.writeString(json, false);
-
-            RoomDesignData rdd = gson.fromJson(json, RoomDesignData.class);
-
-            System.out.println("Deserialization..");
-            for(Float f : rdd.getVertices()){
-                System.out.println(f);
-            }
-
-
-//            JAXBContext jaxb = JAXBContext.newInstance(RoomDesignData.class);
-//            Marshaller marshaller = jaxb.createMarshaller();
-//            marshaller.setProperty(marshaller.JAXB_FORMATTED_OUTPUT, true);
-//            marshaller.marshal(data, newFile.file());
-//
-//            //Load file
-//            System.out.println("Loading file..");
-
-//            for(FileHandle fileHandle : directory.list()){
-//                try {
-//                    System.out.println(directory.file().getAbsolutePath() + "   " + fileHandle.name());
-//
-//                    Object[][] tests = {{"title", fileHandle.name()},
-//                            {"message", fileHandle.name()}};
-//                    Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-//                            ToolUtils.createMapFromList(tests));
-//                } catch (NumberFormatException e){
-//                    e.printStackTrace();
-//                }
-//            }
-
-//            Unmarshaller unmarshaller = jaxb.createUnmarshaller();
-//            data = (RoomDesignData) unmarshaller.unmarshal(newFile.file());
-//
-//            for(Float f : data.getVertices()){
-//                System.out.println(f);
-//            }
-//
-//            i++;
-//
-//            FileHandle dir = Gdx.files.local("data/savedrooms/");
-//            if(dir.exists() && dir.isDirectory()){
-//                for(FileHandle h : dir.list()){
-//                    System.out.println("Name: " + h.file().getName());
-//                    System.out.println("Absolute Path: " + h.file().getName());
-//                    System.out.println("- - -");
-//                }
-//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
