@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -46,6 +47,10 @@ public class Room {
 
     private Vector3 position = new Vector3();
     private Camera camera;
+
+    private Vector3 scaleHolder = new Vector3();
+    private Vector3 vectorHolder = new Vector3();
+    private Quaternion quaternionHolder = new Quaternion();
 
     private RoomDesignData data;
 
@@ -105,7 +110,7 @@ public class Room {
 
         rightWall.transform
                 .translate(DEFAULT_DIMENSION, DEFAULT_DIMENSION / 2, 0)
-                .rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(-30))
+                .rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(-45))
                 .translate(-DEFAULT_DIMENSION, -(DEFAULT_DIMENSION / 2), 0);
 
         walls.add(rightWall);
@@ -122,55 +127,67 @@ public class Room {
         );
 
         leftWall = new Wall(leftWallModel, true);
-        leftWall.transform.rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(30));
+        leftWall.transform.rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(45));
         walls.add(leftWall);
     }
 
     private void onBackWallTopPartUpDrag(){
+        System.out.println("b wall top part up");
         scaleWallsY(1);
     }
 
     private void onBackWallTopPartDownDrag(){
+        System.out.println("b wall top part down");
         scaleWallsY(-1);
     }
 
     private void onBackWallBottomPartUpDrag(){
+        System.out.println("b wall bot part up");
         scaleAndMoveWallsY(1);
     }
 
     private void onBackWallBottomPartDownDrag(){
+        System.out.println("b wall bot part down");
         scaleAndMoveWallsY(-1);
     }
 
     private void onBackWallLeftPartLeftDrag(){
+        System.out.println("b wall left part left");
         scaleAndMoveWallsX(-1);
     }
 
     private void onBackWallLeftPartRightDrag(){
+        System.out.println("b wall left part right");
         scaleAndMoveWallsX(1);
     }
 
     private void onBackWallRightPartLeftDrag(){
+        System.out.println("b wall right part left");
         scaleWallsX(-1);
     }
 
     private void onBackWallRightPartRightDrag(){
+        System.out.println("b wall right part right");
         scaleWallsX(1);
     }
 
     private void onLeftWallUpDrag(){
+        System.out.println("left wall up");
         leftWallDrag(SCALE_AMOUNT);
     }
 
     private void onLeftWallDownDrag(){
+        System.out.println("left wall down");
         leftWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallUpDrag(){
+        System.out.println("right wall up");
         rightWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallDownDrag() {
+        System.out.println("right wall down");
         rightWallDrag(SCALE_AMOUNT);
     }
 
@@ -198,10 +215,16 @@ public class Room {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
+        rightWall.transform.getScale(scaleHolder);
+        rightWall.transform.getTranslation(vectorHolder);
+        rightWall.transform.getRotation(quaternionHolder, true);
+
         if(bounds.getWidth() > MINIMUM_DIMENSION){
             float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
             backWall.transform.scale(scalePercentage, 1f, 1f);
-            rightWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+
+            vectorHolder.x = vectorHolder.x + (SCALE_AMOUNT * multiplier);
+            rightWall.transform.set(vectorHolder, quaternionHolder, scaleHolder);
         }
     }
  
@@ -222,10 +245,16 @@ public class Room {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
+        leftWall.transform.getScale(scaleHolder);
+        leftWall.transform.getTranslation(vectorHolder);
+        leftWall.transform.getRotation(quaternionHolder, true);
+
         if(bounds.getWidth() > MINIMUM_DIMENSION){
             float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * -(multiplier));
             backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * multiplier, 0f, 0f);
-            leftWall.transform.translate(SCALE_AMOUNT * multiplier, 0f, 0f);
+
+            vectorHolder.x = vectorHolder.x + (SCALE_AMOUNT * multiplier);
+            leftWall.transform.set(vectorHolder, quaternionHolder, scaleHolder);
         }
     }
 
