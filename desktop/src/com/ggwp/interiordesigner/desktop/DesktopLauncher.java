@@ -17,8 +17,8 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1280;
-		config.height = 720;
+		config.width = 854;
+		config.height = 480;
 		launcher = new DesktopLauncher();
 			new LwjglApplication(new Main( launcher), config);
 	}
@@ -36,7 +36,8 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 	}
 
 	public String getScreenTemplateDir() {
-		return System.getProperty("user.home")+"/Pictures/interiordesign";
+		return getProjectDirectory()+"cam-snapshots/";
+
 	}
 
 
@@ -76,5 +77,15 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 	@Override
 	public void addResultListener(RequestResultListner resultListner) {
 		listeners.add(resultListner);
+	}
+
+	@Override
+	public void removeResultListener(RequestResultListner resultListner) {
+		listeners.remove(resultListner);
+	}
+
+	@Override
+	public String getProjectDirectory() {
+		return System.getProperty("user.home")+"/Pictures/interiordesign/";
 	}
 }

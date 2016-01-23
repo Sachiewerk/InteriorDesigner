@@ -13,7 +13,7 @@ public interface AndroidOnlyInterface {
 
     public static enum RequestType{
         SHOW_MESSAGE(1),SHOW_NOTIFICATION(2),IMAGE_CAPTURE(3),GET_IMAGE_FROM_GALLERY(4),GET_SCREEN_TEMPLATE_DIR(5),
-        LOG(6)
+        LOG(6),SAVE_FILE(7), SET_ACTIVE_SCREEN(9)
         ;
 
         private final int requestCode;
@@ -35,5 +35,10 @@ public interface AndroidOnlyInterface {
     public void requestOnDevice(RequestType rType, Map<String,Object> params);
 
     public void addResultListener(RequestResultListner resultListner);
+
+    public void removeResultListener(RequestResultListner resultListner);
+
+    public String getProjectDirectory();
+
 
 }

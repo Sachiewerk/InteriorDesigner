@@ -16,8 +16,8 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interfaces.RequestResultListner;
+import com.ggwp.interiordesigner.object.AppScreen;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -136,7 +136,19 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 	}
 
 	public String getScreenTemplateDir() {
-		return Environment.getExternalStorageDirectory()+"/interiordesigner";
+		return getProjectDirectory()+"cam-snapshots/";
+	}
+
+	@Override
+	public void onBackPressed() {
+		//super.onBackPressed();
+		//toast("HIHIHI");
+
+		if(activeScreen!=null){
+			activeScreen.back();
+		}
+
+
 	}
 
 	@Override
@@ -212,16 +224,34 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 			case GET_IMAGE_FROM_GALLERY:
 				selectImage();
 				break;
+			case SET_ACTIVE_SCREEN:
+				activeScreen= (AppScreen)params.get("activescreen");
+
+				break;
 		}
 
 
 	}
 
+
 	private List<RequestResultListner> listeners = new ArrayList<RequestResultListner>();
+	private AppScreen activeScreen = null;
+
 
 
 	@Override
 	public void addResultListener(RequestResultListner resultListner) {
 		listeners.add(resultListner);
+	}
+
+	@Override
+	public void removeResultListener(RequestResultListner resultListner) {
+		listeners.remove(resultListner);
+	}
+
+
+	@Override
+	public String getProjectDirectory() {
+		return Environment.getExternalStorageDirectory()+"/interiordesigner/";
 	}
 }

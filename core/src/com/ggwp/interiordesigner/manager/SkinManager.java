@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 /**
  * Created by Raymond on 1/22/2016.
@@ -35,11 +36,35 @@ public class SkinManager {
         BitmapFont textFont = generator.generateFont(parameter);
         generator.dispose();
 
+        Pixmap cancelPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        cancelPixmap.setColor(Color.rgba8888(Color.RED.r, Color.RED.g, Color.RED.b, .5f));
+        cancelPixmap.fill();
+
+        Pixmap submitPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        submitPixmap.setColor(Color.rgba8888(Color.GREEN.r, Color.GREEN.g, Color.GREEN.b, .5f));
+        submitPixmap.fill();
+
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
+        defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
+        defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
         defaultSkin.add("defaultFont", textFont);
 
         bloackPixmap.dispose();
         whitePixmap.dispose();
+    }
+
+    public static TextButton.TextButtonStyle getDefaultCancelTextButtonStyle(){
+        TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
+        defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultCancelButton");
+
+        return defaultTextButtonStyle;
+    }
+
+    public static TextButton.TextButtonStyle getDefaultSubmitTextButtonStyle(){
+        TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
+        defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultSubmitButton");
+
+        return defaultTextButtonStyle;
     }
 
     public static TextButton.TextButtonStyle getDefaultTextButtonStyle(){
