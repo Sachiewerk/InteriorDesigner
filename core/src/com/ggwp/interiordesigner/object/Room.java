@@ -378,4 +378,56 @@ public class Room {
         previousDragY = screenY;
     }
 
+    public float[] getVertices(){
+        BoundingBox leftBox = new BoundingBox();
+        BoundingBox rightBox = new BoundingBox();
+
+        leftWall.calculateBoundingBox(leftBox).mul(leftWall.transform);
+        rightWall.calculateBoundingBox(rightBox).mul(rightWall.transform);
+        
+        Vector3 leftV000 = new Vector3();
+        Vector3 leftV010 = new Vector3();
+        Vector3 leftV100 = new Vector3();
+        Vector3 leftV110 = new Vector3();
+
+        Vector3 rightV000 = new Vector3();
+        Vector3 rightV010 = new Vector3();
+        Vector3 rightV100 = new Vector3();
+        Vector3 rightV110 = new Vector3();
+
+        leftBox.getCorner000(leftV000);
+        leftBox.getCorner010(leftV010);
+        leftBox.getCorner100(leftV100);
+        leftBox.getCorner110(leftV110);
+
+        rightBox.getCorner000(rightV000);
+        rightBox.getCorner010(rightV010);
+        rightBox.getCorner100(rightV100);
+        rightBox.getCorner110(rightV110);
+
+//        List<Vector3> list = new ArrayList<Vector3>();
+//        list.add(leftV000);
+//        list.add(leftV010);
+//        list.add(leftV100);
+//        list.add(leftV110);
+//
+//        for(Vector3 v3 : list){
+//            System.out.println("Index: " + list.indexOf(v3) + ". X: " + v3.x + ". Y: " + v3.y + ". Z: " + v3.z);
+//        }
+//        System.out.println("---");
+
+        float[] vertices = new float[]{
+                leftV010.x, leftV010.y, leftV010.z,
+                leftV110.x, leftV110.y, leftV110.z,
+                rightV010.x, rightV010.y, rightV010.z,
+                rightV110.x, rightV110.y, rightV110.z,
+
+                leftV000.x, leftV000.y, leftV000.z,
+                leftV100.x, leftV100.y, leftV100.z,
+                rightV000.x, rightV000.y, rightV000.z,
+                rightV100.x, rightV100.y, rightV100.z,
+        };
+        return vertices;
+    }
+
 }

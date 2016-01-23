@@ -1,9 +1,5 @@
 package com.ggwp.interiordesigner.object;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class RoomDesignData {
 
     private static final float DEFAULT_DIMENSION = 100f;
@@ -26,7 +22,6 @@ public class RoomDesignData {
         return data;
     }
 
-    @XmlElement
     public String getBackgroundImage() {
         return backgroundImage;
     }
@@ -35,7 +30,6 @@ public class RoomDesignData {
         this.backgroundImage = backgroundImage;
     }
 
-    @XmlElement
     public float[] getVertices() {
         return vertices;
     }

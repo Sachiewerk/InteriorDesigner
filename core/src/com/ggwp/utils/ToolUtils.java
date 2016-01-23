@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.Main;
 import com.ggwp.interiordesigner.object.RoomDesignData;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,9 +13,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 /**
  * Created by Dell on 1/22/2016.
@@ -98,13 +96,18 @@ public class ToolUtils {
     public static void saveRoomDataDesign(RoomDesignData data){
         try {
             System.out.println("Saving room data design..");
-            FileHandle directory = Gdx.files.absolute(Main.aoi.getProjectDirectory() + SAVED_ROOM_DESIGN_DIRECTORY);
+
+            for(float f : data.getVertices()){
+                System.out.println(f);
+            }
+
+            FileHandle directory = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY);
             createDirectoryIfNotExists(directory);
 
             String nextFileName = getRoomNextFileName(directory);
             System.out.println(nextFileName);
 
-            FileHandle newFile = Gdx.files.absolute(Main.aoi.getProjectDirectory() + SAVED_ROOM_DESIGN_DIRECTORY + nextFileName);
+            FileHandle newFile = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY + nextFileName);
 
 //            if(newFile.exists()){
 //                newFile.file().createNewFile();
@@ -113,26 +116,39 @@ public class ToolUtils {
 //            newFile.file().createNewFile();
 
             System.out.println("Saving file..");
-            JAXBContext jaxb = JAXBContext.newInstance(RoomDesignData.class);
-            Marshaller marshaller = jaxb.createMarshaller();
-            marshaller.setProperty(marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(data, newFile.file());
+
+            Gson gson = new Gson();
+            String json = gson.toJson(data);
+            newFile.writeString(json, false);
+
+            RoomDesignData rdd = gson.fromJson(json, RoomDesignData.class);
+
+            System.out.println("Deserialization..");
+            for(Float f : rdd.getVertices()){
+                System.out.println(f);
+            }
+
+
+//            JAXBContext jaxb = JAXBContext.newInstance(RoomDesignData.class);
+//            Marshaller marshaller = jaxb.createMarshaller();
+//            marshaller.setProperty(marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            marshaller.marshal(data, newFile.file());
 //
 //            //Load file
-            System.out.println("Loading file..");
+//            System.out.println("Loading file..");
 
-            for(FileHandle fileHandle : directory.list()){
-                try {
-                    System.out.println(fileHandle.name());
-
-                    Object[][] tests = {{"title", fileHandle.name()},
-                            {"message", fileHandle.name()}};
-                    Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                            ToolUtils.createMapFromList(tests));
-                } catch (NumberFormatException e){
-                    e.printStackTrace();
-                }
-            }
+//            for(FileHandle fileHandle : directory.list()){
+//                try {
+//                    System.out.println(directory.file().getAbsolutePath() + "   " + fileHandle.name());
+//
+//                    Object[][] tests = {{"title", fileHandle.name()},
+//                            {"message", fileHandle.name()}};
+//                    Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+//                            ToolUtils.createMapFromList(tests));
+//                } catch (NumberFormatException e){
+//                    e.printStackTrace();
+//                }
+//            }
 
 //            Unmarshaller unmarshaller = jaxb.createUnmarshaller();
 //            data = (RoomDesignData) unmarshaller.unmarshal(newFile.file());
@@ -151,9 +167,6 @@ public class ToolUtils {
 //                    System.out.println("- - -");
 //                }
 //            }
-
-        } catch (JAXBException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,12 +187,12 @@ public class ToolUtils {
                 e.printStackTrace();
             }
         }
-        return String.valueOf(max + 1) + ".xml";
+        return String.valueOf(max + 1) + ".json";
     }
 
     private static void createDirectoryIfNotExists(FileHandle directory) throws IOException {
         System.out.println("Checking directory..");
-        if(directory.exists() == false){
+        if(!directory.exists()){
             System.out.println("Creating directory..");
             directory.file().mkdirs();
         }

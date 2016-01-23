@@ -43,9 +43,12 @@ public class RoomSetupScreen extends AppScreen {
     private Stage stage;
     private Boolean fromCamera;
 
+    private String fileName = "";
     private boolean test = false;
 
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
+        this.fileName = fileHandle.name();
+
         this.fromCamera = fromCamera;
         stage = new Stage(new ScreenViewport());
 
@@ -91,7 +94,12 @@ public class RoomSetupScreen extends AppScreen {
 
         if(test){
             System.out.println("Done clicked...");
-            ToolUtils.saveRoomDataDesign(RoomDesignData.getDefaultInstance());
+
+            RoomDesignData data = new RoomDesignData();
+            data.setBackgroundImage(fileName);
+            data.setVertices(room.getVertices());
+            ToolUtils.saveRoomDataDesign(data);
+
             test = false;
         }
     }
