@@ -8,37 +8,54 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.AppScreens;
 import com.ggwp.interiordesigner.object.EmptyRoomSelector;
+import com.ggwp.interiordesigner.object.TutorialPanel;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
 import com.ggwp.utils.ToolUtils;
+import com.ggwp.utils.Tweener.ImageButtonAccessor;
+import com.ggwp.utils.Tweener.ImageOpacityAccessor;
 
 import javax.tools.Tool;
+
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenAccessor;
+import aurelienribon.tweenengine.TweenManager;
+import aurelienribon.tweenengine.equations.Bounce;
+import aurelienribon.tweenengine.equations.Cubic;
 
 public class MenuScreen extends AppScreen{
 
     private Skin skin;
     private Stage stage;
     private Texture backgroundImage;
-    private Texture gradient;
+    private Image gradient,gradient2;
 
     private Table newDesignOption;
+    final ImageButton helpBtn;
     final TextButton createNewBtn;
     final TextButton catalogBtn;
     final TextButton exitBtn;
@@ -46,12 +63,27 @@ public class MenuScreen extends AppScreen{
     BitmapFont titleFont;
     BitmapFont textFont;
 
+
+    private TweenManager manager;
     private final AppScreen thisAppScreen;
+    private  TextButton backButton;
 
     public MenuScreen(){
         thisAppScreen = this;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
+
+        backgroundImage = new Texture("menu2.jpg");
+        gradient = new Image(new Texture("gradient-black.png"));
+        gradient2 = new Image(new Texture("gradient-black.png"));
+
+        gradient.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        Color curColor = gradient2.getColor();
+        gradient2.setColor(curColor.r, curColor.g, curColor.b, 0.0f);
+        gradient2.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        gradient2.setOrigin(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+        gradient2.rotateBy(180);
 
         createFonts();
 
@@ -105,12 +137,43 @@ public class MenuScreen extends AppScreen{
 
         loadCreateNewOptions();
 
-        backgroundImage = new Texture("menu2.jpg");
-        gradient = new Texture("gradient-black.png");
+        helpBtn = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/help-icon.png"))));
+        helpBtn.setBounds(Gdx.graphics.getWidth() - 110, Gdx.graphics.getHeight() - 110, 100, 100);
+        stage.addActor(helpBtn);
+        helpBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getInstance().setScreen(new TutorialPanel());
+            }
+        });
+
+
+
         addListeners();
 
         loadObjects();
+
+
+        manager = new TweenManager();
+        Tween.registerAccessor(Image.class, new ImageOpacityAccessor());
+        Tween.to(gradient, ImageOpacityAccessor.ALPHA, 6f)
+                .target(0.4f)
+                .repeatYoyo(-1,0)
+                .ease(Bounce.INOUT)
+                .start(manager);
+
+        Tween.to(gradient2, ImageOpacityAccessor.ALPHA, 5f)
+                .target(0.7f)
+                .delay(3f)
+                .repeatYoyo(-1, 0)
+                .ease(Bounce.INOUT)
+                .start(manager);
+
+
     }
+
+
+
 
     private void loadCreateNewOptions(){
         TextButton.TextButtonStyle style5 = new TextButton.TextButtonStyle();
@@ -128,11 +191,12 @@ public class MenuScreen extends AppScreen{
         newDesignOption = new Table(skin);
         newDesignOption.setFillParent(true);
 
-        newDesignOption.background(new Image(new Texture("gradient2.png")).getDrawable());
+        newDesignOption.background(new SpriteDrawable(new Sprite(new Texture("gradient2.png"))));
 
         newDesignOption.add(takePictureBtn).padRight(5).width(150);
         newDesignOption.add(fromGallryBtn).padRight(5).width(150);
         newDesignOption.add(emptyRoomBtn).width(150);
+
 
         takePictureBtn.addListener(new ClickListener() {
             @Override
@@ -154,15 +218,31 @@ public class MenuScreen extends AppScreen{
         emptyRoomBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                    final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
+                final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
 
 
-                    ToolUtils.removeScreenInputProcessor(stage);
-                    stage.addActor(c);
+                ToolUtils.removeScreenInputProcessor(stage);
+                stage.addActor(c);
 
 
             }
         });
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = SkinManager.getDefaultSkin().newDrawable("defaultButton");
+        textButtonStyle.down = SkinManager.getDefaultSkin().newDrawable("defaultButton");
+        textButtonStyle.font = SkinManager.getDefaultSkin().getFont("defaultFont");
+        textButtonStyle.fontColor= Color.BLACK;
+        backButton = new TextButton("BACK", textButtonStyle);
+        backButton.setBounds(5f, 5f, 70f, 40f);
+
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                newDesignOption.remove();
+                backButton.remove();
+            }
+        });
+
     }
 
     public static void openDeviceCamera() {
@@ -194,7 +274,15 @@ public class MenuScreen extends AppScreen{
             @Override
             public void clicked (InputEvent il,float x,float y) {
                 stage.addActor(newDesignOption);
+                stage.addActor(backButton);
                 setDisableMenuButton(true);
+            }
+        });
+        exitBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked (InputEvent il,float x,float y) {
+               dispose();
+                Gdx.app.exit();
             }
         });
     }
@@ -216,6 +304,7 @@ public class MenuScreen extends AppScreen{
         parameter.size = 28;
         titleFont = generator.generateFont(parameter);
         generator.dispose();
+
     }
     @Override
     public void show() {
@@ -227,11 +316,18 @@ public class MenuScreen extends AppScreen{
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        //test tween
+
+        manager.update(delta);
+
+        //
+
 
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        stage.getBatch().draw(gradient, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        gradient.draw(stage.getBatch(),1);
+        gradient2.draw(stage.getBatch(),1);
         stage.getBatch().end();
 
         stage.draw();

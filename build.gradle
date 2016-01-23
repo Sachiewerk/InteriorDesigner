@@ -68,6 +68,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
         compile "com.google.code.gson:gson:2.3"
+	compile fileTree(dir: '../libs', include: '*.jar')
     }
 }
 
@@ -81,6 +82,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "com.google.code.gson:gson:2.3"
+	compile fileTree(dir: '../libs', include: '*.jar')
     }
 }
 
