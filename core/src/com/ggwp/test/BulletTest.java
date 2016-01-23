@@ -42,11 +42,13 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class BulletTest implements ApplicationListener {
 
+
     class MyContactListener extends ContactListener {
         @Override
         public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
             instances.get(userValue0).moving = false;
             instances.get(userValue1).moving = false;
+            System.out.println("sss");
             return true;
         }
     }
@@ -189,10 +191,14 @@ public class BulletTest implements ApplicationListener {
 
         collisionWorld.performDiscreteCollisionDetection();
 
-        if ((spawnTimer -= delta) < 0) {
-            spawn();
-            spawnTimer = 1.5f;
+
+        if(instances.size <= 3){
+            if ((spawnTimer -= delta) < 0) {
+                spawn();
+                spawnTimer = 3f;
+            }
         }
+
 
         camController.update();
 

@@ -46,7 +46,9 @@ public class RoomSetupScreen extends AppScreen {
     private String fileName = "";
     private boolean test = false;
 
+    private FileHandle fileHandle;
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
+        this.fileHandle = fileHandle;
         this.fileName = fileHandle.name();
 
         this.fromCamera = fromCamera;
@@ -93,11 +95,16 @@ public class RoomSetupScreen extends AppScreen {
         stage.draw();
 
         if(test){
+//            TODO Remove
             System.out.println("Done clicked...");
 
             RoomDesignData data = new RoomDesignData();
             data.setBackgroundImage(fileName);
+
+            String name = "Room " + fileName.replace(".jpg", "").replace("room", "");
+
             data.setVertices(room.getVertices());
+            data.setName(name);
             ToolUtils.saveRoomDataDesign(data);
 
             test = false;
@@ -135,9 +142,9 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                test = true;
-//                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls()));
-//                dispose();
+//                test = true;
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(),fileHandle));
+                dispose();
             }
         });
 
