@@ -42,6 +42,8 @@ public class Catalog extends Window {
     protected AppScreen appScreen;
     private Catalog instance;
 
+    private Table layoutTable;
+    private Table furnituresContainer;
     private ScrollPane categoriesScrollPane;
     private ScrollPane furnituresScrollPane;
 
@@ -77,53 +79,46 @@ public class Catalog extends Window {
         inputMultiplexer.addProcessor(stage);
     }
 
-    private Table table = new Table();
+
     private void initCategories(){
         VerticalGroup categories = new VerticalGroup();
+
+        layoutTable = new Table();
+        layoutTable.setFillParent(true);
+        layoutTable.defaults().left();
+        layoutTable.columnDefaults(0).width(250f);
+        layoutTable.columnDefaults(1).top().width(Gdx.graphics.getWidth() - 250f);
 
         categoriesScrollPane = new ScrollPane(categories);
         furnituresScrollPane = new ScrollPane(createBedsContainer());
 
-        table.debug();
-//        table = new Table();
-        table.setFillParent(true);
+        furnituresContainer = new Table();
+        furnituresContainer.setFillParent(true);
+        furnituresContainer.left();
 
-        table.defaults().left();
-        table.columnDefaults(0).width(250f);
-        table.columnDefaults(1).top().width(Gdx.graphics.getWidth() - 250f);
+        furnituresContainer.add(furnituresScrollPane);
 
-        table.add(categoriesScrollPane);
-        table.add(furnituresScrollPane);
+        layoutTable.add(categoriesScrollPane);
+        layoutTable.add(furnituresContainer);
 
-        EventListener sofaClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Furniture sofa = new Furniture(assets.get("sofa.obj", Model.class));
-                sofa.transform.rotate(Vector3.X, -90);
-                sofa.calculateTransforms();
-                BoundingBox bounds = new BoundingBox();
-                sofa.calculateBoundingBox(bounds);
-                sofa.shape = new Box(bounds);
-                furnitures.add(sofa);
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
+
 
 
         EventListener bedsClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
                 furnituresScrollPane = new ScrollPane(createBedsContainer());
-                table.add(furnituresScrollPane);
+                furnituresContainer.add(furnituresScrollPane);
             }
         };
 
         EventListener framesClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
                 furnituresScrollPane = new ScrollPane(createFramesContainer());
-                table.add(furnituresScrollPane);
+                furnituresContainer.add(furnituresScrollPane);
             }
         };
 
@@ -135,7 +130,7 @@ public class Catalog extends Window {
         categories.addActor(createCategoryContainer("Lamps", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", defaultTextButtonStyle, sofaClikListener));
+        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Coffee Tables","Common/no-image.png",defaultTextButtonStyle,null));
         categories.addActor(createCategoryContainer("Tv Rack","Common/no-image.png",defaultTextButtonStyle,null));
         categories.addActor(createCategoryContainer("Book Shelves","Common/no-image.png",defaultTextButtonStyle,null));
@@ -150,10 +145,7 @@ public class Catalog extends Window {
         categories.addActor(createCategoryContainer("Refridgerator", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Oven", "Common/no-image.png", defaultTextButtonStyle, null));
 
-
-
-
-        this.add(table);
+        this.add(layoutTable);
     }
 
     private Table createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener) {
@@ -177,48 +169,62 @@ public class Catalog extends Window {
 
     private Container createBedsContainer(){
         Table main = new Table();
-        main.setDebug(true);
+
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
         main.add(new Label("Bed with pillow/mattresses", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("1", "Common/no-image.png", null));
-        main.add(createFurnitureCard("2", "Common/no-image.png", null));
-        main.add(createFurnitureCard("3", "Common/no-image.png", null));
+        EventListener sofaClikListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Furniture sofa = new Furniture(assets.get("sofa.obj", Model.class));
+                sofa.transform.rotate(Vector3.X, -90);
+                sofa.calculateTransforms();
+                BoundingBox bounds = new BoundingBox();
+                sofa.calculateBoundingBox(bounds);
+                sofa.shape = new Box(bounds);
+                furnitures.add(sofa);
+                stage.getActors().removeValue(instance,true);
+                initInputProcessors();
+            }
+        };
+
+        main.add(createFurnitureCard("b1", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b2", "Common/no-image.png", sofaClikListener));
+        main.add(createFurnitureCard("b3", "Common/no-image.png", null));
         main.row();
-        main.add(createFurnitureCard("4", "Common/no-image.png", null));
-        main.add(createFurnitureCard("5", "Common/no-image.png", null));
-        main.add(createFurnitureCard("6", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b4", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b5", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b6", "Common/no-image.png", null));
         main.row();
-        main.add(createFurnitureCard("7", "Common/no-image.png", null));
-        main.add(createFurnitureCard("8", "Common/no-image.png", null));
-        main.add(createFurnitureCard("9", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b7", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b8", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b9", "Common/no-image.png", null));
 
         return new Container(main);
     }
 
     private Container createFramesContainer(){
         Table main = new Table();
-        main.setDebug(true);
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
         main.add(new Label("Frames", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("1", "Common/no-image.png", null));
-        main.add(createFurnitureCard("2", "Common/no-image.png", null));
-        main.add(createFurnitureCard("3", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f1", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f2", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f3", "Common/no-image.png", null));
         main.row();
-        main.add(createFurnitureCard("4", "Common/no-image.png", null));
-        main.add(createFurnitureCard("5", "Common/no-image.png", null));
-        main.add(createFurnitureCard("6", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f4", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f5", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f6", "Common/no-image.png", null));
         main.row();
-        main.add(createFurnitureCard("7", "Common/no-image.png", null));
-        main.add(createFurnitureCard("8", "Common/no-image.png", null));
-        main.add(createFurnitureCard("9", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f7", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f8", "Common/no-image.png", null));
+        main.add(createFurnitureCard("f9", "Common/no-image.png", null));
 
         return new Container(main);
     }
@@ -230,7 +236,9 @@ public class Catalog extends Window {
         float cardSize = ((Gdx.graphics.getWidth()-250f) / (3f)) - 30f;
 
         main.add(image).width(cardSize).height(cardSize);
-
+        if(listener != null){
+            main.addListener(listener);
+        }
         main.row();
         main.add(new Label(name, SkinManager.getDefaultLabelStyle()));
         return new Container(main);
