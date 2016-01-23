@@ -39,8 +39,10 @@ public class RoomSetupScreen extends AppScreen {
     private Array<ModelInstance> instances = new Array<ModelInstance>();
 
     private Stage stage;
+    private Boolean fromCamera;
 
-    public RoomSetupScreen(FileHandle fileHandle) {
+    public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
+        this.fromCamera = fromCamera;
         stage = new Stage(new ScreenViewport());
 
         spriteBatch = new SpriteBatch();
@@ -106,8 +108,8 @@ public class RoomSetupScreen extends AppScreen {
         textButtonStyle.down = skin.newDrawable("defaultButton");
         textButtonStyle.font = skin.getFont("defaultFont");
 
-        TextButton backToGallery = new TextButton("BACK", textButtonStyle);
-        backToGallery.setBounds(5f, 5f, 70f, 40f);
+        TextButton backButton = new TextButton("BACK", textButtonStyle);
+        backButton.setBounds(5f, 5f, 70f, 40f);
 
         TextButton doneButton = new TextButton("DONE", textButtonStyle);
         doneButton.setBounds(80f, 5f, 70f, 40f);
@@ -120,17 +122,20 @@ public class RoomSetupScreen extends AppScreen {
             }
         });
 
-        backToGallery.addListener(new ClickListener() {
+        backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Back to Gallery..");
-                MenuScreen.openDeviceGallery();
+                if (fromCamera) {
+                    MenuScreen.openDeviceCamera();
+                } else {
+                    MenuScreen.openDeviceGallery();
+                }
                 dispose();
             }
         });
 
         stage.addActor(doneButton);
-        stage.addActor(backToGallery);
+        stage.addActor(backButton);
     }
 
     @Override

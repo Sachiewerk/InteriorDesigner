@@ -11,7 +11,9 @@ import com.ggwp.utils.ToolUtils;
 public class ImageSelectionScreen extends AppScreen{
 
     private FileHandle roomTemplateImageSource;
-    boolean flagImageUpdate = false;
+
+    private boolean flagImageUpdate = false;
+    private boolean fromCamera = false;
 
     public ImageSelectionScreen(){
         flagImageUpdate = true;
@@ -29,6 +31,7 @@ public class ImageSelectionScreen extends AppScreen{
 
                     roomTemplateImageSource = ToolUtils.fetchLatestSnapshot();
                     flagImageUpdate = true;
+                    fromCamera = true;
                 }
 
             }
@@ -46,6 +49,7 @@ public class ImageSelectionScreen extends AppScreen{
                 String result1 = ToolUtils.getParamValue(result, String.class, "imagepath");
                 roomTemplateImageSource = ToolUtils.findFileByAbsolutePath(result1);
                 flagImageUpdate = true;
+                fromCamera = false;
             }
 
             @Override
@@ -64,7 +68,7 @@ public class ImageSelectionScreen extends AppScreen{
     public void render(float delta) {
         if(flagImageUpdate && roomTemplateImageSource != null){
             dispose();
-            Main.getInstance().setScreen(new RoomSetupScreen(roomTemplateImageSource));
+            Main.getInstance().setScreen(new RoomSetupScreen(roomTemplateImageSource, fromCamera));
         }
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
