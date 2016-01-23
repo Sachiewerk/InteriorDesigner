@@ -4,13 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -21,24 +19,36 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
+import com.badlogic.gdx.physics.bullet.collision.ContactListener;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.object.AppScreen;
-import com.ggwp.interiordesigner.object.Box;
 import com.ggwp.interiordesigner.object.Catalog;
-import com.ggwp.interiordesigner.object.Furniture;
+import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.Wall;
 
 /**
@@ -51,27 +61,18 @@ public class RoomWithHUD extends AppScreen  {
         static final int ROTATE = 1;
     }
 
-    public static class GameObject extends ModelInstance {
-        public final Vector3 center = new Vector3();
-        public final Vector3 dimensions = new Vector3();
-        public final float radius;
-
-        private final static BoundingBox bounds = new BoundingBox();
-
-        public GameObject(Model model){
-            super(model);
-            calculateBoundingBox(bounds);
-            bounds.getCenter(center);
-            bounds.getDimensions(dimensions);
-            radius = dimensions.len() / 2f;
+    class MyContactListener extends ContactListener {
+        @Override
+        public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
+            instances.get(userValue0).collided = true;
+            instances.get(userValue1).collided = true;
+            return true;
         }
 
-        public GameObject (Model model, String rootNode, boolean mergeTransform) {
-            super(model, rootNode, mergeTransform);
-            calculateBoundingBox(bounds);
-            bounds.getCenter(center);
-            bounds.getDimensions(dimensions);
-            radius = dimensions.len() / 2f;
+        @Override
+        public void onContactEnded(int userValue0, int userValue1) {
+            instances.get(userValue0).collided = false;
+            instances.get(userValue1).collided = false;
         }
     }
 
@@ -83,21 +84,31 @@ public class RoomWithHUD extends AppScreen  {
     protected Environment environment;
     protected boolean loading;
     private ShapeRenderer shapeRenderer;
-    private Furniture sofa;
 
     private SpriteBatch spriteBatch;
     private Texture background;
 
-    private Array<ModelInstance> instances = new Array<ModelInstance>();
+    private Array<GameObject> instances = new Array<GameObject>();
 
     protected Stage stage;
     private Vector3 position = new Vector3();
+    private Quaternion rotation = new Quaternion();
+    private Vector3 origPosition = new Vector3();
+    private Quaternion origRotation = new Quaternion();
+
 
     private int selected = -1, selecting = -1;
     private Material selectionMaterial;
     private Material originalMaterial;
 
-    private Window catalogWindow;
+    private int tranformTool = 0;
+
+
+    private btCollisionConfiguration collisionConfig;
+    private btDispatcher dispatcher;
+    private MyContactListener contactListener;
+    private btBroadphaseInterface broadphase;
+    private btCollisionWorld collisionWorld;
 
     private void initEnvironment(){
         environment = new Environment();
@@ -124,17 +135,23 @@ public class RoomWithHUD extends AppScreen  {
         im.addProcessor(stage);
     }
 
-    private int tranformTool = 0;
+    public RoomWithHUD(){
+        this(null, null,null);
+    }
+
+    private DebugDrawer debugDrawer;
 
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
+        Bullet.init();
         this.camera = camera;
         stage = new Stage(new ScreenViewport());
         assets = new AssetManager();
 
         initEnvironment();
         initCamera();
-        initHUD();
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
+
+        initHUD();
 
         spriteBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
@@ -143,18 +160,49 @@ public class RoomWithHUD extends AppScreen  {
         assets.load("sofa.obj", Model.class);
         loading = true;
 
-        ModelBuilder modelBuilder = new ModelBuilder();
-        Model square = modelBuilder.createBox(5f, 5f, 5f,
-                new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-        instances.add(new ModelInstance(square));
 
         selectionMaterial = new Material();
         selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
         originalMaterial = new Material();
 
+        collisionConfig = new btDefaultCollisionConfiguration();
+        dispatcher = new btCollisionDispatcher(collisionConfig);
+        broadphase = new btDbvtBroadphase();
+        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
+        contactListener = new MyContactListener();
+
+        debugDrawer = new DebugDrawer();
+        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+
+        collisionWorld.setDebugDrawer(debugDrawer);
+
         if(walls != null){
-            instances.addAll(walls);
+            for(Wall wall : walls){
+                if(!wall.side){
+                    continue;
+                }
+                BoundingBox bounds = new BoundingBox();
+                wall.calculateBoundingBox(bounds);
+
+                Vector3 dimension = new Vector3();
+                bounds.getDimensions(dimension);
+
+                dimension.x -= (dimension.x / 2f);
+                dimension.y -= (dimension.y / 2f);
+                dimension.z -= (dimension.z / 2f);
+
+                wall.body = new btCollisionObject();
+                wall.body.setCollisionShape(new btBoxShape(dimension));
+
+                wall.collided = false;
+                wall.body.setWorldTransform(wall.transform);
+                wall.body.setUserValue(instances.size);
+                wall.body.setCollisionFlags(wall.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+                instances.add(wall);
+                collisionWorld.addCollisionObject(wall.body);
+
+                instances.add(wall);
+            }
         }
         background = new Texture(backgroundSource);
     }
@@ -230,23 +278,36 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void doneLoading () {
-        sofa = new Furniture(assets.get("sofa.obj", Model.class));
-//        sofa.transform.rotate(Vector3.X, -90);
-//        sofa.transform.scale(1f, .1f, 1f);
+        for(int i = 1; i < 3; i++){
+            Model m = assets.get("sofa.obj", Model.class);
 
-        sofa.calculateTransforms();
-        BoundingBox bounds = new BoundingBox();
-        sofa.calculateBoundingBox(bounds);
-        System.out.println(bounds.getHeight());
-        sofa.transform.setToTranslation(0, bounds.getHeight(), 0);
+            BoundingBox bounds = new BoundingBox();
+            m.calculateBoundingBox(bounds);
 
-        sofa.shape = new Box(bounds);
+            Vector3 dimension = new Vector3();
+            bounds.getDimensions(dimension);
 
-//        sofa.transform.setToTranslation(0f,bounds.getHeight() - 50f ,0f);
+            dimension.x -= (dimension.x / 2f);
+            dimension.y -= (dimension.y / 2f);
+            dimension.z -= (dimension.z / 2f);
 
-        instances.add(sofa);
+            GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
+            sofa.transform.translate((i * 40f), bounds.getHeight(), 0);
+            sofa.calculateTransforms();
 
+            BoundingBox bb = new BoundingBox();
+            sofa.calculateBoundingBox(bb);
 
+            bb.getCenter(sofa.center);
+            bb.getDimensions(sofa.dimensions);
+
+            sofa.collided = false;
+            sofa.body.setWorldTransform(sofa.transform);
+            sofa.body.setUserValue(instances.size);
+            sofa.body.setCollisionFlags(sofa.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+            instances.add(sofa);
+            collisionWorld.addCollisionObject(sofa.body);
+        }
 
         loading = false;
     }
@@ -257,31 +318,21 @@ public class RoomWithHUD extends AppScreen  {
             doneLoading();
         }
 
-//        cameraInputController.update();
+        collisionWorld.performDiscreteCollisionDetection();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-//        shapeRenderer.setProjectionMatrix(camera.combined);
-//        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-//        shapeRenderer.setColor(0.2f, 0.6f, 1f, 1f);
-//        shapeRenderer.rect(-25, -25, 50, 50);
-//        float points[] = new float[]{
-//                -25, -25,
-//                25, -25,
-//                25, 25,
-//                -25, 25
-//        };
-//        shapeRenderer.polygon(points);
-//        shapeRenderer.end();
 
         if(background != null){
             spriteBatch.begin();
             spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//            spriteBatch.draw(hudBackgroud, 0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
             spriteBatch.end();
         }
 
+        debugDrawer.begin(camera);
+        collisionWorld.debugDrawWorld();
+        debugDrawer.end();
 
         modelBatch.begin(camera);
         modelBatch.render(instances, environment);
@@ -291,53 +342,69 @@ public class RoomWithHUD extends AppScreen  {
 
     }
 
-    protected boolean isVisible (final Camera camera, final GameObject instance) {
-        instance.transform.getTranslation(position);
-        position.add(instance.center);
-        return camera.frustum.sphereInFrustum(position, instance.radius);
-    }
-
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        selecting = getObject(screenX, screenY);
+        selecting = getSelectedObject(screenX, screenY);
+        selected = selecting;
+        if(selected >= 0) {
+            instances.get(selected).transform.getTranslation(origPosition);
+            instances.get(selected).transform.getRotation(origRotation);
+        }
         return selecting >= 0;
     }
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        if (selecting < 0)
-            return false;
-        if (selected == selecting) {
+        if (selecting < 0) return false;
+//        if (selected == selecting) {
             Ray ray = camera.getPickRay(screenX, screenY);
             final float distance = -ray.origin.y / ray.direction.y;
-            position.set(ray.direction).scl(distance).add(ray.origin);
-            if(tranformTool == TransformTool.MOVE){
-                BoundingBox boundingBox = new BoundingBox();
-                instances.get(selected).calculateBoundingBox(boundingBox);
 
-                position.y = boundingBox.getHeight();
+            position.set(ray.direction).scl(distance).add(ray.origin);
+
+            if(tranformTool == TransformTool.MOVE){
+                position.y = instances.get(selected).dimensions.y;
+//                if(instances.get(selected).collided){
+//                    position.set(origPosition);
+//                }
                 instances.get(selected).transform.setTranslation(position);
             }else{
-                if(ray.direction.x > ray.origin.x){
-                    instances.get(selected).transform.rotate(Vector3.Z,-3f);
+                if (ray.direction.x > ray.origin.x){
+                    instances.get(selected).transform.rotate(Vector3.Y,-1f);
                 }else{
-                    instances.get(selected).transform.rotate(Vector3.Z,3f);
+                    instances.get(selected).transform.rotate(Vector3.Y,1f);
                 }
             }
+            instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
+//        }
 
-        }
         return true;
     }
 
     @Override
     public boolean touchUp (int screenX, int screenY, int pointer, int button) {
-        if (selecting >= 0) {
-            if (selecting == getObject(screenX, screenY))
-                setSelected(selecting);
-            selecting = -1;
-            return true;
+        if(selected >= 0){
+            if(tranformTool == TransformTool.MOVE){
+                if(instances.get(selected).collided){
+                    instances.get(selected).transform.setTranslation(origPosition);
+                }
+            }else{
+                if(instances.get(selected).collided){
+                    instances.get(selected).transform.setToTranslation(origPosition);
+                    instances.get(selected).transform.rotate(origRotation.x,origRotation.y,origRotation.z,origRotation.w);
+                }
+            }
+            instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
         }
-        return false;
+        return true;
+
+//        if (selecting >= 0) {
+//            if (selecting == getSelectedObject(screenX, screenY))
+//                setSelected(selecting);
+//            selecting = -1;
+//            return true;
+//        }
+//        return false;
     }
 
     public void setSelected (int value) {
@@ -357,21 +424,26 @@ public class RoomWithHUD extends AppScreen  {
         }
     }
 
-    public int getObject (int screenX, int screenY) {
+    public int getSelectedObject(int screenX, int screenY){
         Ray ray = camera.getPickRay(screenX, screenY);
         int result = -1;
         float distance = -1;
         for (int i = 0; i < instances.size; ++i) {
-            if(instances.get(i) instanceof  Furniture){
-                final Furniture instance = (Furniture) instances.get(i);
-                float dist2 = instance.intersects(ray);
-                if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
-                    result = i;
-                    distance = dist2;
-                }
+            final GameObject instance = instances.get(i);
+            float dist2 = -1f;
+            instance.transform.getTranslation(position).add(instance.center);
+            if (Intersector.intersectRayBoundsFast(ray, position, instance.dimensions)) {
+                final float len = ray.direction.dot(position.x-ray.origin.x, position.y-ray.origin.y, position.z-ray.origin.z);
+                dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
+            }
+
+            if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
+                result = i;
+                distance = dist2;
             }
         }
         return result;
+
     }
 
     @Override

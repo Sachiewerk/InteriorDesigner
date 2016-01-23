@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -37,7 +37,7 @@ public class Catalog extends Window {
 
     protected Stage stage;
     protected AssetManager assets;
-    protected Array<ModelInstance> furnitures;
+    protected Array<GameObject> furnitures;
     protected InputMultiplexer inputMultiplexer;
     protected AppScreen appScreen;
     private Catalog instance;
@@ -47,7 +47,7 @@ public class Catalog extends Window {
     private ScrollPane categoriesScrollPane;
     private ScrollPane furnituresScrollPane;
 
-    public static Catalog construct(Stage stage, AssetManager assets, Array<ModelInstance> furnitures, InputMultiplexer inputMultiplexer, AppScreen appScreen){
+    public static Catalog construct(Stage stage, AssetManager assets, Array<GameObject> furnitures, InputMultiplexer inputMultiplexer, AppScreen appScreen){
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixmap.setColor(Color.WHITE);
         whitePixmap.fill();
@@ -179,12 +179,19 @@ public class Catalog extends Window {
         EventListener sofaClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Furniture sofa = new Furniture(assets.get("sofa.obj", Model.class));
+                Model m = assets.get("sofa.obj", Model.class);
+
+                BoundingBox bounds = new BoundingBox();
+                m.calculateBoundingBox(bounds);
+
+                Vector3 dimension = new Vector3();
+                bounds.getDimensions(dimension);
+
+                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
                 sofa.transform.rotate(Vector3.X, -90);
                 sofa.calculateTransforms();
-                BoundingBox bounds = new BoundingBox();
-                sofa.calculateBoundingBox(bounds);
-                sofa.shape = new Box(bounds);
+
+
                 furnitures.add(sofa);
                 stage.getActors().removeValue(instance,true);
                 initInputProcessors();

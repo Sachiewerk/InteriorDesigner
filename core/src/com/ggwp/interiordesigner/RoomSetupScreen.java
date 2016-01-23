@@ -46,7 +46,9 @@ public class RoomSetupScreen extends AppScreen {
     private String fileName = "";
     private boolean test = false;
 
+    private FileHandle fileHandle;
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
+        this.fileHandle = fileHandle;
         this.fileName = fileHandle.name();
 
         this.fromCamera = fromCamera;
@@ -140,9 +142,9 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                test = true;
-//                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls()));
-//                dispose();
+//                test = true;
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(),fileHandle));
+                dispose();
             }
         });
 

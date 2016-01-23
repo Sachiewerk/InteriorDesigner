@@ -14,8 +14,8 @@ public class FurnitureContactListener extends com.badlogic.gdx.physics.bullet.co
 //        if(instances == null){
 //            return false;
 //        }
-//        instances.get(userValue0).moving = false;
-//        instances.get(userValue1).moving = false;
+//        instances.get(userValue0).collided = false;
+//        instances.get(userValue1).collided = false;
         return true;
     }
 }
