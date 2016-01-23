@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -39,6 +38,7 @@ import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Box;
 import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.Furniture;
+import com.ggwp.interiordesigner.object.Wall;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -74,7 +74,7 @@ public class RoomWithHUD extends AppScreen  {
         }
     }
 
-    protected PerspectiveCamera cam;
+    protected PerspectiveCamera camera;
     protected CameraInputController camController;
     protected SpriteBatch batch;
     protected ModelBatch modelBatch;
@@ -87,7 +87,6 @@ public class RoomWithHUD extends AppScreen  {
     private SpriteBatch spriteBatch;
     private Texture background;
 
-    private Array<ModelInstance> walls = new Array<ModelInstance>();
     private Array<ModelInstance> instances = new Array<ModelInstance>();
 
     protected Stage stage;
@@ -106,13 +105,7 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void initCamera(){
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0f, 50f, 100f);
-        cam.lookAt(0, 50, 0);
-        cam.far = 300f;
-        cam.update();
-
-        camController = new CameraInputController(cam);
+        camController = new CameraInputController(camera);
     }
 
     private void removeScreenInputProcessor(){
@@ -123,7 +116,8 @@ public class RoomWithHUD extends AppScreen  {
 
     private int tranformTool = 0;
 
-    public RoomWithHUD(){
+    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls){
+        this.camera = camera;
         stage = new Stage(new ScreenViewport());
         assets = new AssetManager();
 
@@ -158,59 +152,13 @@ public class RoomWithHUD extends AppScreen  {
         selectionMaterial.set(ColorAttribute.createDiffuse(Color.ORANGE));
         originalMaterial = new Material();
 
-        createWalls(modelBuilder);
-    }
 
-    private void createWalls(ModelBuilder modelBuilder) {
-        Color dodgerBlue = new Color(0.2f, 0.6f, 1f, 0.5f);
+        System.out.println("Loading walls..");
+        for(Wall wall : walls){
+            System.out.println(wall.side);
+        }
 
-        BlendingAttribute blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        blendingAttribute.opacity = 0.5f;
-
-        Material material = new Material(ColorAttribute.createDiffuse(dodgerBlue));
-        material.set(blendingAttribute);
-
-        float halfWallHeight = 50;
-        float halfWallWidth = 50;
-
-        Model leftWallModel = modelBuilder.createRect(
-                -(halfWallWidth * 3), 0, 100,
-                -halfWallWidth, 0, 0,
-                -halfWallWidth, halfWallHeight * 2, 0,
-                -(halfWallWidth * 3), halfWallHeight * 2, 100,
-                1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-        );
-        ModelInstance leftWallModelInstance = new ModelInstance(leftWallModel);
-        walls.add(leftWallModelInstance);
-        instances.add(leftWallModelInstance);
-
-        Model rightWallModel = modelBuilder.createRect(
-                halfWallWidth, 0, 0,
-                (halfWallWidth * 3), 0, 100,
-                (halfWallWidth * 3), halfWallHeight * 2, 100,
-                halfWallWidth, halfWallHeight * 2, 0,
-                1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-        );
-        ModelInstance rightWallModelInstance = new ModelInstance(rightWallModel);
-        walls.add(rightWallModelInstance);
-        instances.add(rightWallModelInstance);
-
-        blendingAttribute.opacity = 0.8f;
-        material.set(blendingAttribute);
-
-        Model backWallModel = modelBuilder.createRect(
-                -halfWallWidth, 0, 0,
-                halfWallWidth, 0, 0,
-                halfWallWidth, halfWallHeight * 2, 0,
-                -halfWallWidth, halfWallHeight * 2, 0,
-                1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-        );
-        ModelInstance backWallModelInstance = new ModelInstance(backWallModel);
-        walls.add(backWallModelInstance);
-        instances.add(backWallModelInstance);
+        instances.addAll(walls);
     }
 
     private void initHUD(){
@@ -336,7 +284,7 @@ public class RoomWithHUD extends AppScreen  {
         }
 
 
-        modelBatch.begin(cam);
+        modelBatch.begin(camera);
         modelBatch.render(instances, environment);
         modelBatch.end();
         stage.act();
@@ -344,10 +292,10 @@ public class RoomWithHUD extends AppScreen  {
 
     }
 
-    protected boolean isVisible (final Camera cam, final GameObject instance) {
+    protected boolean isVisible (final Camera camera, final GameObject instance) {
         instance.transform.getTranslation(position);
         position.add(instance.center);
-        return cam.frustum.sphereInFrustum(position, instance.radius);
+        return camera.frustum.sphereInFrustum(position, instance.radius);
     }
 
     @Override
@@ -361,7 +309,7 @@ public class RoomWithHUD extends AppScreen  {
         if (selecting < 0)
             return false;
         if (selected == selecting) {
-            Ray ray = cam.getPickRay(screenX, screenY);
+            Ray ray = camera.getPickRay(screenX, screenY);
             final float distance = -ray.origin.y / ray.direction.y;
             position.set(ray.direction).scl(distance).add(ray.origin);
             if(tranformTool == TransformTool.MOVE){
@@ -411,7 +359,7 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     public int getObject (int screenX, int screenY) {
-        Ray ray = cam.getPickRay(screenX, screenY);
+        Ray ray = camera.getPickRay(screenX, screenY);
         int result = -1;
         float distance = -1;
         for (int i = 0; i < instances.size; ++i) {
@@ -431,7 +379,6 @@ public class RoomWithHUD extends AppScreen  {
     public void dispose () {
         modelBatch.dispose();
         instances.clear();
-        walls.clear();
         spriteBatch.dispose();
         assets.dispose();
     }

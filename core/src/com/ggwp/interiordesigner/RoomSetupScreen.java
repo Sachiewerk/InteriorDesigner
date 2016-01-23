@@ -1,17 +1,27 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Room;
 
@@ -28,7 +38,11 @@ public class RoomSetupScreen extends AppScreen {
     private Room room;
     private Array<ModelInstance> instances = new Array<ModelInstance>();
 
+    private Stage stage;
+
     public RoomSetupScreen(FileHandle fileHandle) {
+        stage = new Stage(new ScreenViewport());
+
         spriteBatch = new SpriteBatch();
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -43,10 +57,11 @@ public class RoomSetupScreen extends AppScreen {
         camera.far = 300f;
         camera.update();
 
-        Gdx.input.setInputProcessor(this);
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
 
         room = new Room(camera);
         background = new Texture(fileHandle);
+        initOptions();
     }
 
     @Override
@@ -64,6 +79,9 @@ public class RoomSetupScreen extends AppScreen {
         modelBatch.render(room.getWalls());
         modelBatch.render(instances, environment);
         modelBatch.end();
+
+        stage.act();
+        stage.draw();
     }
 
     @Override
@@ -72,6 +90,34 @@ public class RoomSetupScreen extends AppScreen {
         instances.clear();
         room.getWalls().clear();
         spriteBatch.dispose();
+    }
+
+    private void initOptions(){
+        Skin skin = new Skin();
+        Pixmap pixmap = new Pixmap(70, 40, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.5f));
+        pixmap.fill();
+
+        skin.add("defaultButton", new Texture(pixmap));
+        skin.add("defaultFont", new BitmapFont());
+
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("defaultButton");
+        textButtonStyle.down = skin.newDrawable("defaultButton");
+        textButtonStyle.font = skin.getFont("defaultFont");
+
+        TextButton doneButton = new TextButton("DONE", textButtonStyle);
+        doneButton.setBounds(5f, 5f, 70f, 40f);
+
+        doneButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls()));
+                dispose();
+            }
+        });
+
+        stage.addActor(doneButton);
     }
 
     @Override
