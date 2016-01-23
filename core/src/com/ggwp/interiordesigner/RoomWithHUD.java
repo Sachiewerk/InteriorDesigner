@@ -38,10 +38,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Box;
 import com.ggwp.interiordesigner.object.Catalog;
-import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.Furniture;
 import com.ggwp.interiordesigner.object.Wall;
-import com.ggwp.utils.ToolUtils;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -128,11 +126,7 @@ public class RoomWithHUD extends AppScreen  {
 
     private int tranformTool = 0;
 
-    public RoomWithHUD(FileHandle img){
-        this(null, null,img);
-    }
-
-    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
+    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
         this.camera = camera;
         stage = new Stage(new ScreenViewport());
         assets = new AssetManager();
@@ -140,7 +134,7 @@ public class RoomWithHUD extends AppScreen  {
         initEnvironment();
         initCamera();
         initHUD();
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage,this));
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
 
         spriteBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
@@ -162,10 +156,7 @@ public class RoomWithHUD extends AppScreen  {
         if(walls != null){
             instances.addAll(walls);
         }
-
-
         background = new Texture(backgroundSource);
-
     }
 
     private void initHUD(){

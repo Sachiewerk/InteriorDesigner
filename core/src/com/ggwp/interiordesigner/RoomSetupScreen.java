@@ -93,11 +93,16 @@ public class RoomSetupScreen extends AppScreen {
         stage.draw();
 
         if(test){
+//            TODO Remove
             System.out.println("Done clicked...");
 
             RoomDesignData data = new RoomDesignData();
             data.setBackgroundImage(fileName);
+
+            String name = "Room " + fileName.replace(".jpg", "").replace("room", "");
+
             data.setVertices(room.getVertices());
+            data.setName(name);
             ToolUtils.saveRoomDataDesign(data);
 
             test = false;

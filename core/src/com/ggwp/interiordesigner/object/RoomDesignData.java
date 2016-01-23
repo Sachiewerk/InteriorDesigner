@@ -4,18 +4,17 @@ public class RoomDesignData {
 
     private static final float DEFAULT_DIMENSION = 100f;
 
-    private String backgroundImage;
-    private float[] vertices;
     private String name;
+    private float[] vertices;
+    private String backgroundImage;
 
-
-
-    public RoomDesignData(String name,String backgroundImage){
-        this.backgroundImage = backgroundImage;
-        this.name = name;
-    }
     public RoomDesignData(){
 
+    }
+
+    public RoomDesignData(String name, String backgroundImage){
+        this.backgroundImage = backgroundImage;
+        this.name = name;
     }
 
     public static RoomDesignData getDefaultInstance(){
@@ -56,4 +55,5 @@ public class RoomDesignData {
     public void setName(String name) {
         this.name = name;
     }
+
 }

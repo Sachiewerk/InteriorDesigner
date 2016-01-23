@@ -1,7 +1,6 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -24,12 +23,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.object.AppScreen;
-import com.ggwp.interiordesigner.object.AppScreens;
 import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
 import com.ggwp.utils.ToolUtils;
-
-import javax.tools.Tool;
 
 public class MenuScreen extends AppScreen{
 
@@ -144,7 +140,7 @@ public class MenuScreen extends AppScreen{
         fromGallryBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
-                FileHandle fileHandle = Gdx.files.internal("Rooms/room2.jpg");
+                FileHandle fileHandle = Gdx.files.internal("Rooms/Images/room6.jpg");
                 Main.getInstance().setScreen(new RoomSetupScreen(fileHandle, false));
 //                openDeviceGallery();
             }

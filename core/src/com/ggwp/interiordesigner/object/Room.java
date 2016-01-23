@@ -54,12 +54,21 @@ public class Room {
 
     private RoomDesignData data;
 
-    public Room(Camera camera){
-        if(data == null){
-            data = RoomDesignData.getDefaultInstance();
-        }
+    public Room(RoomDesignData data){
+        this(null, data);
+    }
 
+    public Room(Camera camera){
+        this(camera, null);
+    }
+
+    private Room(Camera camera, RoomDesignData data){
         this.camera = camera;
+        this.data = data;
+
+        if(data == null){
+            this.data = RoomDesignData.getDefaultInstance();
+        }
 
         modelBuilder = new ModelBuilder();
         Color dodgerBlue = new Color(0.2f, 0.6f, 1f, 0.5f);
@@ -79,8 +88,8 @@ public class Room {
         createBackWall();
     }
 
-    private void createBackWall() {
 
+    private void createBackWall() {
         blendingAttribute.opacity = 0.8f;
         backWallMaterial.set(blendingAttribute);
 
