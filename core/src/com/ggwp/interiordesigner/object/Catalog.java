@@ -9,9 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.ggwp.interiordesigner.RoomWithHUD;
 import com.ggwp.interiordesigner.manager.SkinManager;
 
 
@@ -179,20 +177,25 @@ public class Catalog extends Window {
         EventListener sofaClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Model m = assets.get("sofa.obj", Model.class);
+                Model model = assets.get("sofa.obj", Model.class);
+//
+//                BoundingBox bounds = new BoundingBox();
+//                m.calculateBoundingBox(bounds);
+//
+//                Vector3 dimension = new Vector3();
+//                bounds.getDimensions(dimension);
+//
+//                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
+//                sofa.transform.rotate(Vector3.X, -90);
+//                sofa.calculateTransforms();
+//
+//
+//                furnitures.add(sofa);
 
-                BoundingBox bounds = new BoundingBox();
-                m.calculateBoundingBox(bounds);
+                if(appScreen instanceof RoomWithHUD){
+                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
+                }
 
-                Vector3 dimension = new Vector3();
-                bounds.getDimensions(dimension);
-
-                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
-                sofa.transform.rotate(Vector3.X, -90);
-                sofa.calculateTransforms();
-
-
-                furnitures.add(sofa);
                 stage.getActors().removeValue(instance,true);
                 initInputProcessors();
             }

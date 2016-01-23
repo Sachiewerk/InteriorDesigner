@@ -23,6 +23,7 @@ public class GameObject extends ModelInstance implements  Disposable{
     public btCollisionObject body;
     public boolean collided;
     public int type;
+    public boolean newlyAdded = true;
 
     public GameObject(Model model,int type){
         this(model,null,type);
