@@ -145,7 +145,7 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		//toast("HIHIHI");
 
 		if(activeScreen!=null){
-			activeScreen.back();
+//			activeScreen.back();
 		}
 
 

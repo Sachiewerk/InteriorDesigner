@@ -24,6 +24,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Room;
+import com.ggwp.interiordesigner.object.RoomDesignData;
+import com.ggwp.utils.ToolUtils;
 
 public class RoomSetupScreen extends AppScreen {
 
@@ -40,6 +42,8 @@ public class RoomSetupScreen extends AppScreen {
 
     private Stage stage;
     private Boolean fromCamera;
+
+    private boolean test = false;
 
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
         this.fromCamera = fromCamera;
@@ -84,6 +88,12 @@ public class RoomSetupScreen extends AppScreen {
 
         stage.act();
         stage.draw();
+
+        if(test){
+            System.out.println("Done clicked...");
+            ToolUtils.saveRoomDataDesign(RoomDesignData.getDefaultInstance());
+            test = false;
+        }
     }
 
     @Override
@@ -117,8 +127,9 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls()));
-                dispose();
+                test = true;
+//                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls()));
+//                dispose();
             }
         });
 
@@ -137,6 +148,8 @@ public class RoomSetupScreen extends AppScreen {
         stage.addActor(doneButton);
         stage.addActor(backButton);
     }
+
+    private Integer i = 0;
 
     @Override
     public void show() {
