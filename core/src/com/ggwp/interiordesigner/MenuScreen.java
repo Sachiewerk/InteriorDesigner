@@ -23,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.AppScreens;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
@@ -160,22 +159,17 @@ public class MenuScreen extends AppScreen{
         takePictureBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
-                System.out.println(x + ":" + y);
-
-                Main.setScreen(AppScreens.RoomSetup);
-
-                Object[][] tests = {{"savedirectory", Main.screenTemplateSaveDirectory}};
+                Object[][] directory = {{"savedirectory", Main.screenTemplateSaveDirectory}};
+                Main.getInstance().setScreen(new ImageSelectionScreen());
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.IMAGE_CAPTURE,
-                        ToolUtils.createMapFromList(tests));
+                        ToolUtils.createMapFromList(directory));
             }
         });
 
         fromGallryBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
-                System.out.println(x + ":" + y);
-
-                Main.setScreen(AppScreens.RoomSetup);
+                Main.getInstance().setScreen(new ImageSelectionScreen());
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.GET_IMAGE_FROM_GALLERY,
                         null);
             }
