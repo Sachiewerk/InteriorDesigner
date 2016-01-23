@@ -24,8 +24,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Room;
-import com.ggwp.interiordesigner.object.RoomDesignData;
-import com.ggwp.utils.ToolUtils;
 
 public class RoomSetupScreen extends AppScreen {
 
@@ -43,13 +41,10 @@ public class RoomSetupScreen extends AppScreen {
     private Stage stage;
     private Boolean fromCamera;
 
-    private String fileName = "";
-    private boolean test = false;
-
     private FileHandle fileHandle;
+
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
         this.fileHandle = fileHandle;
-        this.fileName = fileHandle.name();
 
         this.fromCamera = fromCamera;
         stage = new Stage(new ScreenViewport());
@@ -93,22 +88,6 @@ public class RoomSetupScreen extends AppScreen {
 
         stage.act();
         stage.draw();
-
-        if(test){
-//            TODO Remove
-            System.out.println("Done clicked...");
-
-            RoomDesignData data = new RoomDesignData();
-            data.setBackgroundImage(fileName);
-
-            String name = "Room " + fileName.replace(".jpg", "").replace("room", "");
-
-            data.setVertices(room.getVertices());
-            data.setName(name);
-            ToolUtils.saveRoomDataDesign(data);
-
-            test = false;
-        }
     }
 
     @Override
@@ -142,8 +121,7 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                test = true;
-                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(),fileHandle));
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(), fileHandle));
                 dispose();
             }
         });
@@ -163,8 +141,6 @@ public class RoomSetupScreen extends AppScreen {
         stage.addActor(doneButton);
         stage.addActor(backButton);
     }
-
-    private Integer i = 0;
 
     @Override
     public void show() {

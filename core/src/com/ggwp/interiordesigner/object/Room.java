@@ -39,6 +39,8 @@ public class Room {
     private boolean nearTop = false;
     private boolean nearLeft = false;
 
+    private boolean defaultInstance = false;
+
     private int dropX = 0;
     private int dropY = 0;
 
@@ -67,6 +69,7 @@ public class Room {
         this.data = data;
 
         if(data == null){
+            defaultInstance = true;
             this.data = RoomDesignData.getDefaultInstance();
         }
 
@@ -117,10 +120,12 @@ public class Room {
         );
         rightWall = new Wall(rightWallModel, true);
 
-        rightWall.transform
+        if(defaultInstance){
+            rightWall.transform
                 .translate(DEFAULT_DIMENSION, DEFAULT_DIMENSION / 2, 0)
                 .rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(-45))
                 .translate(-DEFAULT_DIMENSION, -(DEFAULT_DIMENSION / 2), 0);
+        }
 
         walls.add(rightWall);
     }
@@ -136,7 +141,12 @@ public class Room {
         );
 
         leftWall = new Wall(leftWallModel, true);
-        leftWall.transform.rotateRad(0, DEFAULT_DIMENSION / 2, 0, (float) Math.toRadians(45));
+
+        if(defaultInstance){
+            float radians = (float) Math.toRadians(45);
+            leftWall.transform.setToRotationRad(0, DEFAULT_DIMENSION / 2, 0, radians);
+        }
+
         walls.add(leftWall);
     }
 
@@ -208,6 +218,18 @@ public class Room {
                 .translate(0, bounds.getHeight() / 2, 0)
                 .rotate(0, bounds.getHeight() / 2, 0 , degrees)
                 .translate(0, -(bounds.getHeight() / 2), 0);
+
+        BoundingBox leftBox = new BoundingBox();
+        leftWall.calculateBoundingBox(leftBox);
+        Quaternion quaternion = new Quaternion();
+        leftWall.transform.getRotation(quaternion, true);
+
+        if(quaternion.getYaw() < 0 || quaternion.getAngle() > 90){
+            leftWall.transform
+                    .translate(0, bounds.getHeight() / 2, 0)
+                    .rotate(0, bounds.getHeight() / 2, 0 , -degrees)
+                    .translate(0, -(bounds.getHeight() / 2), 0);
+        }
     }
 
     private void rightWallDrag(float degrees){
@@ -218,6 +240,18 @@ public class Room {
                 .translate(DEFAULT_DIMENSION, bounds.getHeight() / 2, 0)
                 .rotate(0, bounds.getHeight() / 2, 0, degrees)
                 .translate(-DEFAULT_DIMENSION, -(bounds.getHeight() / 2), 0);
+
+        BoundingBox rightBox = new BoundingBox();
+        rightWall.calculateBoundingBox(rightBox);
+        Quaternion quaternion = new Quaternion();
+        rightWall.transform.getRotation(quaternion, true);
+
+        if(quaternion.getYaw() > 0 || quaternion.getAngle() > 90){
+            rightWall.transform
+                    .translate(DEFAULT_DIMENSION, bounds.getHeight() / 2, 0)
+                    .rotate(0, bounds.getHeight() / 2, 0, -degrees)
+                    .translate(-DEFAULT_DIMENSION, -(bounds.getHeight() / 2), 0);
+        }
     }
 
     private void scaleWallsX(float multiplier) {
@@ -393,49 +427,39 @@ public class Room {
 
         leftWall.calculateBoundingBox(leftBox).mul(leftWall.transform);
         rightWall.calculateBoundingBox(rightBox).mul(rightWall.transform);
-        
-        Vector3 leftV000 = new Vector3();
-        Vector3 leftV010 = new Vector3();
+
         Vector3 leftV100 = new Vector3();
         Vector3 leftV110 = new Vector3();
+        Vector3 leftV001 = new Vector3();
+        Vector3 leftV011 = new Vector3();
 
         Vector3 rightV000 = new Vector3();
         Vector3 rightV010 = new Vector3();
-        Vector3 rightV100 = new Vector3();
-        Vector3 rightV110 = new Vector3();
+        Vector3 rightV101 = new Vector3();
+        Vector3 rightV111 = new Vector3();
 
-        leftBox.getCorner000(leftV000);
-        leftBox.getCorner010(leftV010);
         leftBox.getCorner100(leftV100);
         leftBox.getCorner110(leftV110);
+        leftBox.getCorner001(leftV001);
+        leftBox.getCorner011(leftV011);
 
         rightBox.getCorner000(rightV000);
         rightBox.getCorner010(rightV010);
-        rightBox.getCorner100(rightV100);
-        rightBox.getCorner110(rightV110);
-
-//        List<Vector3> list = new ArrayList<Vector3>();
-//        list.add(leftV000);
-//        list.add(leftV010);
-//        list.add(leftV100);
-//        list.add(leftV110);
-//
-//        for(Vector3 v3 : list){
-//            System.out.println("Index: " + list.indexOf(v3) + ". X: " + v3.x + ". Y: " + v3.y + ". Z: " + v3.z);
-//        }
-//        System.out.println("---");
+        rightBox.getCorner101(rightV101);
+        rightBox.getCorner111(rightV111);
 
         float[] vertices = new float[]{
-                leftV010.x, leftV010.y, leftV010.z,
+                leftV011.x, leftV011.y, leftV011.z,
                 leftV110.x, leftV110.y, leftV110.z,
                 rightV010.x, rightV010.y, rightV010.z,
-                rightV110.x, rightV110.y, rightV110.z,
+                rightV111.x, rightV111.y, rightV111.z,
 
-                leftV000.x, leftV000.y, leftV000.z,
+                leftV001.x, leftV001.y, leftV001.z,
                 leftV100.x, leftV100.y, leftV100.z,
                 rightV000.x, rightV000.y, rightV000.z,
-                rightV100.x, rightV100.y, rightV100.z,
+                rightV101.x, rightV101.y, rightV101.z,
         };
+
         return vertices;
     }
 
