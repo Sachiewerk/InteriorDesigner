@@ -1,6 +1,7 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -24,8 +25,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.AppScreens;
+import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
 import com.ggwp.utils.ToolUtils;
+
+import javax.tools.Tool;
 
 public class MenuScreen extends AppScreen{
 
@@ -42,7 +46,10 @@ public class MenuScreen extends AppScreen{
     BitmapFont titleFont;
     BitmapFont textFont;
 
+    private final AppScreen thisAppScreen;
+
     public MenuScreen(){
+        thisAppScreen = this;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
@@ -59,7 +66,7 @@ public class MenuScreen extends AppScreen{
         skin.add("defaultButtonHover", new Texture(pixmap));
 
         Pixmap pixmap2 = new Pixmap(100, 100, Pixmap.Format.RGBA8888);
-        pixmap2.setColor(Color.rgba8888(0f, 0f, 0f, 0.8f));
+        pixmap2.setColor(Color.rgba8888(1f, 1f, 1f, 0.3f));
 
         pixmap2.fill();
         skin.add("defaultButtonHover2", new Texture(pixmap2));
@@ -143,17 +150,17 @@ public class MenuScreen extends AppScreen{
             }
         });
 
+
         emptyRoomBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                try {
-                    Main.getInstance().setScreen(new RoomWithHUD());
-                    Main.getInstance().setScreen(AppScreens.EmptyRoom.getClazz().newInstance());
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+                    final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
+
+
+                    ToolUtils.removeScreenInputProcessor(stage);
+                    stage.addActor(c);
+
+
             }
         });
     }

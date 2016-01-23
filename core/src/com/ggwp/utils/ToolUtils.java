@@ -1,9 +1,12 @@
 package com.ggwp.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.Main;
+import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.RoomDesignData;
 import com.google.gson.Gson;
 
@@ -196,6 +199,28 @@ public class ToolUtils {
             System.out.println("Creating directory..");
             directory.file().mkdirs();
         }
+    }
+
+    public static  void initInputProcessors(Stage stage){
+        InputMultiplexer im = (InputMultiplexer) Gdx.input.getInputProcessor();
+        im.getProcessors().clear();
+        im.addProcessor((AppScreen)Main.getInstance().getScreen());
+        im.addProcessor(stage);
+    }
+
+    public static void removeScreenInputProcessor(Stage stage){
+        InputMultiplexer im;
+        Object o = Gdx.input.getInputProcessor();
+        if(o instanceof  InputMultiplexer){
+            im= (InputMultiplexer)o;
+        }
+        else{
+            im= new InputMultiplexer(stage,(AppScreen)Main.getInstance().getScreen());
+            Gdx.input.setInputProcessor(im);
+        }
+
+        im.getProcessors().clear();
+        im.addProcessor(stage);
     }
 
 }

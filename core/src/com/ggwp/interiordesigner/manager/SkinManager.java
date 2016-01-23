@@ -44,13 +44,23 @@ public class SkinManager {
         submitPixmap.setColor(Color.rgba8888(Color.GREEN.r, Color.GREEN.g, Color.GREEN.b, .5f));
         submitPixmap.fill();
 
+        Pixmap clearPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        clearPixmap.setColor(Color.CLEAR);
+        clearPixmap.fill();
+
+
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
         defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
         defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
+        defaultSkin.add("clearTexture", new Texture(clearPixmap));
         defaultSkin.add("defaultFont", textFont);
 
         bloackPixmap.dispose();
         whitePixmap.dispose();
+    }
+
+    public static Skin getDefaultSkin(){
+        return defaultSkin;
     }
 
     public static TextButton.TextButtonStyle getDefaultCancelTextButtonStyle(){
@@ -82,6 +92,8 @@ public class SkinManager {
 
         return style;
     }
+
+
 
 
 }

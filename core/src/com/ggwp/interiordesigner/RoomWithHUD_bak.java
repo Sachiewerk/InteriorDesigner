@@ -3,7 +3,6 @@ package com.ggwp.interiordesigner;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -41,12 +40,11 @@ import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.Furniture;
 import com.ggwp.interiordesigner.object.Wall;
-import com.ggwp.utils.ToolUtils;
 
 /**
  * Created by Raymond on 1/19/2016.
  */
-public class RoomWithHUD extends AppScreen  {
+public class RoomWithHUD_bak extends AppScreen  {
 
     final static class TransformTool {
         static final int MOVE = 0;
@@ -128,19 +126,20 @@ public class RoomWithHUD extends AppScreen  {
 
     private int tranformTool = 0;
 
-    public RoomWithHUD(FileHandle img){
-        this(null, null,img);
+    public RoomWithHUD_bak(){
+        this(null, null);
     }
 
-    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
+    public RoomWithHUD_bak(PerspectiveCamera camera, Array<Wall> walls){
         this.camera = camera;
         stage = new Stage(new ScreenViewport());
         assets = new AssetManager();
 
         initEnvironment();
         initCamera();
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
+
         initHUD();
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage,this));
 
         spriteBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
@@ -163,9 +162,10 @@ public class RoomWithHUD extends AppScreen  {
             instances.addAll(walls);
         }
 
+        final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
 
-        background = new Texture(backgroundSource);
-
+        removeScreenInputProcessor();
+        stage.addActor(c);
     }
 
     private void initHUD(){
@@ -255,8 +255,7 @@ public class RoomWithHUD extends AppScreen  {
 
         instances.add(sofa);
 
-
-
+        background = new Texture(Gdx.files.internal("Rooms/room2.jpg"));
         loading = false;
     }
 

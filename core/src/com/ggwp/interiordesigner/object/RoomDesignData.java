@@ -6,6 +6,17 @@ public class RoomDesignData {
 
     private String backgroundImage;
     private float[] vertices;
+    private String name;
+
+
+
+    public RoomDesignData(String name,String backgroundImage){
+        this.backgroundImage = backgroundImage;
+        this.name = name;
+    }
+    public RoomDesignData(){
+
+    }
 
     public static RoomDesignData getDefaultInstance(){
         RoomDesignData data = new RoomDesignData();
@@ -36,5 +47,13 @@ public class RoomDesignData {
 
     public void setVertices(float[] vertices) {
         this.vertices = vertices;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

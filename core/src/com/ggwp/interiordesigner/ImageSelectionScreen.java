@@ -60,6 +60,11 @@ public class ImageSelectionScreen extends AppScreen{
     }
 
     @Override
+    public boolean OnBackPressed() {
+        return false;
+    }
+
+    @Override
     public void show() {
 
     }

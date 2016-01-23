@@ -17,8 +17,8 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 854;
-		config.height = 480;
+		config.width = 800;
+		config.height = 600;
 		launcher = new DesktopLauncher();
 			new LwjglApplication(new Main( launcher), config);
 	}
