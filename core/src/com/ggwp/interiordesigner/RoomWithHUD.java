@@ -368,9 +368,22 @@ public class RoomWithHUD extends AppScreen  {
         stage.addActor(tools);
     }
 
+/*    private float volumeOfMesh(Mesh mesh) {
+        float vols = from t in mesh.Triangles
+        select SignedVolumeOfTriangle(t.P1, t.P2, t.P3);
+        return Math.Abs(vols.Sum());
+    }*/
+
+    public static float signedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        return p1.dot(p2.crs(p3)) / 6.0f;
+    }
+
     public void addObject(Model model, int type){
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
+
+
 
         Vector3 dimension = new Vector3();
         bounds.getDimensions(dimension);
@@ -383,6 +396,9 @@ public class RoomWithHUD extends AppScreen  {
         object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
 //        object.transform.setToScaling(20f,20f,20f);
 //        object.calculateTransforms();
+
+        //System.out.println(signedVolumeOfTriangle(model.meshParts.));
+        object.transform.scale(0.5f,0.5f,0.5f);
 
         object.newlyAdded = true;
 
