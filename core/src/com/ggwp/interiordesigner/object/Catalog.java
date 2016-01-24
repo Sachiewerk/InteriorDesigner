@@ -707,7 +707,7 @@ public class Catalog extends Window {
 
         for(int i = 1; i <= 9; i++){
             main.add(createFurnitureCard("Dining " + i, "furnitures/dining/" + i + ".png",
-                    createListener("furnitures/tables/tb1/tb1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+                    createListener("furnitures/tables/tb1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
