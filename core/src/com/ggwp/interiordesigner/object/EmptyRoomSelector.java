@@ -27,9 +27,6 @@ import com.ggwp.utils.ToolUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +97,7 @@ public class EmptyRoomSelector extends Window {
                             Main.getInstance().getScreen().dispose();
 
                             Room room = new Room(selectedTemplate.data);
-                            FileHandle handle = Gdx.files.local("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
+                            FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
                             RoomWithHUD roomWithHUD = new RoomWithHUD(null, room.getWalls(), handle);
                             Main.getInstance().setScreen(roomWithHUD);
                         }
@@ -135,17 +132,17 @@ public class EmptyRoomSelector extends Window {
         List<RoomDesignData> roomDataList = new ArrayList<RoomDesignData>();
 
         Gson gson = new GsonBuilder().serializeNulls().create();
-        FileHandle dir = Gdx.files.local("Rooms/Json/");
+        FileHandle dir = Gdx.files.internal("Rooms/Json/");
         if (dir.exists()) {
             for (FileHandle handle : dir.list()) {
-                try {
-                    String json = new String(Files.readAllBytes(Paths.get(handle.path())));
+//                try {
+                    String json = new String(handle.readString());
                     RoomDesignData data = gson.fromJson(json, RoomDesignData.class);
 //                    data.setName(data.getBackgroundImage());
                     roomDataList.add(data);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
 
@@ -206,7 +203,8 @@ public class EmptyRoomSelector extends Window {
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
-            Image image = new Image((new Texture("Rooms/Images/" + data.getBackgroundImage())));
+            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage());
+            Image image = new Image((new Texture(handle)));
 
             add(image).width(cardSize).height(cardSize / (w / h));
 
