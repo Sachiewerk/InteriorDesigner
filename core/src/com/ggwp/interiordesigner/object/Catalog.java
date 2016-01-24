@@ -352,17 +352,18 @@ public class Catalog extends Window {
         main.add(new Label("Bed with pillow/mattresses", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
+        ClickListener listener = createListener("furnitures/bed/bed1/bed1.obj", GameObject.TYPE_FLOOR_OBJECT);
         main.add(createFurnitureCard("b1", "Common/no-image.png", createListener("furnitures/bed/bed1/bed1.obj",GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("b2", "Common/no-image.png", createListener("furnitures/bed/bed2/bed2.obj",GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("b3", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b3", "Common/no-image.png", listener));
         main.row();
-        main.add(createFurnitureCard("b4", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b5", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b6", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b4", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("b5", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("b6", "Common/no-image.png", listener));
         main.row();
-        main.add(createFurnitureCard("b7", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b8", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b9", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b7", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("b8", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("b9", "Common/no-image.png", listener));
 
         return new Container(main);
     }
