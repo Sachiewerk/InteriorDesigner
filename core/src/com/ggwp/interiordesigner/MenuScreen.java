@@ -29,9 +29,10 @@ import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.TutorialPanel;
-import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
 import com.ggwp.utils.ToolUtils;
 import com.ggwp.utils.Tweener.ImageOpacityAccessor;
+
+import java.util.Arrays;
 
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
@@ -42,16 +43,16 @@ public class MenuScreen extends AppScreen {
     private Skin skin;
     private Stage stage;
     private Texture backgroundImage;
-    private Image gradient, gradient2;
+    private Image gradientA, gradientB;
 
     private Table newDesignOption;
-    final ImageButton helpBtn;
-    final TextButton createNewBtn;
-    final TextButton catalogBtn;
-    final TextButton exitBtn;
+    private ImageButton helpBtn;
+    private TextButton createNewBtn;
+    private TextButton catalogBtn;
 
-    BitmapFont titleFont;
-    BitmapFont textFont;
+    private BitmapFont titleFont;
+    private BitmapFont textFont;
+    private BitmapFont applicationNameFont;
 
     private TweenManager manager;
     private TextButton backButton;
@@ -60,38 +61,45 @@ public class MenuScreen extends AppScreen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        backgroundImage = new Texture("menu2.jpg");
-        gradient = new Image(new Texture("gradient-black.png"));
-        gradient2 = new Image(new Texture("gradient-black.png"));
+        loadSkins();
+        loadApplicationName();
+        loadOptions();
+        loadCreateNewOptions();
+        loadHelpButton();
+        loadTween();
+        addListeners();
+    }
 
-        gradient.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    private void loadApplicationName(){
+        Label label = new Label("Virtual Home Interior Design", skin, "applicationNameFont", Color.valueOf("#2ecc71"));
+        label.setAlignment(Align.center);
+        label.setBounds(0f, Gdx.graphics.getHeight() - 90f, Gdx.graphics.getWidth(), 80f);
+        stage.addActor(label);
+    }
 
-        Color curColor = gradient2.getColor();
-        gradient2.setColor(curColor.r, curColor.g, curColor.b, 0.0f);
-        gradient2.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        gradient2.setOrigin(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
-        gradient2.rotateBy(180);
+    private void loadSkins() {
+        backgroundImage = new Texture("menu.jpg");
+        gradientA = new Image(new Texture("gradient-black.png"));
+        gradientB = new Image(new Texture("gradient-black.png"));
+
+        gradientA.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        Color curColor = gradientB.getColor();
+        gradientB.setColor(curColor.r, curColor.g, curColor.b, 0.0f);
+        gradientB.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        gradientB.setOrigin(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        gradientB.rotateBy(180);
 
         createFonts();
-
         skin = new Skin();
-        Pixmap pixmap = new Pixmap(10, 20, Pixmap.Format.RGBA8888);
-
-        skin.add("defaultButton", new Texture(pixmap));
-
-        pixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.5f));
-        pixmap.fill();
-
-        skin.add("defaultButtonHover", new Texture(pixmap));
-
-        Pixmap pixmap2 = new Pixmap(100, 100, Pixmap.Format.RGBA8888);
-        pixmap2.setColor(Color.rgba8888(1f, 1f, 1f, 0.3f));
-
-        pixmap2.fill();
-        skin.add("defaultButtonHover2", new Texture(pixmap2));
-
         skin.add("defaultFont", textFont);
         skin.add("defaultTitleFont", titleFont);
+        skin.add("applicationNameFont", applicationNameFont);
+
+        Pixmap optionPixmap = new Pixmap(100, 20, Pixmap.Format.RGBA8888);
+        optionPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.7f));
+        optionPixmap.fill();
+        skin.add("optionBackground", new Texture(optionPixmap));
 
         Window.WindowStyle style = new Window.WindowStyle();
         style.titleFont = skin.getFont("defaultFont");
@@ -100,81 +108,66 @@ public class MenuScreen extends AppScreen {
         Label.LabelStyle style1 = new Label.LabelStyle();
         style1.font = skin.getFont("defaultFont");
         skin.add("default", style1, Label.LabelStyle.class);
+    }
 
-        createNewBtn = new TextButton("CREATE NEW DESIGN", createButtonStyle(Color.valueOf("#2ecc71")));
-        createNewBtn.pad(10);
-        catalogBtn = new TextButton("CATALOG", createButtonStyle(Color.valueOf("#f1c40f")));
-        catalogBtn.pad(10);
+    private void loadHelpButton() {
+        helpBtn = new ImageButton(new SpriteDrawable(new Sprite(new Texture(Gdx.files.internal("Common/manual.png"), true))));
+        helpBtn.setBounds(Gdx.graphics.getWidth() - 150, 10f, 100, 100);
+        stage.addActor(helpBtn);
+    }
 
-        exitBtn = new TextButton("EXIT", createButtonStyle(Color.valueOf("#1abc9c")));
-        exitBtn.pad(10);
+    private void loadOptions() {
+        createNewBtn = new TextButton("NEW PROJECT", createButtonStyle(Color.valueOf("#3498db")));
+        createNewBtn.pad(20);
+
+        catalogBtn = new TextButton("LOAD PROJECTS", createButtonStyle(Color.valueOf("#e74c3c")));
+        catalogBtn.pad(20);
 
         Table table = new Table();
+        table.row().pad(5);
+        table.add(createNewBtn).align(Align.center).width(300f);
 
         table.row().pad(5);
-        table.add(createNewBtn).align(Align.left);
-        table.row().pad(5);
-        table.add(catalogBtn).align(Align.left);
-        table.row().pad(5);
-        table.add(exitBtn).align(Align.left);
+        table.add(catalogBtn).align(Align.center).width(300f);
 
         Container wrapper = new Container<Table>(table);
-        wrapper.setPosition(200, 120);
+        wrapper.setPosition(200, 100);
         stage.addActor(wrapper);
-
-        loadCreateNewOptions();
-
-        helpBtn = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/help-icon.png"))));
-        helpBtn.setBounds(Gdx.graphics.getWidth() - 110, Gdx.graphics.getHeight() - 110, 100, 100);
-        stage.addActor(helpBtn);
-        helpBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new TutorialPanel());
-            }
-        });
-
-        addListeners();
-        loadObjects();
-
-        manager = new TweenManager();
-        Tween.registerAccessor(Image.class, new ImageOpacityAccessor());
-        Tween.to(gradient, ImageOpacityAccessor.ALPHA, 6f)
-                .target(0.4f)
-                .repeatYoyo(-1, 0)
-                .ease(Bounce.INOUT)
-                .start(manager);
-
-        Tween.to(gradient2, ImageOpacityAccessor.ALPHA, 5f)
-                .target(0.7f)
-                .delay(3f)
-                .repeatYoyo(-1, 0)
-                .ease(Bounce.INOUT)
-                .start(manager);
     }
 
     private void loadCreateNewOptions() {
-        TextButton.TextButtonStyle style5 = new TextButton.TextButtonStyle();
-        style5.up = skin.getDrawable("defaultButtonHover2");
-        style5.font = skin.getFont("defaultFont");
-        style5.fontColor = Color.WHITE;
+        TextButton.TextButtonStyle subOption = new TextButton.TextButtonStyle();
+        subOption.font = skin.getFont("defaultFont");
+        subOption.fontColor = Color.WHITE;
 
-        TextButton takePictureBtn = new TextButton("TAKE A PICTURE", style5);
-        takePictureBtn.pad(10);
-        TextButton fromGallryBtn = new TextButton("FROM GALLERY", style5);
-        fromGallryBtn.pad(10);
-        TextButton emptyRoomBtn = new TextButton("EMPTY ROOM", style5);
-        emptyRoomBtn.pad(10);
+        TextButton takePictureBtn = new TextButton("TAKE A PICTURE", subOption);
+        takePictureBtn.setUserObject(generateImageButton("Common/camera.png"));
+
+        TextButton fromGalleryBtn = new TextButton("FROM GALLERY", subOption);
+        fromGalleryBtn.setUserObject(generateImageButton("Common/gallery.png"));
+
+        TextButton emptyRoomBtn = new TextButton("EMPTY ROOM", subOption);
+        emptyRoomBtn.setUserObject(generateImageButton("Common/room.png"));
 
         newDesignOption = new Table(skin);
         newDesignOption.setFillParent(true);
 
-        newDesignOption.background(new SpriteDrawable(new Sprite(new Texture("gradient2.png"))));
+        newDesignOption.background(new SpriteDrawable(new Sprite(new Texture("gradient-overlay.png"))));
 
-        newDesignOption.add(takePictureBtn).padRight(5).width(150);
-        newDesignOption.add(fromGallryBtn).padRight(5).width(150);
-        newDesignOption.add(emptyRoomBtn).width(150);
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
 
+        for(TextButton button : Arrays.asList(takePictureBtn, fromGalleryBtn, emptyRoomBtn)){
+            ImageButton imageButton = (ImageButton) button.getUserObject();
+            newDesignOption.add(imageButton).width(width / 6).height(height / 3);
+        }
+
+        newDesignOption.row();
+
+        for(TextButton button : Arrays.asList(takePictureBtn, fromGalleryBtn, emptyRoomBtn)) {
+            button.pad(10);
+            newDesignOption.add(button).width(width / 3);
+        }
 
         takePictureBtn.addListener(new ClickListener() {
             @Override
@@ -183,7 +176,7 @@ public class MenuScreen extends AppScreen {
             }
         });
 
-        fromGallryBtn.addListener(new ClickListener() {
+        fromGalleryBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 FileHandle fileHandle = Gdx.files.internal("Rooms/Images/room1.jpg");
@@ -191,7 +184,6 @@ public class MenuScreen extends AppScreen {
 //                openDeviceGallery();
             }
         });
-
 
         emptyRoomBtn.addListener(new ClickListener() {
             @Override
@@ -203,12 +195,10 @@ public class MenuScreen extends AppScreen {
         });
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = SkinManager.getDefaultSkin().newDrawable("defaultButton");
-        textButtonStyle.down = SkinManager.getDefaultSkin().newDrawable("defaultButton");
         textButtonStyle.font = SkinManager.getDefaultSkin().getFont("defaultFont");
-        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.fontColor = Color.WHITE;
         backButton = new TextButton("BACK", textButtonStyle);
-        backButton.setBounds(5f, 5f, 70f, 40f);
+        backButton.setBounds((width / 2) - 50f, 5f, 100f, 50f);
 
         backButton.addListener(new ClickListener() {
             @Override
@@ -217,6 +207,23 @@ public class MenuScreen extends AppScreen {
                 backButton.remove();
             }
         });
+    }
+
+    private void loadTween() {
+        manager = new TweenManager();
+        Tween.registerAccessor(Image.class, new ImageOpacityAccessor());
+        Tween.to(gradientA, ImageOpacityAccessor.ALPHA, 6f)
+                .target(0.4f)
+                .repeatYoyo(-1, 0)
+                .ease(Bounce.INOUT)
+                .start(manager);
+
+        Tween.to(gradientB, ImageOpacityAccessor.ALPHA, 5f)
+                .target(0.7f)
+                .delay(3f)
+                .repeatYoyo(-1, 0)
+                .ease(Bounce.INOUT)
+                .start(manager);
     }
 
     public static void openDeviceCamera() {
@@ -235,11 +242,6 @@ public class MenuScreen extends AppScreen {
     private void setDisableMenuButton(boolean disable) {
         createNewBtn.setDisabled(disable);
         catalogBtn.setDisabled(disable);
-        exitBtn.setDisabled(disable);
-    }
-
-    private void loadObjects() {
-        ObjectCatalog.init("Catalog", skin);
     }
 
     private void addListeners() {
@@ -252,32 +254,37 @@ public class MenuScreen extends AppScreen {
             }
         });
 
-        exitBtn.addListener(new ClickListener() {
+        helpBtn.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent il, float x, float y) {
-                dispose();
-                Gdx.app.exit();
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getInstance().setScreen(new TutorialPanel());
             }
         });
     }
 
-    private TextButton.TextButtonStyle createButtonStyle(Color c) {
+    private TextButton.TextButtonStyle createButtonStyle(Color color) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.getDrawable("defaultButtonHover");
+        textButtonStyle.up = skin.getDrawable("optionBackground");
         textButtonStyle.font = skin.getFont("defaultTitleFont");
-        textButtonStyle.fontColor = c;
+        textButtonStyle.fontColor = color;
         return textButtonStyle;
     }
 
     private void createFonts() {
-        FileHandle fontFile = Gdx.files.internal("data/Bernardo-Moda-Bold.ttf");
+        FileHandle fontFile = Gdx.files.internal("data/Calibri.ttf");
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 14;
+        parameter.size = 26;
         textFont = generator.generateFont(parameter);
         parameter.size = 28;
         titleFont = generator.generateFont(parameter);
+        parameter.size = 55;
+        applicationNameFont = generator.generateFont(parameter);
         generator.dispose();
+    }
+
+    private ImageButton generateImageButton(String imagePath){
+        return new ImageButton(new SpriteDrawable(new Sprite(new Texture(Gdx.files.internal(imagePath), true))));
     }
 
     @Override
@@ -297,8 +304,8 @@ public class MenuScreen extends AppScreen {
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        gradient.draw(stage.getBatch(), 1);
-        gradient2.draw(stage.getBatch(), 1);
+        gradientA.draw(stage.getBatch(), 1);
+        gradientB.draw(stage.getBatch(), 1);
         stage.getBatch().end();
 
         stage.draw();

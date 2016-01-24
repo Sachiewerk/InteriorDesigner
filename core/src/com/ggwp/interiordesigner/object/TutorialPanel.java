@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -33,52 +32,41 @@ import aurelienribon.tweenengine.equations.Cubic;
 public class TutorialPanel extends AppScreen {
 
     protected Stage stage;
-    protected AppScreen appScreen;
-    private TutorialPanel instance;
-
-    private Table layoutTable;
-    private Table furnituresContainer;
 
     private TweenManager manager;
-    private Image a,b;
+    private Image a, b;
     private int curPos = 0;
-    private  TextButton backButton;
+    private TextButton backButton;
     private FileHandle[] slides = null;
+    private boolean doneAnimating = true;
 
 
     public TutorialPanel() {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        //initCategories();
-
         slides = Gdx.files.internal("Tutorial").list();
 
-        if(slides.length==0)
+        if (slides.length == 0) {
             return;
+        }
 
         a = new Image(new SpriteDrawable(new Sprite(new Texture(slides[0]))));
         a.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        //a.setFillParent(true);
         stage.addActor(a);
-        if(slides.length==1)
+        if (slides.length == 1) {
             return;
+        }
 
         b = new Image(new SpriteDrawable(new Sprite(new Texture(slides[1]))));
         b.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        //a.setFillParent(true);
         stage.addActor(b);
         a.toFront();
         manager = new TweenManager();
 
         Tween.registerAccessor(Image.class, new ImageButtonAccessor());
-        /*Tween.from(b, ImageButtonAccessor.POSITION_X, 1f)
-                .target(500, 0)
-                .ease(Cubic.INOUT)
-                .delay(1.0f)
-                .start(manager);*/
 
         a.addListener(new ActorGestureListener() {
             @Override
@@ -87,6 +75,7 @@ public class TutorialPanel extends AppScreen {
                 processSlide(velocityX,velocityY,b);
             }
         });
+
         b.addListener(new ActorGestureListener() {
             @Override
             public void fling(InputEvent event, float velocityX, float velocityY, int button) {
@@ -96,7 +85,6 @@ public class TutorialPanel extends AppScreen {
         });
 
 
-        //new SpriteDrawable(new Sprite(new Texture("Rooms/room1.jpg")))
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = SkinManager.getDefaultSkin().newDrawable("defaultButton");
         textButtonStyle.down = SkinManager.getDefaultSkin().newDrawable("defaultButton");
@@ -117,50 +105,47 @@ public class TutorialPanel extends AppScreen {
 
     }
 
-    private boolean doneAnimating =true;
     public void processSlide( float velocityX, float velocityY, Image a){
-
-        System.out.println(curPos+":"+slides[curPos]);
-        if(doneAnimating)
-        if (Math.abs(velocityX) > Math.abs(velocityY)) {
-            if (velocityX < 0) {
-
-                if(curPos>=slides.length-1)
-                    return;
-                a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[++curPos]))));
-
-                a.toFront();
-                backButton.toFront();
-                Tween.from(a, ImageButtonAccessor.POSITION_X, 1f)
-                        .target(Gdx.graphics.getWidth(), 0)
-                        .ease(Cubic.INOUT)
-                        .start(manager).setCallback(new TweenCallback() {
-                    @Override
-                    public void onEvent(int type, BaseTween<?> source) {
-                        doneAnimating = true;
+        if (doneAnimating) {
+            if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                if (velocityX < 0) {
+                    if (curPos >= slides.length - 1){
+                        return;
                     }
-                });
-                doneAnimating=false;
-            } else if (velocityX > 0) {
-                //
-                if(curPos<=0)
-                    return;
-                a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[--curPos]))));
-                a.toFront();
-                backButton.toFront();
-                Tween.from(a, ImageButtonAccessor.POSITION_X, 1f)
-                        .target(-Gdx.graphics.getWidth(), 0)
-                        .ease(Cubic.INOUT)
-                        .start(manager).setCallback(new TweenCallback() {
-                    @Override
-                    public void onEvent(int type, BaseTween<?> source) {
-                        doneAnimating = true;
+                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[++curPos]))));
+
+                    a.toFront();
+                    backButton.toFront();
+                    Tween.from(a, ImageButtonAccessor.POSITION_X, 1f)
+                            .target(Gdx.graphics.getWidth(), 0)
+                            .ease(Cubic.INOUT)
+                            .start(manager).setCallback(new TweenCallback() {
+                        @Override
+                        public void onEvent(int type, BaseTween<?> source) {
+                            doneAnimating = true;
+                        }
+                    });
+                    doneAnimating=false;
+                } else if (velocityX > 0) {
+                    if (curPos <= 0){
+                        return;
                     }
-                });
-                doneAnimating=false;
-            } else {
+
+                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[--curPos]))));
+                    a.toFront();
+                    backButton.toFront();
+                    Tween.from(a, ImageButtonAccessor.POSITION_X, 1f)
+                            .target(-Gdx.graphics.getWidth(), 0)
+                            .ease(Cubic.INOUT)
+                            .start(manager).setCallback(new TweenCallback() {
+                        @Override
+                        public void onEvent(int type, BaseTween<?> source) {
+                            doneAnimating = true;
+                        }
+                    });
+                    doneAnimating=false;
+                }
             }
-        } else {
         }
     }
 
@@ -175,27 +160,11 @@ public class TutorialPanel extends AppScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 
-        //test tween
-
         manager.update(delta);
-
-        //
-
         stage.getBatch().begin();
-        //stage.getBatch().draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        //sage.getBatch().draw(gradient, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();
-
         stage.draw();
-
-
     }
-
-
-
-
-
 
     @Override
     public void resize(int width, int height) {
@@ -221,7 +190,5 @@ public class TutorialPanel extends AppScreen {
     public void dispose() {
 
     }
-
-
 
 }
