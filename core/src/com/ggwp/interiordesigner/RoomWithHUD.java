@@ -49,10 +49,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.Wall;
+import com.ggwp.utils.ToolUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -171,9 +176,37 @@ public class RoomWithHUD extends AppScreen  {
         modelBatch = new ModelBatch();
         shapeRenderer = new ShapeRenderer();
 
-        assets.load("sofa.obj", Model.class);
-        assets.load("paiting.obj", Model.class);
+
+        filePath.clear();
+        fileList(Gdx.files.internal("furnitures"));
+        Object[][] tests = {{"title", "test error"},
+                {"message", filePath.size()}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));
+
+        int i = 0;
+        System.out.println("Loading assets ..");
+        for (final FileHandle categoryfolder : filePath
+                ) {
+            System.out.println("Loading "+categoryfolder.path()+" ..");
+            assets.load(categoryfolder.path(), Model.class);
+        }
+
+/*        assets.load("furnitures/tables/Table.obj", Model.class);
+        assets.load("furnitures/chair/chair2.obj", Model.class);
+        assets.load("furnitures/chair/chair3.obj", Model.class);
+        assets.load("furnitures/chair/chair4.obj", Model.class);*/
+
+/*        assets.load("furnitures/chair/chair1.obj", Model.class);
+        assets.load("furnitures/chair/chair2.obj", Model.class);
+        assets.load("furnitures/chair/chair3.obj", Model.class);
+        assets.load("furnitures/chair/chair4.obj", Model.class);
+        assets.load("furnitures/chair/chair5.obj", Model.class);
+        assets.load("furnitures/chair/chair6.obj", Model.class);
+        assets.load("sofa.obj", Model.class);*/
         loading = true;
+
+
 
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
@@ -223,6 +256,31 @@ public class RoomWithHUD extends AppScreen  {
         selectionMaterial = new Material(ColorAttribute.createDiffuse(new Color(1f, 0.647f, 0f,0.6f)));
         selectionMaterial.set(blendingAttribute);
         originalMaterial = new Material();
+    }
+
+    List<FileHandle> filePath = new ArrayList<FileHandle>();
+    private void fileList(FileHandle dir){
+        //Get list of all files and folders in directory
+        FileHandle[] files = Gdx.files.internal(dir.path()).list();
+        Object[][] tests = {{"title", dir.file().getName()+":"+dir.path()},
+                {"message", files.length}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));
+        //For all files and folders in directory
+        for (int i = 0; i < files.length; i++) {
+            //Check if directory
+            if (files[i].isDirectory())
+                //Recursively call file list function on the new directory
+                fileList(files[i]);
+            else{
+                //If not directory, print the file path
+                if(files[i].file().getAbsolutePath().toLowerCase().endsWith(".obj")){
+                    System.out.println(files[i].file().getAbsolutePath());
+                    filePath.add(files[i]);
+                }
+
+            }
+        }
     }
 
     public static btConvexHullShape createConvexHullShape (final Model model, boolean optimize) {

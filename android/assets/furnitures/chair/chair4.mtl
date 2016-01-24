@@ -1,0 +1,24 @@
+# Exported from 3D Builder
+
+newmtl 0_0
+Kd 1.000000 1.000000 1.000000
+map_Kd textures\Stuhlschanier.jpg
+
+newmtl 0_1
+Kd 0.067391 0.053351 0.047735
+
+newmtl 0_2
+Kd 1.000000 1.000000 1.000000
+map_Kd textures\Stuhl_Stoff.jpg
+
+newmtl 0_3
+Kd 1.000000 1.000000 1.000000
+map_Kd textures\Stuhlschanier.jpg
+
+newmtl 0_4
+Kd 1.000000 1.000000 1.000000
+map_Kd textures\Stuhl_Lehne.jpg
+
+newmtl 0_5
+Kd 1.000000 1.000000 1.000000
+map_Kd textures\Stuhl_Lehne.jpg
