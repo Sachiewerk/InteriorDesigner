@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -19,7 +20,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Quaternion;
@@ -40,16 +40,22 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.GameObject;
@@ -73,21 +79,44 @@ public class RoomWithHUD extends AppScreen  {
         @Override
         public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
 
+            GameObject obj0 = instances.get(userValue0);
+            GameObject obj1 = instances.get(userValue1);
 
-            if(instances.get(userValue0).newlyAdded == false){
+            if(obj0.newlyAdded == false){
                 instances.get(userValue0).collided = true;
             }
-            if(instances.get(userValue1).newlyAdded == false){
+            if(obj1.newlyAdded == false){
                 instances.get(userValue1).collided = true;
             }
 
+            if(obj0.type == GameObject.TYPE_WALL){
+                setWallMaterial((Wall) obj0);
+            }
+
+            if(obj1.type == GameObject.TYPE_WALL){
+                setWallMaterial((Wall) obj1);
+            }
+
+            System.out.println("contact");
             return true;
         }
 
+        @Override
+        public void onContactEnded(int userValue0, int userValue1) {
+            GameObject obj0 = instances.get(userValue0);
+            GameObject obj1 = instances.get(userValue1);
+
+            if(obj0.type == GameObject.TYPE_WALL){
+                removeWallTexture((Wall) obj0);
+            }
+
+            if(obj1.type == GameObject.TYPE_WALL){
+                removeWallTexture((Wall) obj1);
+            }
+        }
     }
 
     protected PerspectiveCamera camera;
-    protected CameraInputController camController;
     protected SpriteBatch batch;
     protected ModelBatch modelBatch;
     protected AssetManager assets;
@@ -133,6 +162,11 @@ public class RoomWithHUD extends AppScreen  {
     private Vector3 pointAtWall = new Vector3();
     private Quaternion wallQuaternion = new Quaternion();
 
+    private BlendingAttribute wallBlendingAttrib;
+    private Material origWallMaterial;
+
+    private DebugDrawer debugDrawer;
+
     private void initEnvironment(){
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -149,7 +183,6 @@ public class RoomWithHUD extends AppScreen  {
             camera.update();
         }
 
-        camController = new CameraInputController(camera);
     }
 
     private void removeScreenInputProcessor(){
@@ -162,8 +195,6 @@ public class RoomWithHUD extends AppScreen  {
         this(null, null, null);
     }
 
-    private DebugDrawer debugDrawer;
-
 
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
         Bullet.init();
@@ -173,7 +204,7 @@ public class RoomWithHUD extends AppScreen  {
 
         initEnvironment();
         initCamera();
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this, camController));
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
 
         initHUD();
 
@@ -207,12 +238,20 @@ public class RoomWithHUD extends AppScreen  {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-        debugDrawer = new DebugDrawer();
-        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+//        debugDrawer = new DebugDrawer();
+//        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+//
+//        collisionWorld.setDebugDrawer(debugDrawer);
 
-        collisionWorld.setDebugDrawer(debugDrawer);
+        wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        wallBlendingAttrib.opacity = 0f;
 
         if(walls != null){
+            origWallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.6f, 1f, 0.5f)));
+            BlendingAttribute ba = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            ba.opacity = 0.4f;
+            origWallMaterial.set(ba);
+
             for(Wall wall : walls){
                 Vector3 pos = new Vector3();
                 wall.transform.getTranslation(pos);
@@ -225,6 +264,8 @@ public class RoomWithHUD extends AppScreen  {
                 }else{
                     backWallHeight = wall.dimensions.y;
                 }
+
+                removeWallTexture(wall);
 
                 wall.body = new btCollisionObject();
                 wall.body.setCollisionShape(createConvexHullShape(wall.model,true));
@@ -240,11 +281,35 @@ public class RoomWithHUD extends AppScreen  {
         }
         background = new Texture(backgroundSource);
 
-        BlendingAttribute blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        blendingAttribute.opacity = 0.5f;
+        BlendingAttribute selectedBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        selectedBlendingAttrib.opacity = 0.5f;
         selectionMaterial = new Material(ColorAttribute.createDiffuse(new Color(1f, 0.647f, 0f,0.6f)));
-        selectionMaterial.set(blendingAttribute);
+        selectionMaterial.set(selectedBlendingAttrib);
         originalMaterial = new Material();
+    }
+
+    private void removeWallTexture(Wall wall){
+        if(wall != null){
+            for(Material mat : wall.materials){
+                mat.set(wallBlendingAttrib);
+            }
+            for(Material mat : wall.model.materials){
+                mat.set(wallBlendingAttrib);
+            }
+        }
+    }
+
+    private void setWallMaterial(Wall wall){
+        if(wall != null){
+            for(Material mat : wall.materials){
+                mat.clear();
+                mat.set(origWallMaterial);
+            }
+            for(Material mat : wall.model.materials){
+                mat.clear();
+                mat.set(origWallMaterial);
+            }
+        }
     }
 
     List<FileHandle> filePath = new ArrayList<FileHandle>();
@@ -286,16 +351,30 @@ public class RoomWithHUD extends AppScreen  {
         return result;
     }
 
+    private void removeGameObjects(Array<GameObject> objects){
+        instances.removeAll(objects, true);
+    }
+
     private void initHUD(){
         ImageButton addButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/add.png"))));
         ImageButton removeButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
         ImageButton moveButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/move.png"))));
         ImageButton rotateButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/rotate.png"))));
 
+        ImageButton clearButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/clear.png"))));
+        ImageButton saveButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/save.png"))));
+        ImageButton cancellButon = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancel.png"))));
+
+
         addButton.setBounds(0, 10f, 40f, 40f);
         removeButton.setBounds(60f, 10f, 40f, 40f);
         moveButton.setBounds(120, 10f, 40f, 40f);
         rotateButton.setBounds(180f, 10f, 40f, 40f);
+        clearButton.setBounds(240, 10f, 40f, 40f);
+
+
+        saveButton.setBounds(Gdx.graphics.getWidth() - 120f, 10f, 40f, 40f);
+        cancellButon.setBounds(Gdx.graphics.getWidth() - 60f, 10f, 40f, 40f);
 
        final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
 
@@ -335,6 +414,75 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
+        clearButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Array<GameObject> objects = new Array<GameObject>();
+                for(GameObject gameObject : instances){
+                    if(gameObject.type != GameObject.TYPE_WALL){
+                        objects.add(gameObject);
+                        collisionWorld.removeCollisionObject(gameObject.body);
+                    }
+                }
+                selected = -1;
+                removeGameObjects(objects);
+
+            }
+        });
+
+
+        saveButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                whitePixmap.setColor(Color.WHITE);
+                whitePixmap.fill();
+                Texture texture = new Texture(whitePixmap);
+                whitePixmap.dispose();
+
+
+                final Dialog confirmDialog = new Dialog("", new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture))));
+                confirmDialog.setModal(true);
+                confirmDialog.setSize(400, 400);
+
+                TextButton btnYes = new TextButton("Save", SkinManager.getDefaultSubmitTextButtonStyle());
+                TextButton btnNo = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
+
+                btnYes.addListener(new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        Main.getInstance().setScreen(new MenuScreen());
+                    }
+                });
+
+                btnNo.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        confirmDialog.hide();
+                    }
+                });
+
+
+                VerticalGroup vgroup = new VerticalGroup();
+                vgroup.addActor(new Label("Save ?", SkinManager.getDefaultLabelStyle()));
+                HorizontalGroup hgroup = new HorizontalGroup();
+                hgroup.addActor(btnYes);
+                hgroup.addActor(btnNo);
+                vgroup.addActor(hgroup);
+                confirmDialog.add(vgroup);
+
+                confirmDialog.show(stage);
+            }
+        });
+
+        cancellButon.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Main.getInstance().setScreen(new MenuScreen());
+                dispose();
+            }
+        });
+
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixmap.setColor(Color.rgba8888(1f, 1f, 1f, .5f));
         whitePixmap.fill();
@@ -352,10 +500,14 @@ public class RoomWithHUD extends AppScreen  {
         tools.addActor(removeButton);
         tools.addActor(moveButton);
         tools.addActor(rotateButton);
+        tools.addActor(clearButton);
+        tools.addActor(saveButton);
+        tools.addActor(cancellButon);
 
         whitePixmap.dispose();
         stage.addActor(tools);
     }
+
 
 /*    private float volumeOfMesh(Mesh mesh) {
         float vols = from t in mesh.Triangles
@@ -431,9 +583,9 @@ public class RoomWithHUD extends AppScreen  {
             spriteBatch.end();
         }
 
-        debugDrawer.begin(camera);
-        collisionWorld.debugDrawWorld();
-        debugDrawer.end();
+//        debugDrawer.begin(camera);
+//        collisionWorld.debugDrawWorld();
+//        debugDrawer.end();
 
         modelBatch.begin(camera);
         modelBatch.render(instances, environment);
