@@ -121,12 +121,17 @@ public class RoomWithHUD extends AppScreen  {
     private btCollisionWorld collisionWorld;
 
 
-    final static short GROUND_FLAG = 1<<8;
-    final static short OBJECT_FLAG = 1<<9;
+    final static short WALL_FLAG = 1<<8;
+    final static short FLOOR_OBJECT_FLAG = 1<<9;
+    final static short WALL_OBJECT_FLAG = 1<<10;
     final static short ALL_FLAG = -1;
 
     private float wallY = 0f;
     private float wallZ = 0f;
+    private float backWallHeight = 0f;
+
+    private Vector3 pointAtWall = new Vector3();
+    private Quaternion wallQuaternion = new Quaternion();
 
     private void initEnvironment(){
         environment = new Environment();
@@ -192,18 +197,6 @@ public class RoomWithHUD extends AppScreen  {
             assets.load(categoryfolder.path(), Model.class);
         }
 
-/*        assets.load("furnitures/tables/Table.obj", Model.class);
-        assets.load("furnitures/chair/chair2.obj", Model.class);
-        assets.load("furnitures/chair/chair3.obj", Model.class);
-        assets.load("furnitures/chair/chair4.obj", Model.class);*/
-
-/*        assets.load("furnitures/chair/chair1.obj", Model.class);
-        assets.load("furnitures/chair/chair2.obj", Model.class);
-        assets.load("furnitures/chair/chair3.obj", Model.class);
-        assets.load("furnitures/chair/chair4.obj", Model.class);
-        assets.load("furnitures/chair/chair5.obj", Model.class);
-        assets.load("furnitures/chair/chair6.obj", Model.class);
-        assets.load("sofa.obj", Model.class);*/
         loading = true;
 
 
@@ -221,30 +214,26 @@ public class RoomWithHUD extends AppScreen  {
 
         if(walls != null){
             for(Wall wall : walls){
-
-
                 Vector3 pos = new Vector3();
                 wall.transform.getTranslation(pos);
-//                wall.transform.setToTranslation(pos.x,0,pos.z);
                 wallY = pos.y;
 
-                if(wall.side){
+                if(wall.isSide()){
                     if(pos.z != 0){
                         wallZ = pos.z;
                     }
+                }else{
+                    backWallHeight = wall.dimensions.y;
                 }
 
                 wall.body = new btCollisionObject();
                 wall.body.setCollisionShape(createConvexHullShape(wall.model,true));
-
-
-
                 wall.collided = false;
                 wall.body.setWorldTransform(wall.transform);
                 wall.body.setUserValue(instances.size);
                 wall.body.setCollisionFlags(wall.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
                 instances.add(wall);
-                collisionWorld.addCollisionObject(wall.body, GROUND_FLAG, OBJECT_FLAG);
+                collisionWorld.addCollisionObject(wall.body, WALL_FLAG, FLOOR_OBJECT_FLAG);
 
                 instances.add(wall);
             }
@@ -383,22 +372,21 @@ public class RoomWithHUD extends AppScreen  {
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
-
-
         Vector3 dimension = new Vector3();
         bounds.getDimensions(dimension);
 
         dimension.x -= (dimension.x / 2f);
         dimension.y -= (dimension.y / 2f);
         dimension.z -= (dimension.z / 2f);
-
         GameObject object = new GameObject(model,new btBoxShape(dimension),type);
-        object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
-//        object.transform.setToScaling(20f,20f,20f);
-//        object.calculateTransforms();
 
-        //System.out.println(signedVolumeOfTriangle(model.meshParts.));
-        object.transform.scale(0.5f,0.5f,0.5f);
+
+        if(type == GameObject.TYPE_WALL_OBJECT){
+            object.transform.translate(camera.position.x, (backWallHeight / 2), dimension.z);
+        }else{
+            object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
+        }
+
 
         object.newlyAdded = true;
 
@@ -413,42 +401,15 @@ public class RoomWithHUD extends AppScreen  {
         object.body.setUserValue(instances.size);
         object.body.setCollisionFlags(object.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         instances.add(object);
-        collisionWorld.addCollisionObject(object.body, OBJECT_FLAG, ALL_FLAG);
+
+        if(type == GameObject.TYPE_WALL_OBJECT){
+            collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, FLOOR_OBJECT_FLAG);
+        }else{
+            collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
+        }
     }
 
     private void doneLoading () {
-//        for(int i = 1; i < 2; i++){
-//            Model m = assets.get("sofa.obj", Model.class);
-//
-//            BoundingBox bounds = new BoundingBox();
-//            m.calculateBoundingBox(bounds);
-//
-//            Vector3 dimension = new Vector3();
-//            bounds.getDimensions(dimension);
-//
-//            dimension.x -= (dimension.x / 2f);
-//            dimension.y -= (dimension.y / 2f);
-//            dimension.z -= (dimension.z / 2f);
-//
-//            GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
-//            sofa.transform.translate((i * 40f), wallY + (bounds.getHeight() / 2), ((bounds.getDepth() / 2) + 1));
-//            sofa.calculateTransforms();
-//
-//            sofa.newlyAdded = true;
-//            BoundingBox bb = new BoundingBox();
-//            sofa.calculateBoundingBox(bb);
-//
-//            bb.getCenter(sofa.center);
-//            bb.getDimensions(sofa.dimensions);
-//
-//            sofa.collided = false;
-//            sofa.body.setWorldTransform(sofa.transform);
-//            sofa.body.setUserValue(instances.size);
-//            sofa.body.setCollisionFlags(sofa.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-//            instances.add(sofa);
-//            collisionWorld.addCollisionObject(sofa.body,OBJECT_FLAG,ALL_FLAG);
-//        }
-
         loading = false;
     }
 
@@ -496,58 +457,151 @@ public class RoomWithHUD extends AppScreen  {
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
         if (selected < 0) return false;
+
         if (selected == selecting) {
             Ray ray = camera.getPickRay(screenX, screenY);
+            GameObject gameObject = instances.get(selected);
 
-            float level = wallY + (instances.get(selected).dimensions.y / 2);
-            final float distance = (level - ray.origin.y) / ray.direction.y;
+            if(gameObject.type == GameObject.TYPE_WALL_OBJECT){
+                int selectedWallIndex = getSelectedWall(screenX, screenY);
 
-            position.set(ray.direction).scl(distance).add(ray.origin);
 
-            if(tranformTool == TransformTool.MOVE){
-                instances.get(selected).transform.setTranslation(position);
-            }else{
-                if (ray.direction.x > ray.origin.x){
-                    instances.get(selected).transform.rotate(Vector3.Y,-1f);
-                }else{
-                    instances.get(selected).transform.rotate(Vector3.Y,1f);
+                handleWallObjectDrag(gameObject, ray);
+
+                Vector3 pos = new Vector3();
+                gameObject.transform.getTranslation(pos);
+                Wall selectedWall = null;
+                if(selectedWallIndex >= 0 && instances.get(selectedWallIndex) != null) {
+                    selectedWall = (Wall) instances.get(selectedWallIndex);
+
+                    float halfz = (gameObject.dimensions.z / 2);
+                    if(selectedWall.location == Wall.BACK){
+                        pos.z += halfz;
+                    }else if(selectedWall.location == Wall.LEFT){
+                        pos.x += halfz;
+                    }else{
+                        pos.x -= halfz;
+                    }
                 }
+
+                if(wallY > (pos.y - (gameObject.dimensions.y / 2))){
+                    pos.y = wallY + (gameObject.dimensions.y / 2);
+                }
+                if(backWallHeight < (pos.y + (gameObject.dimensions.y / 2))){
+                    pos.y = wallY - (gameObject.dimensions.y / 2);
+                }
+                gameObject.transform.setTranslation(pos);
+
+                System.out.println("x = " + pos.x + " y = " + pos.y + " z = " + pos.z);
+            } else {
+                handleFloorObjectDrag(gameObject, ray);
             }
-            instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
+            gameObject.body.setWorldTransform(gameObject.transform);
         }
 
         return true;
+    }
+
+    public int getSelectedWall(int screenX, int screenY){
+        Ray ray = camera.getPickRay(screenX, screenY);
+        int result = -1;
+
+        for (int i = 0; i < instances.size; ++i) {
+            final GameObject instance = instances.get(i);
+            if(instance.type == GameObject.TYPE_WALL){
+                Wall wall = (Wall) instance;
+
+                BoundingBox boundingBox = new BoundingBox();
+                wall.calculateBoundingBox(boundingBox).mul(wall.transform);
+
+                Vector3 cornerA = new Vector3();
+                Vector3 cornerB = new Vector3();
+                Vector3 cornerC = new Vector3();
+                Vector3 cornerD = new Vector3();
+
+                if(wall.location == Wall.RIGHT){
+                    boundingBox.getCorner000(cornerA);
+                    boundingBox.getCorner101(cornerB);
+                    boundingBox.getCorner111(cornerC);
+                    boundingBox.getCorner010(cornerD);
+                } else {
+                    boundingBox.getCorner001(cornerA);
+                    boundingBox.getCorner100(cornerB);
+                    boundingBox.getCorner110(cornerC);
+                    boundingBox.getCorner011(cornerD);
+                }
+
+                List<Vector3> triangles = new ArrayList<Vector3>();
+                triangles.add(cornerA);
+                triangles.add(cornerB);
+                triangles.add(cornerC);
+
+                triangles.add(cornerC);
+                triangles.add(cornerD);
+                triangles.add(cornerA);
+
+                if (Intersector.intersectRayTriangles(ray, triangles, pointAtWall)) {
+                    wall.transform.getRotation(wallQuaternion);
+                    return i;
+                }
+            }
+        }
+        return result;
+    }
+
+    private void handleWallObjectDrag(GameObject gameObject, Ray ray) {
+        if(tranformTool == TransformTool.MOVE){
+            gameObject.transform.set(pointAtWall, wallQuaternion);
+        }
+
+    }
+
+    private void handleFloorObjectDrag(GameObject gameObject, Ray ray) {
+        float level = wallY + (gameObject.dimensions.y / 2);
+        final float distance = (level - ray.origin.y) / ray.direction.y;
+
+        position.set(ray.direction).scl(distance).add(ray.origin);
+
+        if(tranformTool == TransformTool.MOVE){
+
+            gameObject.transform.setTranslation(position);
+        } else {
+            if (ray.direction.x > ray.origin.x){
+                gameObject.transform.rotate(Vector3.Y, -1f);
+            } else {
+                gameObject.transform.rotate(Vector3.Y, 1f);
+            }
+        }
     }
 
     @Override
     public boolean touchUp (int screenX, int screenY, int pointer, int button) {
         if (selecting >= 0) {
 //            if (selecting == selected){
-                setSelected(selecting);
-                if(selected >= 0){
-                    if(instances.get(selected).collided) {
-                        if(tranformTool == TransformTool.MOVE){
-//                if(instances.get(selected).collided) {
-                            instances.get(selected).transform.setTranslation(origPosition);
-                            instances.get(selected).collided = false;
-//                }
-                        }else{
-//                if(instances.get(selected).collided) {
-                            instances.get(selected).transform.setToTranslation(origPosition);
-                            instances.get(selected).transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
-                            instances.get(selected).collided = false;
-//                }
-                        }
+            setSelected(selecting);
+            if(selected >= 0){
+//                    if(instances.get(selected).type == GameObject.TYPE_WALL_OBJECT){
+//
+//                    }else{
+                if(instances.get(selected).collided) {
+                    if(tranformTool == TransformTool.MOVE){
+                        instances.get(selected).transform.setTranslation(origPosition);
+                        instances.get(selected).collided = false;
                     }else{
-                        if(instances.get(selected).newlyAdded){
-                            instances.get(selected).newlyAdded = false;
-                        }
+                        instances.get(selected).transform.setToTranslation(origPosition);
+                        instances.get(selected).transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
+                        instances.get(selected).collided = false;
                     }
-
-                    instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
+                }else{
+                    if(instances.get(selected).newlyAdded){
+                        instances.get(selected).newlyAdded = false;
+                    }
                 }
-//            }
+//                    }
 
+
+                instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
+            }
             selecting = -1;
             return true;
         }
@@ -571,27 +625,28 @@ public class RoomWithHUD extends AppScreen  {
         }
     }
 
-
     public int getSelectedObject(int screenX, int screenY){
         Ray ray = camera.getPickRay(screenX, screenY);
         int result = -1;
         float distance = -1;
         for (int i = 0; i < instances.size; ++i) {
             final GameObject instance = instances.get(i);
-            float dist2 = -1f;
-            instance.transform.getTranslation(position).add(instance.center);
-            if (Intersector.intersectRayBoundsFast(ray, position, instance.dimensions)) {
-                final float len = ray.direction.dot(position.x-ray.origin.x, position.y-ray.origin.y, position.z-ray.origin.z);
-                dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
-            }
 
-            if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
-                result = i;
-                distance = dist2;
+            if(instance.type != GameObject.TYPE_WALL){
+                float dist2 = -1f;
+                instance.transform.getTranslation(position).add(instance.center);
+                if (Intersector.intersectRayBoundsFast(ray, position, instance.dimensions)) {
+                    final float len = ray.direction.dot(position.x-ray.origin.x, position.y-ray.origin.y, position.z-ray.origin.z);
+                    dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
+                }
+
+                if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
+                    result = i;
+                    distance = dist2;
+                }
             }
         }
         return result;
-
     }
 
     @Override

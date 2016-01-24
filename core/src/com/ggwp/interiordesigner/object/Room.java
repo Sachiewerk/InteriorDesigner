@@ -105,7 +105,7 @@ public class Room {
                 backWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
 
-        backWall = new Wall(backWallModel, false);
+        backWall = new Wall(backWallModel, Wall.BACK);
         walls.add(backWall);
     }
 
@@ -118,7 +118,7 @@ public class Room {
                 1, 1, 1,
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
-        rightWall = new Wall(rightWallModel, true);
+        rightWall = new Wall(rightWallModel, Wall.RIGHT);
 
         if(defaultInstance){
             rightWall.transform
@@ -140,7 +140,7 @@ public class Room {
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
 
-        leftWall = new Wall(leftWallModel, true);
+        leftWall = new Wall(leftWallModel, Wall.LEFT);
 
         if(defaultInstance){
             float radians = (float) Math.toRadians(45);
@@ -388,7 +388,7 @@ public class Room {
 
 
             if (Intersector.intersectRayBounds(ray, bb, null)) {
-                sideSelected = wall.side;
+                sideSelected = wall.isSide();
                 distance = dist2;
             }
         }

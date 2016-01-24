@@ -6,18 +6,25 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 
 public class Wall extends GameObject {
 
-    public final Vector3 center = new Vector3();
-    public final Vector3 dimensions = new Vector3();
-    public boolean side = false;
+    public static final int LEFT = 0;
+    public static final int BACK = 1;
+    public static final int RIGHT = 2;
 
     private final static BoundingBox bounds = new BoundingBox();
 
-    public Wall(Model model, boolean side){
+    public int location;
+
+    public Wall(Model model, int location){
         super(model,GameObject.TYPE_WALL);
         calculateBoundingBox(bounds);
         bounds.getCenter(center);
         bounds.getDimensions(dimensions);
-        this.side = side;
+        this.location = location;
     }
+
+    public boolean isSide(){
+        return location != BACK;
+    }
+
 
 }
