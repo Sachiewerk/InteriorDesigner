@@ -9,9 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.ggwp.interiordesigner.RoomWithHUD;
 import com.ggwp.interiordesigner.manager.SkinManager;
 
 
@@ -64,7 +62,6 @@ public class Catalog extends Window {
         return catalog;
     }
 
-
     public Catalog(String title, WindowStyle style) {
         super(title, style);
         this.setFillParent(true);
@@ -78,7 +75,6 @@ public class Catalog extends Window {
         inputMultiplexer.addProcessor(appScreen);
         inputMultiplexer.addProcessor(stage);
     }
-
 
     private void initCategories(){
         VerticalGroup categories = new VerticalGroup();
@@ -101,10 +97,7 @@ public class Catalog extends Window {
         layoutTable.add(categoriesScrollPane);
         layoutTable.add(furnituresContainer);
 
-
-
-
-        EventListener bedsClikListener = new ClickListener(){
+        EventListener bedsClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 furnituresContainer.clear();
@@ -113,7 +106,7 @@ public class Catalog extends Window {
             }
         };
 
-        EventListener framesClikListener = new ClickListener(){
+        EventListener framesClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 furnituresContainer.clear();
@@ -122,28 +115,199 @@ public class Catalog extends Window {
             }
         };
 
+        EventListener refrigeratorClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createRefrigeratorContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener ovenClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createOvenContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener tvClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createTVContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener tvRackClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createTVRackContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener washingMachineClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createWashingMachineContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener airconClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createAirconContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener vaseClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createVaseContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener electricFanClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createElectricFanContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener sideTableClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createSideTableContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener lampClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createLampContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener dresserClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createDresserContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener sofaClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createSofaContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener coffeeTableClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createCoffeeTableContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener vanityTableClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createVanityTableContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener bookShelfClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createBookShelfContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener mirrorClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createMirrorContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener diningClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createDiningContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener kitchenClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createKitchenContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
+        EventListener wallClockClickListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                furnituresContainer.clear();
+                furnituresScrollPane = new ScrollPane(createWallClockContainer());
+                furnituresContainer.add(furnituresScrollPane);
+            }
+        };
+
         TextButton.TextButtonStyle defaultTextButtonStyle = SkinManager.getDefaultTextButtonStyle();
-        categories.addActor(createCategoryContainer("Bed with pillow/mattresses", "Common/no-image.png", defaultTextButtonStyle, bedsClikListener));
-        categories.addActor(createCategoryContainer("Frames","Common/no-image.png",defaultTextButtonStyle,framesClikListener));
-        categories.addActor(createCategoryContainer("Side Tables","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Vase","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Lamps", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Sofa Set/Couch", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Coffee Tables","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Tv Rack","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Book Shelves","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Mirrors","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Dining Set","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Kitchen Cabinets","Common/no-image.png",defaultTextButtonStyle,null));
-        categories.addActor(createCategoryContainer("Wall Clock", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("TV", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Washing Machine", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Electric Fan", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Aircon", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Refridgerator", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Oven", "Common/no-image.png", defaultTextButtonStyle, null));
+        categories.addActor(createCategoryContainer("Bed with pillows", "furnitures/categories/bed.png", defaultTextButtonStyle, bedsClickListener));
+        categories.addActor(createCategoryContainer("Refrigerators", "furnitures/categories/refrigerator.png", defaultTextButtonStyle, refrigeratorClickListener));
+        categories.addActor(createCategoryContainer("Ovens", "furnitures/categories/oven.png", defaultTextButtonStyle, ovenClickListener));
+        categories.addActor(createCategoryContainer("Frames", "furnitures/categories/frame.png", defaultTextButtonStyle, framesClickListener));
+        categories.addActor(createCategoryContainer("Side Tables", "furnitures/categories/sidetable.png", defaultTextButtonStyle, sideTableClickListener));
+        categories.addActor(createCategoryContainer("Vase", "furnitures/categories/vase.png", defaultTextButtonStyle, vaseClickListener));
+        categories.addActor(createCategoryContainer("Lamps", "furnitures/categories/lamp.png", defaultTextButtonStyle, lampClickListener));
+        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "furnitures/categories/dresser.png", defaultTextButtonStyle, dresserClickListener));
+        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "furnitures/categories/vanitytable.png", defaultTextButtonStyle, vanityTableClickListener));
+        categories.addActor(createCategoryContainer("Sofa Set/Couch", "furnitures/categories/sofa.png", defaultTextButtonStyle, sofaClickListener));
+        categories.addActor(createCategoryContainer("Coffee Tables", "furnitures/categories/coffeetable.png", defaultTextButtonStyle, coffeeTableClickListener));
+        categories.addActor(createCategoryContainer("Tv Rack", "furnitures/categories/tvrack.png", defaultTextButtonStyle, tvRackClickListener));
+        categories.addActor(createCategoryContainer("Book Shelves", "furnitures/categories/book.png", defaultTextButtonStyle, bookShelfClickListener));
+        categories.addActor(createCategoryContainer("Mirrors", "furnitures/categories/mirror.png", defaultTextButtonStyle, mirrorClickListener));
+        categories.addActor(createCategoryContainer("Dining Set", "furnitures/categories/dining.png", defaultTextButtonStyle, diningClickListener));
+        categories.addActor(createCategoryContainer("Kitchen Cabinets", "furnitures/categories/kitchen.png", defaultTextButtonStyle, kitchenClickListener));
+        categories.addActor(createCategoryContainer("Wall Clock", "furnitures/categories/wallclock.png", defaultTextButtonStyle, wallClockClickListener));
+        categories.addActor(createCategoryContainer("TV", "furnitures/categories/tv.png", defaultTextButtonStyle, tvClickListener));
+        categories.addActor(createCategoryContainer("Washing Machine", "furnitures/categories/washingmachine.png", defaultTextButtonStyle, washingMachineClickListener));
+        categories.addActor(createCategoryContainer("Electric Fan", "furnitures/categories/electricfan.png", defaultTextButtonStyle, electricFanClickListener));
+        categories.addActor(createCategoryContainer("Aircon", "furnitures/categories/aircon.png", defaultTextButtonStyle, airconClickListener));
 
         this.add(layoutTable);
     }
@@ -167,6 +331,18 @@ public class Catalog extends Window {
         return table;
     }
 
+    private ClickListener createListener(final String modelName, final int gameObjectType){
+        return new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Model model = assets.get(modelName, Model.class);
+                ((RoomWithHUD) appScreen).addObject(model, gameObjectType);
+                stage.getActors().removeValue(instance, true);
+                initInputProcessors();
+            }
+        };
+    }
+
     private Container createBedsContainer(){
         Table main = new Table();
 
@@ -176,30 +352,8 @@ public class Catalog extends Window {
         main.add(new Label("Bed with pillow/mattresses", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        EventListener sofaClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Model m = assets.get("sofa.obj", Model.class);
-
-                BoundingBox bounds = new BoundingBox();
-                m.calculateBoundingBox(bounds);
-
-                Vector3 dimension = new Vector3();
-                bounds.getDimensions(dimension);
-
-                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
-                sofa.transform.rotate(Vector3.X, -90);
-                sofa.calculateTransforms();
-
-
-                furnitures.add(sofa);
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
-
-        main.add(createFurnitureCard("b1", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b2", "Common/no-image.png", sofaClikListener));
+        main.add(createFurnitureCard("b1", "Common/no-image.png", createListener("furnitures/bed/bed1/bed1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("b2", "Common/no-image.png", createListener("furnitures/bed/bed2/bed2.obj",GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("b3", "Common/no-image.png", null));
         main.row();
         main.add(createFurnitureCard("b4", "Common/no-image.png", null));
@@ -236,7 +390,350 @@ public class Catalog extends Window {
         return new Container(main);
     }
 
-    private Container createFurnitureCard(String name,String img, EventListener listener){
+    private Container createRefrigeratorContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Refrigerators", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Refrigerator " + i, "furnitures/refrigerator/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createTVContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Televisions", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("TV " + i, "furnitures/tv/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createTVRackContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("TV Racks", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("TV Rack " + i, "furnitures/tvrack/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createWashingMachineContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Washing Machines", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Washing Machine " + i, "furnitures/washingmachine/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createVaseContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Vases", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Vase " + i, "furnitures/vase/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createAirconContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Aircons", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Aircon " + i, "furnitures/aircon/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createElectricFanContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Electric Fans", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Electric Fan " + i, "furnitures/electricfan/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createOvenContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Ovens", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Oven " + i, "furnitures/oven/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createWallClockContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Wall Clocks", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Wall Clock " + i, "furnitures/wallclock/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createSideTableContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Side Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Side Table " + i, "furnitures/sidetable/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createLampContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Lamps", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Lamp " + i, "furnitures/lamps/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createSofaContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Sofa/Couches", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Sofa " + i, "furnitures/sofa/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createDresserContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Dressers", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Dresser " + i, "furnitures/dresser/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createCoffeeTableContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Coffee Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Coffee Table " + i, "furnitures/coffeetable/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createVanityTableContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Vanity Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Vanity Table " + i, "furnitures/vanitytable/" + i + ".png", createListener("furnitures/chair/chair"+i+".obj",GameObject.TYPE_FLOOR_OBJECT)));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createBookShelfContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Book Shelfs", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Book Shelf " + i, "furnitures/wallclock/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createMirrorContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Mirrors", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Mirror " + i, "furnitures/mirror/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createDiningContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Dinings", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Dining " + i, "furnitures/dining/" + i + ".png",
+                    createListener("furnitures/tables/tb1/tb1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createKitchenContainer(){
+        Table main = new Table();
+        main.setFillParent(true);
+        main.defaults().left().pad(20f).padRight(0);
+        main.columnDefaults(2).padRight(20f);
+        main.add(new Label("Kitchens", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.row();
+
+        for(int i = 1; i <= 9; i++){
+            main.add(createFurnitureCard("Kitchen " + i, "furnitures/kitchen/" + i + ".png", null));
+
+            if(i % 3 == 0){
+                main.row();
+            }
+        }
+        return new Container(main);
+    }
+
+    private Container createFurnitureCard(String name, String img, EventListener listener){
         Table main = new Table();
         Image image = new Image((new Texture(img)));
 
@@ -247,7 +744,8 @@ public class Catalog extends Window {
             main.addListener(listener);
         }
         main.row();
-        main.add(new Label(name, SkinManager.getDefaultLabelStyle()));
-        return new Container(main);
+        main.add(new Label(name, SkinManager.getDefaultLabelStyle())).padTop(10f);
+        Container container = new Container(main);
+        return container;
     }
 }
