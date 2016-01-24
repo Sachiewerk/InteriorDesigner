@@ -169,30 +169,36 @@ public class MenuScreen extends AppScreen {
             newDesignOption.add(button).width(width / 3);
         }
 
-        takePictureBtn.addListener(new ClickListener() {
+        ClickListener takePictureClickListener = new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 openDeviceCamera();
             }
-        });
+        };
+        ((ImageButton) takePictureBtn.getUserObject()).addListener(takePictureClickListener);
+        takePictureBtn.addListener(takePictureClickListener);
 
-        fromGalleryBtn.addListener(new ClickListener() {
+        ClickListener fromGalleryListener = new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 FileHandle fileHandle = Gdx.files.internal("Rooms/Images/room1.jpg");
                 Main.getInstance().setScreen(new RoomSetupScreen(fileHandle, false));
 //                openDeviceGallery();
             }
-        });
+        };
+        ((ImageButton) fromGalleryBtn.getUserObject()).addListener(fromGalleryListener);
+        fromGalleryBtn.addListener(fromGalleryListener);
 
-        emptyRoomBtn.addListener(new ClickListener() {
+        ClickListener emptyRoomListener = new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(InputEvent il, float x, float y) {
                 final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
                 ToolUtils.removeScreenInputProcessor(stage);
                 stage.addActor(c);
             }
-        });
+        };
+        ((ImageButton) emptyRoomBtn.getUserObject()).addListener(emptyRoomListener);
+        emptyRoomBtn.addListener(emptyRoomListener);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = SkinManager.getDefaultSkin().getFont("defaultFont");
