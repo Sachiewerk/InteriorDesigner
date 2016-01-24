@@ -151,62 +151,62 @@ public class Room {
     }
 
     private void onBackWallTopPartUpDrag(){
-        System.out.println("b wall top part up");
+//        System.out.println("b wall top part up");
         scaleWallsY(1);
     }
 
     private void onBackWallTopPartDownDrag(){
-        System.out.println("b wall top part down");
+//        System.out.println("b wall top part down");
         scaleWallsY(-1);
     }
 
     private void onBackWallBottomPartUpDrag(){
-        System.out.println("b wall bot part up");
+//        System.out.println("b wall bot part up");
         scaleAndMoveWallsY(1);
     }
 
     private void onBackWallBottomPartDownDrag(){
-        System.out.println("b wall bot part down");
+//        System.out.println("b wall bot part down");
         scaleAndMoveWallsY(-1);
     }
 
     private void onBackWallLeftPartLeftDrag(){
-        System.out.println("b wall left part left");
+//        System.out.println("b wall left part left");
         scaleAndMoveWallsX(-1);
     }
 
     private void onBackWallLeftPartRightDrag(){
-        System.out.println("b wall left part right");
+//        System.out.println("b wall left part right");
         scaleAndMoveWallsX(1);
     }
 
     private void onBackWallRightPartLeftDrag(){
-        System.out.println("b wall right part left");
+//        System.out.println("b wall right part left");
         scaleWallsX(-1);
     }
 
     private void onBackWallRightPartRightDrag(){
-        System.out.println("b wall right part right");
+//        System.out.println("b wall right part right");
         scaleWallsX(1);
     }
 
     private void onLeftWallUpDrag(){
-        System.out.println("left wall up");
+//        System.out.println("left wall up");
         leftWallDrag(SCALE_AMOUNT);
     }
 
     private void onLeftWallDownDrag(){
-        System.out.println("left wall down");
+//        System.out.println("left wall down");
         leftWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallUpDrag(){
-        System.out.println("right wall up");
+//        System.out.println("right wall up");
         rightWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallDownDrag() {
-        System.out.println("right wall down");
+//        System.out.println("right wall down");
         rightWallDrag(SCALE_AMOUNT);
     }
 

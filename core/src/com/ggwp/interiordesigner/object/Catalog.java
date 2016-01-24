@@ -3,13 +3,15 @@ package com.ggwp.interiordesigner.object;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,17 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interiordesigner.Main;
-import com.ggwp.interiordesigner.RoomWithHUD;
 import com.ggwp.interiordesigner.manager.SkinManager;
-import com.ggwp.utils.ToolUtils;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -98,7 +90,7 @@ public class Catalog extends Window {
         layoutTable.columnDefaults(1).top().width(Gdx.graphics.getWidth() - 250f);
 
         categoriesScrollPane = new ScrollPane(categories);
-        //furnituresScrollPane = new ScrollPane(createBedsContainer());
+        furnituresScrollPane = new ScrollPane(createBedsContainer());
 
         furnituresContainer = new Table();
         furnituresContainer.setFillParent(true);
@@ -111,7 +103,7 @@ public class Catalog extends Window {
 
 
 
-/*
+
         EventListener bedsClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -128,45 +120,10 @@ public class Catalog extends Window {
                 furnituresScrollPane = new ScrollPane(createFramesContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
-        };*/
+        };
 
         TextButton.TextButtonStyle defaultTextButtonStyle = SkinManager.getDefaultTextButtonStyle();
-
-
-        FileHandle[] directories = Gdx.files.internal("furnitures").list(new FilenameFilter() {
-            @Override
-            public boolean accept(File current, String name) {
-                //return new File(current, name).isDirectory();
-                return Gdx.files.internal(current+"/"+name).isDirectory();
-            }
-        });
-
-        Object[][] tests = {{"title", "test error"},
-                {"message", directories.length}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));
-        System.out.println(Arrays.toString(directories));
-        for (final FileHandle category: directories
-             ) {
-
-            categories.addActor(createCategoryContainer(category.name(), "Common/no-image.png", defaultTextButtonStyle, new ClickListener(){
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-/*                    furnituresContainer.clear();
-                    furnituresScrollPane = new ScrollPane(createFramesContainer());
-                    furnituresContainer.add(furnituresScrollPane);*/
-                    furnituresContainer.clear();
-                    furnituresScrollPane = new ScrollPane(createFurnitureList(category.name()));
-                    furnituresContainer.add(furnituresScrollPane);
-
-                }
-            }));
-
-
-        }
-
-
-      /*  categories.addActor(createCategoryContainer("Bed with pillow/mattresses", "Common/no-image.png", defaultTextButtonStyle, bedsClikListener));
+        categories.addActor(createCategoryContainer("Bed with pillow/mattresses", "Common/no-image.png", defaultTextButtonStyle, bedsClikListener));
         categories.addActor(createCategoryContainer("Frames","Common/no-image.png",defaultTextButtonStyle,framesClikListener));
         categories.addActor(createCategoryContainer("Side Tables","Common/no-image.png",defaultTextButtonStyle,null));
         categories.addActor(createCategoryContainer("Vase","Common/no-image.png",defaultTextButtonStyle,null));
@@ -186,93 +143,9 @@ public class Catalog extends Window {
         categories.addActor(createCategoryContainer("Electric Fan", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Aircon", "Common/no-image.png", defaultTextButtonStyle, null));
         categories.addActor(createCategoryContainer("Refridgerator", "Common/no-image.png", defaultTextButtonStyle, null));
-        categories.addActor(createCategoryContainer("Oven", "Common/no-image.png", defaultTextButtonStyle, null));*/
+        categories.addActor(createCategoryContainer("Oven", "Common/no-image.png", defaultTextButtonStyle, null));
 
         this.add(layoutTable);
-    }
-
-    List<FileHandle> filePath = new ArrayList<FileHandle>();
-    private void fileList(FileHandle dir){
-        //Get list of all files and folders in directory
-        FileHandle[] files = Gdx.files.internal(dir.path()).list();
-        Object[][] tests = {{"title", dir.file().getName()+":"+dir.path()},
-                {"message", files.length}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));
-        //For all files and folders in directory
-        for (int i = 0; i < files.length; i++) {
-            //Check if directory
-            if (files[i].isDirectory())
-                //Recursively call file list function on the new directory
-                fileList(files[i]);
-            else{
-                //If not directory, print the file path
-                if(files[i].file().getAbsolutePath().toLowerCase().endsWith(".obj")){
-                    System.out.println(files[i].file().getAbsolutePath());
-                    filePath.add(files[i]);
-                }
-
-            }
-        }
-    }
-
-    private Container createFurnitureList(final String category){
-
-        Table main = new Table();
-
-        main.setFillParent(true);
-        main.defaults().left().pad(20f).padRight(0);
-        main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Bed with pillow/mattresses", SkinManager.getDefaultLabelStyle())).colspan(3);
-        main.row();
-
-        filePath.clear();
-        fileList(Gdx.files.internal("furnitures/" + category));
-        Object[][] tests = {{"title", "test error"},
-                {"message", filePath.size()}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));
-
-        int i = 0;
-
-        for (final FileHandle categoryfolder : filePath
-                ) {
-
-//            assets.load(categoryfolder.path(), Model.class);
-            //System.out.println(categoryfolder.path()+": loaded");
-            main.add(createFurnitureCard(categoryfolder.name(), "Common/no-image.png", new ClickListener(){
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    Model model = assets.get(categoryfolder.path(), Model.class);
-                    if(appScreen instanceof RoomWithHUD){
-                        ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                    }
-
-                    stage.getActors().removeValue(instance,true);
-                    initInputProcessors();
-                }
-            }));
-
-            if (++i % 3 == 0) {
-                main.row();
-            }
-        }
-
-
-
-/*        main.add(createFurnitureCard("b2", "Common/no-image.png", sofa2ClikListener));
-        main.add(createFurnitureCard("b3", "Common/no-image.png", sofa3ClikListener));
-        main.row();
-        main.add(createFurnitureCard("b4", "Common/no-image.png", sofa4ClikListener));
-        main.add(createFurnitureCard("b5", "Common/no-image.png", sofa5ClikListener));
-        main.add(createFurnitureCard("b6", "Common/no-image.png", null));
-        main.row();
-        main.add(createFurnitureCard("b7", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b8", "Common/no-image.png", null));
-        main.add(createFurnitureCard("b9", "Common/no-image.png", null));*/
-
-        return new Container(main);
-
     }
 
     private Table createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener) {
@@ -293,7 +166,7 @@ public class Catalog extends Window {
         table.add(button).width(180f).height(40f);
         return table;
     }
-/*
+
     private Container createBedsContainer(){
         Table main = new Table();
 
@@ -306,72 +179,31 @@ public class Catalog extends Window {
         EventListener sofaClikListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("furnitures/tables/Table.obj", Model.class);
-                if(appScreen instanceof RoomWithHUD){
-                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                }
+                Model m = assets.get("sofa.obj", Model.class);
 
+                BoundingBox bounds = new BoundingBox();
+                m.calculateBoundingBox(bounds);
+
+                Vector3 dimension = new Vector3();
+                bounds.getDimensions(dimension);
+
+                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
+                sofa.transform.rotate(Vector3.X, -90);
+                sofa.calculateTransforms();
+
+
+                furnitures.add(sofa);
                 stage.getActors().removeValue(instance,true);
                 initInputProcessors();
             }
         };
 
-        EventListener sofa2ClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("furnitures/tables/CAB.obj", Model.class);
-                if(appScreen instanceof RoomWithHUD){
-                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                }
-
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
-        EventListener sofa3ClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("furnitures/chair/chair2.obj", Model.class);
-                if(appScreen instanceof RoomWithHUD){
-                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                }
-
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
-        EventListener sofa4ClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("furnitures/chair/chair3.obj", Model.class);
-                if(appScreen instanceof RoomWithHUD){
-                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                }
-
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
-
-        EventListener sofa5ClikListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Model model = assets.get("furnitures/chair/chair4.obj", Model.class);
-                if(appScreen instanceof RoomWithHUD){
-                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
-                }
-
-                stage.getActors().removeValue(instance,true);
-                initInputProcessors();
-            }
-        };
-
-        main.add(createFurnitureCard("b1", "Common/no-image.png", sofaClikListener));
-        main.add(createFurnitureCard("b2", "Common/no-image.png", sofa2ClikListener));
-        main.add(createFurnitureCard("b3", "Common/no-image.png", sofa3ClikListener));
+        main.add(createFurnitureCard("b1", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b2", "Common/no-image.png", sofaClikListener));
+        main.add(createFurnitureCard("b3", "Common/no-image.png", null));
         main.row();
-        main.add(createFurnitureCard("b4", "Common/no-image.png", sofa4ClikListener));
-        main.add(createFurnitureCard("b5", "Common/no-image.png", sofa5ClikListener));
+        main.add(createFurnitureCard("b4", "Common/no-image.png", null));
+        main.add(createFurnitureCard("b5", "Common/no-image.png", null));
         main.add(createFurnitureCard("b6", "Common/no-image.png", null));
         main.row();
         main.add(createFurnitureCard("b7", "Common/no-image.png", null));
@@ -379,9 +211,9 @@ public class Catalog extends Window {
         main.add(createFurnitureCard("b9", "Common/no-image.png", null));
 
         return new Container(main);
-    }*/
+    }
 
-   /* private Container createFramesContainer(){
+    private Container createFramesContainer(){
         Table main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
@@ -402,7 +234,7 @@ public class Catalog extends Window {
         main.add(createFurnitureCard("f9", "Common/no-image.png", null));
 
         return new Container(main);
-    }*/
+    }
 
     private Container createFurnitureCard(String name,String img, EventListener listener){
         Table main = new Table();
@@ -411,7 +243,7 @@ public class Catalog extends Window {
         float cardSize = ((Gdx.graphics.getWidth()-250f) / (3f)) - 30f;
 
         main.add(image).width(cardSize).height(cardSize);
-        if(listener != null){
+        if (listener != null) {
             main.addListener(listener);
         }
         main.row();
