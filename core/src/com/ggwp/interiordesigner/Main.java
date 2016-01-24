@@ -47,7 +47,6 @@ public class Main extends Game {
 		});
 
 		aoi.requestOnDevice(AndroidOnlyInterface.RequestType.GET_SCREEN_TEMPLATE_DIR, null);
-
 	}
 
 	@Override

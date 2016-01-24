@@ -48,8 +48,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interiordesigner.manager.ViewportManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.GameObject;
@@ -168,7 +169,7 @@ public class RoomWithHUD extends AppScreen  {
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
         Bullet.init();
         this.camera = camera;
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(ViewportManager.VIRTUAL_WIDTH, ViewportManager.VIRTUAL_HEIGHT));
         assets = new AssetManager();
 
         initEnvironment();
@@ -341,7 +342,7 @@ public class RoomWithHUD extends AppScreen  {
 
         Table tools = new Table();
         tools.setBackground(new SpriteDrawable(new Sprite(new Texture(whitePixmap))));
-        tools.setBounds(0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
+        tools.setBounds(0, stage.getHeight() - 60f, stage.getWidth(), 60f);
 
         tools.defaults().pad(10f);
         tools.defaults().width(40f).height(40f);
@@ -355,17 +356,6 @@ public class RoomWithHUD extends AppScreen  {
 
         whitePixmap.dispose();
         stage.addActor(tools);
-    }
-
-/*    private float volumeOfMesh(Mesh mesh) {
-        float vols = from t in mesh.Triangles
-        select SignedVolumeOfTriangle(t.P1, t.P2, t.P3);
-        return Math.Abs(vols.Sum());
-    }*/
-
-    public static float signedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
-    {
-        return p1.dot(p2.crs(p3)) / 6.0f;
     }
 
     public void addObject(Model model, int type){
@@ -404,7 +394,7 @@ public class RoomWithHUD extends AppScreen  {
 
         if(type == GameObject.TYPE_WALL_OBJECT){
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, FLOOR_OBJECT_FLAG);
-        }else{
+        } else {
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
     }
@@ -423,7 +413,7 @@ public class RoomWithHUD extends AppScreen  {
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
+        Gdx.gl.glViewport(ViewportManager.VIRTUAL_POS_X, ViewportManager.VIRTUAL_POS_Y, ViewportManager.VIRTUAL_WIDTH, ViewportManager.VIRTUAL_HEIGHT);
 
         if(background != null){
             spriteBatch.begin();

@@ -10,8 +10,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -24,7 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
@@ -34,23 +31,18 @@ import com.ggwp.interiordesigner.object.EmptyRoomSelector;
 import com.ggwp.interiordesigner.object.TutorialPanel;
 import com.ggwp.interiordesigner.object.catalog.ObjectCatalog;
 import com.ggwp.utils.ToolUtils;
-import com.ggwp.utils.Tweener.ImageButtonAccessor;
 import com.ggwp.utils.Tweener.ImageOpacityAccessor;
 
-import javax.tools.Tool;
-
 import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenAccessor;
 import aurelienribon.tweenengine.TweenManager;
 import aurelienribon.tweenengine.equations.Bounce;
-import aurelienribon.tweenengine.equations.Cubic;
 
-public class MenuScreen extends AppScreen{
+public class MenuScreen extends AppScreen {
 
     private Skin skin;
     private Stage stage;
     private Texture backgroundImage;
-    private Image gradient,gradient2;
+    private Image gradient, gradient2;
 
     private Table newDesignOption;
     final ImageButton helpBtn;
@@ -61,13 +53,10 @@ public class MenuScreen extends AppScreen{
     BitmapFont titleFont;
     BitmapFont textFont;
 
-
     private TweenManager manager;
-    private final AppScreen thisAppScreen;
-    private  TextButton backButton;
+    private TextButton backButton;
 
-    public MenuScreen(){
-        thisAppScreen = this;
+    public MenuScreen() {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
@@ -108,9 +97,9 @@ public class MenuScreen extends AppScreen{
         style.titleFont = skin.getFont("defaultFont");
         skin.add("default", style, Window.WindowStyle.class);
 
-        Label.LabelStyle  style1 = new Label.LabelStyle();
+        Label.LabelStyle style1 = new Label.LabelStyle();
         style1.font = skin.getFont("defaultFont");
-        skin.add("default",style1,Label.LabelStyle.class);
+        skin.add("default", style1, Label.LabelStyle.class);
 
         createNewBtn = new TextButton("CREATE NEW DESIGN", createButtonStyle(Color.valueOf("#2ecc71")));
         createNewBtn.pad(10);
@@ -145,18 +134,14 @@ public class MenuScreen extends AppScreen{
             }
         });
 
-
-
         addListeners();
-
         loadObjects();
-
 
         manager = new TweenManager();
         Tween.registerAccessor(Image.class, new ImageOpacityAccessor());
         Tween.to(gradient, ImageOpacityAccessor.ALPHA, 6f)
                 .target(0.4f)
-                .repeatYoyo(-1,0)
+                .repeatYoyo(-1, 0)
                 .ease(Bounce.INOUT)
                 .start(manager);
 
@@ -166,21 +151,16 @@ public class MenuScreen extends AppScreen{
                 .repeatYoyo(-1, 0)
                 .ease(Bounce.INOUT)
                 .start(manager);
-
-
     }
 
-
-
-
-    private void loadCreateNewOptions(){
+    private void loadCreateNewOptions() {
         TextButton.TextButtonStyle style5 = new TextButton.TextButtonStyle();
         style5.up = skin.getDrawable("defaultButtonHover2");
         style5.font = skin.getFont("defaultFont");
         style5.fontColor = Color.WHITE;
 
         TextButton takePictureBtn = new TextButton("TAKE A PICTURE", style5);
-        takePictureBtn .pad(10);
+        takePictureBtn.pad(10);
         TextButton fromGallryBtn = new TextButton("FROM GALLERY", style5);
         fromGallryBtn.pad(10);
         TextButton emptyRoomBtn = new TextButton("EMPTY ROOM", style5);
@@ -217,19 +197,16 @@ public class MenuScreen extends AppScreen{
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 final EmptyRoomSelector c = EmptyRoomSelector.construct(stage);
-
-
                 ToolUtils.removeScreenInputProcessor(stage);
                 stage.addActor(c);
-
-
             }
         });
+
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = SkinManager.getDefaultSkin().newDrawable("defaultButton");
         textButtonStyle.down = SkinManager.getDefaultSkin().newDrawable("defaultButton");
         textButtonStyle.font = SkinManager.getDefaultSkin().getFont("defaultFont");
-        textButtonStyle.fontColor= Color.BLACK;
+        textButtonStyle.fontColor = Color.BLACK;
         backButton = new TextButton("BACK", textButtonStyle);
         backButton.setBounds(5f, 5f, 70f, 40f);
 
@@ -240,7 +217,6 @@ public class MenuScreen extends AppScreen{
                 backButton.remove();
             }
         });
-
     }
 
     public static void openDeviceCamera() {
@@ -256,36 +232,36 @@ public class MenuScreen extends AppScreen{
                 null);
     }
 
-    private void setDisableMenuButton(boolean disable){
+    private void setDisableMenuButton(boolean disable) {
         createNewBtn.setDisabled(disable);
         catalogBtn.setDisabled(disable);
-        exitBtn .setDisabled(disable);
-
+        exitBtn.setDisabled(disable);
     }
 
-    private void loadObjects(){
+    private void loadObjects() {
         ObjectCatalog.init("Catalog", skin);
     }
 
-    private void addListeners(){
-        createNewBtn.addListener(new ClickListener(){
+    private void addListeners() {
+        createNewBtn.addListener(new ClickListener() {
             @Override
-            public void clicked (InputEvent il,float x,float y) {
+            public void clicked(InputEvent il, float x, float y) {
                 stage.addActor(newDesignOption);
                 stage.addActor(backButton);
                 setDisableMenuButton(true);
             }
         });
-        exitBtn.addListener(new ClickListener(){
+
+        exitBtn.addListener(new ClickListener() {
             @Override
-            public void clicked (InputEvent il,float x,float y) {
-               dispose();
+            public void clicked(InputEvent il, float x, float y) {
+                dispose();
                 Gdx.app.exit();
             }
         });
     }
 
-    private TextButton.TextButtonStyle createButtonStyle(Color c){
+    private TextButton.TextButtonStyle createButtonStyle(Color c) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = skin.getDrawable("defaultButtonHover");
         textButtonStyle.font = skin.getFont("defaultTitleFont");
@@ -302,8 +278,8 @@ public class MenuScreen extends AppScreen{
         parameter.size = 28;
         titleFont = generator.generateFont(parameter);
         generator.dispose();
-
     }
+
     @Override
     public void show() {
 
@@ -313,19 +289,16 @@ public class MenuScreen extends AppScreen{
     public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        //test tween
 
         manager.update(delta);
-
-        //
-
 
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundImage, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        gradient.draw(stage.getBatch(),1);
-        gradient2.draw(stage.getBatch(),1);
+        gradient.draw(stage.getBatch(), 1);
+        gradient2.draw(stage.getBatch(), 1);
         stage.getBatch().end();
 
         stage.draw();

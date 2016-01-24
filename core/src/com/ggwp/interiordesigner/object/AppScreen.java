@@ -2,10 +2,6 @@ package com.ggwp.interiordesigner.object;
 
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
-import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
-import com.ggwp.interiordesigner.Main;
-import com.ggwp.utils.ToolUtils;
 
 /**
  * Created by Dell on 1/21/2016.
