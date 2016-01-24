@@ -172,6 +172,7 @@ public class RoomWithHUD extends AppScreen  {
         shapeRenderer = new ShapeRenderer();
 
         assets.load("sofa.obj", Model.class);
+        assets.load("paiting.obj", Model.class);
         loading = true;
 
         collisionConfig = new btDefaultCollisionConfiguration();
@@ -322,6 +323,7 @@ public class RoomWithHUD extends AppScreen  {
 
         GameObject object = new GameObject(model,new btBoxShape(dimension),type);
         object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
+//        object.transform.setToScaling(20f,20f,20f);
 //        object.calculateTransforms();
 
         object.newlyAdded = true;

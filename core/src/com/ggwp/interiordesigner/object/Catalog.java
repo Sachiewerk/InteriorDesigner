@@ -178,20 +178,6 @@ public class Catalog extends Window {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Model model = assets.get("sofa.obj", Model.class);
-//
-//                BoundingBox bounds = new BoundingBox();
-//                m.calculateBoundingBox(bounds);
-//
-//                Vector3 dimension = new Vector3();
-//                bounds.getDimensions(dimension);
-//
-//                GameObject sofa = new GameObject(m,new btBoxShape(dimension),GameObject.TYPE_FLOOR_OBJECT);
-//                sofa.transform.rotate(Vector3.X, -90);
-//                sofa.calculateTransforms();
-//
-//
-//                furnitures.add(sofa);
-
                 if(appScreen instanceof RoomWithHUD){
                     ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
                 }
@@ -201,7 +187,20 @@ public class Catalog extends Window {
             }
         };
 
-        main.add(createFurnitureCard("b1", "Common/no-image.png", null));
+        EventListener sofa2ClikListener = new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Model model = assets.get("untitled.obj", Model.class);
+                if(appScreen instanceof RoomWithHUD){
+                    ((RoomWithHUD) appScreen).addObject(model,GameObject.TYPE_FLOOR_OBJECT);
+                }
+
+                stage.getActors().removeValue(instance,true);
+                initInputProcessors();
+            }
+        };
+
+        main.add(createFurnitureCard("b1", "Common/no-image.png", sofa2ClikListener));
         main.add(createFurnitureCard("b2", "Common/no-image.png", sofaClikListener));
         main.add(createFurnitureCard("b3", "Common/no-image.png", null));
         main.row();
