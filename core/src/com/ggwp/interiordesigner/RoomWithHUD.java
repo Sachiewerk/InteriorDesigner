@@ -40,6 +40,7 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -82,12 +83,8 @@ public class RoomWithHUD extends AppScreen  {
             GameObject obj0 = instances.get(userValue0);
             GameObject obj1 = instances.get(userValue1);
 
-            if(obj0.newlyAdded == false){
-                instances.get(userValue0).collided = true;
-            }
-            if(obj1.newlyAdded == false){
-                instances.get(userValue1).collided = true;
-            }
+            instances.get(userValue0).collided = true;
+            instances.get(userValue1).collided = true;
 
             if(obj0.type == GameObject.TYPE_WALL){
                 setWallMaterial((Wall) obj0);
@@ -96,6 +93,16 @@ public class RoomWithHUD extends AppScreen  {
             if(obj1.type == GameObject.TYPE_WALL){
                 setWallMaterial((Wall) obj1);
             }
+
+
+            if(!collidedInstances.contains(obj0, true)){
+                collidedInstances.add(obj0);
+            }
+            if(!collidedInstances.contains(obj1, true)){
+                collidedInstances.add(obj1);
+            }
+
+
 
             System.out.println("contact");
             return true;
@@ -113,6 +120,11 @@ public class RoomWithHUD extends AppScreen  {
             if(obj1.type == GameObject.TYPE_WALL){
                 removeWallTexture((Wall) obj1);
             }
+
+            collidedInstances.removeValue(obj0, false);
+            collidedInstances.removeValue(obj1,false);
+
+            System.out.println("ended");
         }
     }
 
@@ -128,6 +140,7 @@ public class RoomWithHUD extends AppScreen  {
     private Texture background;
 
     private Array<GameObject> instances = new Array<GameObject>();
+    private Array<GameObject> collidedInstances = new Array<GameObject>();
 
     protected Stage stage;
     private Vector3 position = new Vector3();
@@ -238,10 +251,10 @@ public class RoomWithHUD extends AppScreen  {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-//        debugDrawer = new DebugDrawer();
-//        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-//
-//        collisionWorld.setDebugDrawer(debugDrawer);
+        debugDrawer = new DebugDrawer();
+        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+
+        collisionWorld.setDebugDrawer(debugDrawer);
 
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
@@ -268,7 +281,7 @@ public class RoomWithHUD extends AppScreen  {
                 removeWallTexture(wall);
 
                 wall.body = new btCollisionObject();
-                wall.body.setCollisionShape(createConvexHullShape(wall.model,true));
+                wall.body.setCollisionShape(createConvexHullShape(wall.model,false));
                 wall.collided = false;
                 wall.body.setWorldTransform(wall.transform);
                 wall.body.setUserValue(instances.size);
@@ -540,7 +553,7 @@ public class RoomWithHUD extends AppScreen  {
         }
 
 
-        object.newlyAdded = true;
+//        object.newlyAdded = true;
 
         BoundingBox bb = new BoundingBox();
         object.calculateBoundingBox(bb);
@@ -583,9 +596,12 @@ public class RoomWithHUD extends AppScreen  {
             spriteBatch.end();
         }
 
-//        debugDrawer.begin(camera);
-//        collisionWorld.debugDrawWorld();
-//        debugDrawer.end();
+        debugDrawer.begin(camera);
+        collisionWorld.debugDrawWorld();
+        debugDrawer.end();
+
+
+
 
         modelBatch.begin(camera);
         modelBatch.render(instances, environment);
@@ -597,13 +613,18 @@ public class RoomWithHUD extends AppScreen  {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        selecting = getSelectedObject(screenX, screenY);
-        if(selecting >= 0) {
-            instances.get(selecting).transform.getTranslation(origPosition);
-            instances.get(selecting).transform.getRotation(origRotation);
+        if(screenY <= 60f){
+            return  super.touchDown(screenX,screenY,pointer,button);
         }
 
-        return selecting >= 0;
+            selecting = getSelectedObject(screenX, screenY);
+            selected = selecting;
+            if(selecting >= 0) {
+                instances.get(selecting).transform.getTranslation(origPosition);
+                instances.get(selecting).transform.getRotation(origRotation);
+            }
+
+            return selecting >= 0;
     }
 
     @Override
@@ -648,10 +669,55 @@ public class RoomWithHUD extends AppScreen  {
             } else {
                 handleFloorObjectDrag(gameObject, ray);
             }
+
+
             gameObject.body.setWorldTransform(gameObject.transform);
         }
 
         return true;
+    }
+
+    private void checkColission(GameObject gameObject){
+        if(gameObject != null && gameObject.type != GameObject.TYPE_WALL && collidedInstances != null){
+            if(collidedInstances.contains(gameObject,true)){
+                moveToPreviousLocation(gameObject);
+            }else{
+
+            }
+
+//
+//            if(gameObject.collided) {
+//                if(tranformTool == TransformTool.MOVE){
+//                    gameObject.transform.setTranslation(origPosition);
+//                    gameObject.collided = false;
+//                }else{
+//                    gameObject.transform.setToTranslation(origPosition);
+//                    gameObject.transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
+//                    gameObject.collided = false;
+//                }
+//            }else{
+//                if(gameObject.newlyAdded){
+//                    gameObject.newlyAdded = false;
+//                }
+//            }
+            gameObject.body.setWorldTransform(gameObject.transform);
+        }
+    }
+
+    private void moveToPreviousLocation(GameObject gameObject){
+        if(gameObject != null){
+            if(gameObject.collided) {
+                if(tranformTool == TransformTool.MOVE){
+                    gameObject.transform.setTranslation(origPosition);
+                    gameObject.collided = false;
+                }else{
+                    gameObject.transform.setToTranslation(origPosition);
+                    gameObject.transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
+                    gameObject.collided = false;
+                }
+            }
+            gameObject.body.setWorldTransform(gameObject.transform);
+        }
     }
 
     public int getSelectedWall(int screenX, int screenY){
@@ -727,38 +793,46 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     @Override
-    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
-        if (selecting >= 0) {
-//            if (selecting == selected){
-            setSelected(selecting);
-            if(selected >= 0){
-//                    if(instances.get(selected).type == GameObject.TYPE_WALL_OBJECT){
-//
-//                    }else{
-                if(instances.get(selected).collided) {
-                    if(tranformTool == TransformTool.MOVE){
-                        instances.get(selected).transform.setTranslation(origPosition);
-                        instances.get(selected).collided = false;
-                    }else{
-                        instances.get(selected).transform.setToTranslation(origPosition);
-                        instances.get(selected).transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
-                        instances.get(selected).collided = false;
-                    }
-                }else{
-                    if(instances.get(selected).newlyAdded){
-                        instances.get(selected).newlyAdded = false;
-                    }
-                }
-//                    }
-
-
-                instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
-            }
-            selecting = -1;
-            return true;
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if(selected >= 0){
+            checkColission(instances.get(selected));
         }
-        return false;
+        return super.touchUp(screenX, screenY, pointer, button);
     }
+
+    //    @Override
+//    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+//        if (selecting >= 0) {
+////            if (selecting == selected){
+//            setSelected(selecting);
+//            if(selected >= 0){
+////                    if(instances.get(selected).type == GameObject.TYPE_WALL_OBJECT){
+////
+////                    }else{
+//                if(instances.get(selected).collided) {
+//                    if(tranformTool == TransformTool.MOVE){
+//                        instances.get(selected).transform.setTranslation(origPosition);
+//                        instances.get(selected).collided = false;
+//                    }else{
+//                        instances.get(selected).transform.setToTranslation(origPosition);
+//                        instances.get(selected).transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
+//                        instances.get(selected).collided = false;
+//                    }
+//                }else{
+//                    if(instances.get(selected).newlyAdded){
+//                        instances.get(selected).newlyAdded = false;
+//                    }
+//                }
+////                    }
+//
+//
+//                instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
+//            }
+//            selecting = -1;
+//            return true;
+//        }
+//        return false;
+//    }
 
     private void setSelected(int value){
         if (selected == value) return;
@@ -805,6 +879,7 @@ public class RoomWithHUD extends AppScreen  {
     public void dispose () {
         modelBatch.dispose();
         instances.clear();
+        collidedInstances.clear();
         spriteBatch.dispose();
         assets.dispose();
     }

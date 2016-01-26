@@ -17,13 +17,12 @@ public class GameObject extends ModelInstance implements  Disposable{
     public static final int TYPE_WALL_OBJECT = 1;
     public static final int TYPE_FLOOR_OBJECT = 2;
 
-
     public Vector3 center = new Vector3();
     public Vector3 dimensions = new Vector3();
     public btCollisionObject body;
     public boolean collided;
     public int type;
-    public boolean newlyAdded = true;
+//    public boolean newlyAdded = true;
 
     public GameObject(Model model,int type){
         this(model,null,type);
@@ -62,5 +61,7 @@ public class GameObject extends ModelInstance implements  Disposable{
 //            shape.dispose();
 //        }
 //    }
+
+
 
 }

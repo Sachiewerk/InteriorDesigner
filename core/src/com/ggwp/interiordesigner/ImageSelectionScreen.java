@@ -72,8 +72,8 @@ public class ImageSelectionScreen extends AppScreen{
     @Override
     public void render(float delta) {
         if(flagImageUpdate && roomTemplateImageSource != null){
-            dispose();
             Main.getInstance().setScreen(new RoomSetupScreen(roomTemplateImageSource, fromCamera));
+            dispose();
         }
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
