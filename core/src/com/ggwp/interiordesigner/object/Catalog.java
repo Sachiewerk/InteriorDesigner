@@ -335,6 +335,11 @@ public class Catalog extends Window {
         return new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(!assets.isLoaded(modelName)){
+                    assets.load(modelName, Model.class);
+                }
+
+                assets.finishLoadingAsset(modelName);
                 Model model = assets.get(modelName, Model.class);
                 ((RoomWithHUD) appScreen).addObject(model, gameObjectType);
                 stage.getActors().removeValue(instance, true);

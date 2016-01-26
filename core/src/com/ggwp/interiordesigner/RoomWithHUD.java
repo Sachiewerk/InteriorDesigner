@@ -27,7 +27,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
@@ -40,7 +39,6 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -178,7 +176,7 @@ public class RoomWithHUD extends AppScreen  {
     private BlendingAttribute wallBlendingAttrib;
     private Material origWallMaterial;
 
-    private DebugDrawer debugDrawer;
+//    private DebugDrawer debugDrawer;
 
     private void initEnvironment(){
         environment = new Environment();
@@ -227,19 +225,7 @@ public class RoomWithHUD extends AppScreen  {
 
 
         filePath.clear();
-        fileList(Gdx.files.internal("furnitures"));
-        Object[][] tests = {{"title", "test error"},
-                {"message", filePath.size()}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));
 
-        int i = 0;
-        System.out.println("Loading assets ..");
-        for (final FileHandle categoryfolder : filePath
-                ) {
-            System.out.println("Loading "+categoryfolder.path()+" ..");
-            assets.load(categoryfolder.path(), Model.class);
-        }
 
         loading = true;
 
@@ -251,10 +237,9 @@ public class RoomWithHUD extends AppScreen  {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-        debugDrawer = new DebugDrawer();
-        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-
-        collisionWorld.setDebugDrawer(debugDrawer);
+//        debugDrawer = new DebugDrawer();
+//        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+//        collisionWorld.setDebugDrawer(debugDrawer);
 
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
@@ -596,10 +581,9 @@ public class RoomWithHUD extends AppScreen  {
             spriteBatch.end();
         }
 
-        debugDrawer.begin(camera);
-        collisionWorld.debugDrawWorld();
-        debugDrawer.end();
-
+//        debugDrawer.begin(camera);
+//        collisionWorld.debugDrawWorld();
+//        debugDrawer.end();
 
 
 
@@ -800,55 +784,9 @@ public class RoomWithHUD extends AppScreen  {
         return super.touchUp(screenX, screenY, pointer, button);
     }
 
-    //    @Override
-//    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
-//        if (selecting >= 0) {
-////            if (selecting == selected){
-//            setSelected(selecting);
-//            if(selected >= 0){
-////                    if(instances.get(selected).type == GameObject.TYPE_WALL_OBJECT){
-////
-////                    }else{
-//                if(instances.get(selected).collided) {
-//                    if(tranformTool == TransformTool.MOVE){
-//                        instances.get(selected).transform.setTranslation(origPosition);
-//                        instances.get(selected).collided = false;
-//                    }else{
-//                        instances.get(selected).transform.setToTranslation(origPosition);
-//                        instances.get(selected).transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
-//                        instances.get(selected).collided = false;
-//                    }
-//                }else{
-//                    if(instances.get(selected).newlyAdded){
-//                        instances.get(selected).newlyAdded = false;
-//                    }
-//                }
-////                    }
-//
-//
-//                instances.get(selected).body.setWorldTransform(instances.get(selected).transform);
-//            }
-//            selecting = -1;
-//            return true;
-//        }
-//        return false;
-//    }
-
     private void setSelected(int value){
         if (selected == value) return;
-        if (selected >= 0) {
-//            Material mat = instances.get(selected).materials.get(0);
-//            mat.clear();
-//            mat.set(originalMaterial);
-        }
         selected = value;
-        if (selected >= 0) {
-//            Material mat = instances.get(selected).materials.get(0);
-//            originalMaterial.clear();
-//            originalMaterial.set(mat);
-//            mat.clear();
-//            mat.set(selectionMaterial);
-        }
     }
 
     public int getSelectedObject(int screenX, int screenY){
