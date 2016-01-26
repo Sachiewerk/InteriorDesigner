@@ -20,7 +20,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -32,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interiordesigner.manager.SkinManager;
@@ -40,6 +40,9 @@ import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.Room;
 import com.ggwp.interiordesigner.object.RoomDesignData;
 import com.ggwp.utils.ToolUtils;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class RoomSetupScreen extends AppScreen {
 
@@ -59,11 +62,18 @@ public class RoomSetupScreen extends AppScreen {
 
     private FileHandle fileHandle;
 
-    private GameObject computationBox;
-    private float backWallArea = 0f;
-    private Vector3 computationBoxPosition = new Vector3();
+    private GameObject box;
+    private Vector3 boxPosition = new Vector3();
     private boolean computationBoxSetup = false;
+    private boolean computationBoxDrag = false;
     private BlendingAttribute blendingAttribute;
+
+    private DecimalFormat format = new DecimalFormat("#0.000");
+
+    private Label computationLabel;
+
+    private float previousDragX = 0f;
+    private float previousDragY = 0f;
 
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
         this.fileHandle = fileHandle;
@@ -93,30 +103,31 @@ public class RoomSetupScreen extends AppScreen {
         setupAutoComputationBox();
         setAutoComputationLabels();
 
-        stage.addListener(new ClickListener(){
+        stage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
 
-                if(getTapCount() == 2){
+                if (getTapCount() == 2) {
                     computationBoxSetup = !computationBoxSetup;
-                    blendingAttribute.opacity = computationBoxSetup ? 0.8f : 0.4f;
+                    blendingAttribute.opacity = computationBoxSetup ? 0.5f : 0.0f;
 
-                    for(Material material : computationBox.materials){
+                    for (Material material : box.materials) {
                         material.set(blendingAttribute);
                     }
 
-                    for(Material material : computationBox.model.materials){
+                    for (Material material : box.model.materials) {
                         material.set(blendingAttribute);
                     }
-
-                    System.out.println("Double Tapped. Setup Mode: " + computationBoxSetup);
+//                    System.out.println("Double Tapped. Setup Mode: " + computationBoxSetup);
                 }
             }
         });
-    }
 
-    private GameObject xyPlane;
+        format.setRoundingMode(RoundingMode.HALF_UP);
+        computationBoxSetup = true;
+        computeAreas();
+    }
 
     private void setupAutoComputationBox(){
         blendingAttribute = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -127,42 +138,27 @@ public class RoomSetupScreen extends AppScreen {
 
         ModelBuilder modelBuilder = new ModelBuilder();
         Model box = modelBuilder.createRect(
-                25, 25, 25,
-                75, 25, 25,
-                75, 75, 25,
-                25, 75, 25,
+                0, 0, 0,
+                25, 0, 0,
+                25, 25, 0,
+                0, 25, 0,
                 1, 1, 1,
                 boxMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
-        computationBox = new GameObject(box, -1);
-        instances.add(computationBox);
-
-        blendingAttribute.opacity = 0.1f;
-        boxMaterial.set(blendingAttribute);
-        Model xyPlaneModel = modelBuilder.createRect(
-                -1000, -1000, 0,
-                1000, -1000, 0,
-                1000, 1000, 0,
-                -1000, 1000, 0,
-                1, 1, 1,
-                boxMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-        );
-        xyPlane = new GameObject(xyPlaneModel, -1);
-        instances.add(xyPlane);
+        this.box = new GameObject(box, -1);
+        instances.add(this.box);
     }
 
     private void setAutoComputationLabels(){
         Table table = new Table();
         stage.addActor(table);
-        table.setPosition(200, 65);
+        table.setBounds(10, Gdx.graphics.getHeight() - 110, 200f, 100f);
 
         Label.LabelStyle style = SkinManager.getDefaultLabelStyle();
-        Label backWallAreaLabel = new Label("Box Size: " + 50f, style);
-        backWallAreaLabel.setFontScale(1.5f);
+        computationLabel = new Label("Box Size: " + 0f, style);
 
-        table.add(backWallAreaLabel);
+        table.add(computationLabel).align(Align.left);
         table.row();
-        table.pack();
     }
 
     @Override
@@ -177,7 +173,11 @@ public class RoomSetupScreen extends AppScreen {
         }
 
         modelBatch.begin(camera);
-        modelBatch.render(room.getWalls());
+
+        if(!computationBoxSetup){
+            modelBatch.render(room.getWalls());
+        }
+
         modelBatch.render(instances, environment);
         modelBatch.end();
 
@@ -277,58 +277,138 @@ public class RoomSetupScreen extends AppScreen {
         if(computationBoxSetup == false){
             room.onTouchDown(screenX, screenY);
         }
+        computationBoxDrag = isComputationBoxSelected(screenX, screenY);
+        previousDragX = screenX;
+        previousDragY = screenY;
+
         return false;
     }
 
     private boolean isComputationBoxSelected(int screenX, int screenY){
         Ray ray = camera.getPickRay(screenX, screenY);
-        computationBox.transform.getTranslation(computationBoxPosition);
+        box.transform.getTranslation(boxPosition);
         BoundingBox bb = new BoundingBox();
-        computationBox.calculateBoundingBox(bb);
-        computationBoxPosition.add(computationBox.center);
+        box.calculateBoundingBox(bb).mul(box.transform);
+        boxPosition.add(box.center);
         Boolean intersected = Intersector.intersectRayBounds(ray, bb, null);
-        System.out.println("Intersected: " + intersected);
+//        System.out.println("Intersected: " + intersected);
         return intersected;
     }
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        System.out.println("Dragging..");
+//        System.out.println("Dragging..");
         if(computationBoxSetup){
-            if(isComputationBoxSelected(screenX, screenY)){
-                System.out.println("Dragging mini box..");
-                onComputationBoxDrag(screenX, screenY);
-            } else {
-                System.out.println("Resizing mini box..");
-                onComputationBoxResize(screenX, screenY);
-            }
-
+            handleComputationBoxAction(screenX, screenY);
         } else {
             room.onTouchDrag(screenX, screenY);
+            computeAreas();
         }
         return true;
     }
 
+    private void handleComputationBoxAction(int screenX, int screenY) {
+        if(computationBoxDrag){
+//            System.out.println("Dragging mini box..");
+            onComputationBoxDrag(screenX, screenY);
+        } else {
+//            System.out.println("Resizing mini box..");
+            onComputationBoxResize(screenX, screenY);
+            computeAreas();
+        }
+    }
+
     private void onComputationBoxDrag(int screenX, int screenY){
         Ray ray = camera.getPickRay(screenX, screenY);
-//        final float distance = -ray.origin.z / ray.direction.z;
-//
-//        computationBoxPosition.set(ray.direction).scl(distance).add(ray.origin);
-//        computationBox.transform.setTranslation(computationBoxPosition);
-//
-//        gameObject.transform.set(pointAtWall, wallQuaternion);
-//        computationBox.transform.setTranslation(screenX, screenY, 0);
-
-//        gameObject.transform.set(pointAtWall, wallQuaternion);
+        final float distance = -ray.origin.z / ray.direction.z;
 
         BoundingBox boundingBox = new BoundingBox();
-        xyPlane.calculateBoundingBox(boundingBox);
-        Intersector.intersectRayBounds(ray, boundingBox, computationBoxPosition);
-        computationBox.transform.setTranslation(computationBoxPosition);
+        box.calculateBoundingBox(boundingBox).mul(box.transform);
+
+        boxPosition.set(ray.direction).scl(distance).add(ray.origin);
+        float dimension = boundingBox.getWidth() / 2;
+        boxPosition.x = boxPosition.x - dimension;
+        boxPosition.y = boxPosition.y - dimension;
+
+        box.transform.setTranslation(boxPosition);
     }
 
     private void onComputationBoxResize(int screenX, int screenY){
+        boolean dragUp = screenY < previousDragY;
+        boolean dragLeft = screenX < previousDragX;
 
+        boolean nearTop = (Gdx.graphics.getHeight() / 2) > screenY;
+        boolean nearLeft = (Gdx.graphics.getWidth() / 2) > screenX;
+
+        if((nearTop && dragUp) || (nearLeft && dragLeft)){
+            box.transform.scale(1.05f, 1.05f, 1.05f);
+        } else {
+            box.transform.scale(0.95f, 0.95f, 0.95f);
+        }
+
+        previousDragX = screenX;
+        previousDragY = screenY;
+    }
+
+    private void computeAreas(){
+        BoundingBox wallBoundingBox = new BoundingBox();
+        room.getBackWall().calculateBoundingBox(wallBoundingBox).mul(room.getBackWall().transform);
+
+        BoundingBox computationBoundingBox = new BoundingBox();
+        box.calculateBoundingBox(computationBoundingBox).mul(box.transform);
+
+        float inchSizeOnScreen = computationBoundingBox.getHeight() / 8;
+        float height = (wallBoundingBox.getHeight() / inchSizeOnScreen) / 12;
+        float width = (wallBoundingBox.getWidth() / inchSizeOnScreen) / 12;
+
+        String label = "Back Wall Height: " + format.format(height) + " ft.\n";
+        label += "Back Wall Width: " + format.format(width) + " ft.\n";
+        label += "Back Wall Area: " + format.format(width * height) + " ft.\n\n";
+
+//        Ray bottomLeftCorner = camera.getPickRay(0, 0);
+//        Ray bottomRightCorner = camera.getPickRay(0, Gdx.graphics.getWidth());
+//
+//        Vector3 bottomLeftVector = new Vector3();
+//        Vector3 bottomRightVector = new Vector3();
+//
+//        final float bottomLeftDistance = -bottomLeftCorner.origin.y / bottomLeftCorner.direction.y;
+//        bottomLeftVector.set(bottomLeftCorner.direction).scl(bottomLeftDistance).add(bottomLeftCorner.origin);
+//
+//        final float bottomRightDistance = -bottomRightCorner.origin.y / bottomRightCorner.direction.y;
+//        bottomRightVector.set(bottomRightCorner.direction).scl(bottomRightDistance).add(bottomRightCorner.origin);
+//
+//        Vector3 leftCornerA = new Vector3();
+//        Vector3 leftCornerB = new Vector3();
+//
+//        Vector3 rightCornerA = new Vector3();
+//        Vector3 rightCornerB = new Vector3();
+//
+//        BoundingBox leftWallBoundingBox = new BoundingBox();
+//        BoundingBox rightWallBoundingBox = new BoundingBox();
+//
+//        room.getLeftWall().calculateBoundingBox(leftWallBoundingBox).mul(room.getLeftWall().transform);
+//        room.getRightWall().calculateBoundingBox(rightWallBoundingBox).mul(room.getRightWall().transform);
+//
+//        leftWallBoundingBox.getCorner001(leftCornerA);
+//        leftWallBoundingBox.getCorner100(leftCornerB);
+//
+//        rightWallBoundingBox.getCorner000(rightCornerA);
+//        rightWallBoundingBox.getCorner101(rightCornerB);
+//
+//        Vector2 leftIntersection = new Vector2();
+//        Intersector.intersectLines(leftCornerA.x, leftCornerA.z, leftCornerB.x, leftCornerB.z,
+//                -1000, bottomLeftVector.z, 1000, bottomRightVector.z, leftIntersection);
+//
+//        Vector2 rightIntersection = new Vector2();
+//        Intersector.intersectLines(rightCornerA.x, rightCornerA.z, rightCornerB.x, rightCornerB.z,
+//                -1000, bottomLeftVector.z, 1000, bottomRightVector.z, rightIntersection);
+//
+//        Polygon floor = new Polygon(new float[]{leftIntersection.x, leftIntersection.y, rightIntersection.x, rightIntersection.y,
+//                rightCornerA.x, rightCornerA.z, leftCornerB.x, leftCornerB.z});
+//
+//        label += "Floor Area: " + format.format(floor.area()) + " ft.\n";
+        label += "Floor Area: " + format.format(width * 3.432) + " ft.\n";
+        computationLabel.setText(label);
     }
 
     @Override
