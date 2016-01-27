@@ -341,7 +341,7 @@ public class Catalog extends Window {
 
                 assets.finishLoadingAsset(modelName);
                 Model model = assets.get(modelName, Model.class);
-                ((RoomWithHUD) appScreen).addObject(model, gameObjectType);
+                ((RoomWithHUD) appScreen).addObject(modelName,model, gameObjectType);
                 stage.getActors().removeValue(instance, true);
                 initInputProcessors();
             }

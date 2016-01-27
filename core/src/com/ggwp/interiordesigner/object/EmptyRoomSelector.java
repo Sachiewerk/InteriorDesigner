@@ -96,9 +96,9 @@ public class EmptyRoomSelector extends Window {
                             stage.getActors().removeValue(instance, true);
                             Main.getInstance().getScreen().dispose();
 
-                            Room room = new Room(selectedTemplate.data);
-                            FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
-                            RoomWithHUD roomWithHUD = new RoomWithHUD(null, room.getWalls(), handle);
+                            /*Room room = new Room(selectedTemplate.data);
+                            FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());*/
+                            RoomWithHUD roomWithHUD = new RoomWithHUD(null, selectedTemplate.data);
                             Main.getInstance().setScreen(roomWithHUD);
                         }
                     }

@@ -3,17 +3,22 @@ package com.ggwp.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.Main;
 import com.ggwp.interiordesigner.object.AppScreen;
+import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.RoomDesignData;
+import com.ggwp.interiordesigner.object.SaveFile;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -95,6 +100,7 @@ public class ToolUtils {
     }
 
     private static final String SAVED_ROOM_DESIGN_DIRECTORY = "/savedrooms/";
+    private static final String SAVED_FILE_DIRECTORY = "/rooms/";
 
     public static void saveRoomDataDesign(RoomDesignData data){
         try {
@@ -112,6 +118,41 @@ public class ToolUtils {
             Gson gson = new Gson();
             String json = gson.toJson(data);
             newFile.writeString(json, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static String getSaveFileDirAbsolutePath(){
+        return Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY;
+    }
+
+    public static void saveRoomSetup(String name,GameObject[] gameObjs,RoomDesignData roomDesignData){
+        try {
+            System.out.println("Saving room setup..");
+
+            FileHandle directory = Gdx.files.external(Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY);
+            createDirectoryIfNotExists(directory);
+
+
+            FileHandle newFile = Gdx.files.absolute(directory +"/"+ name);
+
+            System.out.println("Saving file..");
+            Gson gson = new Gson();
+
+            SaveFile saveFile = new SaveFile();
+            saveFile.roomDesignDataData = roomDesignData;
+
+            for (GameObject obj: gameObjs
+                 ) {
+                saveFile.addObject(obj);
+            }
+
+            String json = gson.toJson(saveFile);
+            newFile.writeString(json, false);
+
+            System.out.println("File saved to : "+newFile);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
@@ -33,6 +34,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
 import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape;
 import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
@@ -58,11 +60,18 @@ import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.Catalog;
 import com.ggwp.interiordesigner.object.GameObject;
+import com.ggwp.interiordesigner.object.Room;
+import com.ggwp.interiordesigner.object.RoomDesignData;
+import com.ggwp.interiordesigner.object.SaveFile;
 import com.ggwp.interiordesigner.object.Wall;
 import com.ggwp.utils.ToolUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -176,6 +185,7 @@ public class RoomWithHUD extends AppScreen  {
     private BlendingAttribute wallBlendingAttrib;
     private Material origWallMaterial;
 
+    private RoomDesignData designData;
 //    private DebugDrawer debugDrawer;
 
     private void initEnvironment(){
@@ -203,11 +213,12 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     public RoomWithHUD(){
-        this(null, null, null);
+        this(null, null);
     }
 
 
-    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
+
+    private void init(PerspectiveCamera camera,FileHandle backgroundSource, Array<Wall> walls){
         Bullet.init();
         this.camera = camera;
         stage = new Stage(new ScreenViewport());
@@ -284,6 +295,21 @@ public class RoomWithHUD extends AppScreen  {
         selectionMaterial = new Material(ColorAttribute.createDiffuse(new Color(1f, 0.647f, 0f,0.6f)));
         selectionMaterial.set(selectedBlendingAttrib);
         originalMaterial = new Material();
+    }
+
+    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
+
+        init(camera,backgroundSource,walls);
+    }
+
+    public RoomWithHUD(PerspectiveCamera camera, RoomDesignData rdata){
+
+        designData = rdata;
+        Room room = new Room(rdata);
+        FileHandle backgroundSource= Gdx.files.internal("Rooms/Images/" + rdata.getBackgroundImage());
+
+        Array<Wall> walls = room.getWalls();
+        init(camera,backgroundSource,walls);
     }
 
     private void removeWallTexture(Wall wall){
@@ -449,7 +475,20 @@ public class RoomWithHUD extends AppScreen  {
                 btnYes.addListener(new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        Main.getInstance().setScreen(new MenuScreen());
+
+
+                        GameObject[] gobjs = new GameObject[instances.size];
+                        int i = 0;
+                        for (GameObject g:
+                             instances) {
+                            gobjs[i++] = g;
+                        }
+                        ToolUtils.saveRoomSetup("test.txt",gobjs,designData);
+
+
+
+                        /*Main.getInstance().setScreen(new MenuScreen());
+                        dispose();*/
                     }
                 });
 
@@ -518,7 +557,25 @@ public class RoomWithHUD extends AppScreen  {
         return p1.dot(p2.crs(p3)) / 6.0f;
     }
 
+    public void addObject(SaveFile.Object obj){
+        if(!assets.isLoaded(obj.assetName)){
+            assets.load(obj.assetName, Model.class);
+        }
+
+        assets.finishLoadingAsset(obj.assetName);
+        Model model = assets.get(obj.assetName, Model.class);
+        System.out.println("done loading asset.."+obj.assetName);
+        addObject(obj.assetName, model, obj.type,obj.positionMatrix);
+    }
+
     public void addObject(Model model, int type){
+        addObject(null,model, type,null);
+    }
+    public void addObject(String assetName,Model model, int type){
+        addObject(assetName,model, type,null);
+    }
+
+    public void addObject(String assetName,Model model, int type,float[] positionMatrix){
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
@@ -528,13 +585,18 @@ public class RoomWithHUD extends AppScreen  {
         dimension.x -= (dimension.x / 2f);
         dimension.y -= (dimension.y / 2f);
         dimension.z -= (dimension.z / 2f);
-        GameObject object = new GameObject(model,new btBoxShape(dimension),type);
+        GameObject object = new GameObject(model,new btBoxShape(dimension),type,assetName);
+
 
 
         if(type == GameObject.TYPE_WALL_OBJECT){
             object.transform.translate(camera.position.x, (backWallHeight / 2), dimension.z);
         }else{
             object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
+        }
+
+        if(positionMatrix!=null){
+            //object.transform.val = positionMatrix;
         }
 
 

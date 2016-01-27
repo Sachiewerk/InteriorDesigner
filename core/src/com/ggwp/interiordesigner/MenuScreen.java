@@ -28,6 +28,7 @@ import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.EmptyRoomSelector;
+import com.ggwp.interiordesigner.object.SaveFileLoader;
 import com.ggwp.interiordesigner.object.TutorialPanel;
 import com.ggwp.utils.ToolUtils;
 import com.ggwp.utils.Tweener.ImageOpacityAccessor;
@@ -257,6 +258,17 @@ public class MenuScreen extends AppScreen {
                 stage.addActor(newDesignOption);
                 stage.addActor(backButton);
                 setDisableMenuButton(true);
+            }
+        });
+
+        catalogBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent il, float x, float y) {
+                final SaveFileLoader c = SaveFileLoader.construct(stage);
+                ToolUtils.removeScreenInputProcessor(stage);
+
+
+                stage.addActor(c);
             }
         });
 
