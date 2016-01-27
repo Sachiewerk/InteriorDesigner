@@ -1,6 +1,9 @@
 package com.ggwp.interiordesigner;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
@@ -186,6 +189,7 @@ public class RoomWithHUD extends AppScreen  {
     private Material origWallMaterial;
 
     private RoomDesignData designData;
+    private boolean back = false;
 //    private DebugDrawer debugDrawer;
 
     private void initEnvironment(){
@@ -299,7 +303,7 @@ public class RoomWithHUD extends AppScreen  {
 
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
 
-        init(camera,backgroundSource,walls);
+        init(camera, backgroundSource, walls);
     }
 
     public RoomWithHUD(PerspectiveCamera camera, RoomDesignData rdata){
@@ -469,21 +473,44 @@ public class RoomWithHUD extends AppScreen  {
                 confirmDialog.setModal(true);
                 confirmDialog.setSize(400, 400);
 
+
                 TextButton btnYes = new TextButton("Save", SkinManager.getDefaultSubmitTextButtonStyle());
                 TextButton btnNo = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
+
+                final TextInputListener  te = new TextInputListener() {
+                    @Override
+                    public void input (String text) {
+
+                        GameObject[] gobjs = new GameObject[instances.size];
+                        int i = 0;
+                        for (GameObject g:
+                                instances) {
+                            gobjs[i++] = g;
+                        }
+                        ToolUtils.saveRoomSetup(text+".dat",gobjs,designData);
+
+                        Object[][] tests = {{"title", "Message"},
+                                {"message", "File Saved."}};
+                        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                                ToolUtils.createMapFromList(tests));
+
+                        back = true;
+
+                        confirmDialog.hide();
+
+                    }
+
+                    @Override
+                    public void canceled () {
+                        confirmDialog.hide();
+                    }
+                };
 
                 btnYes.addListener(new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
 
-
-                        GameObject[] gobjs = new GameObject[instances.size];
-                        int i = 0;
-                        for (GameObject g:
-                             instances) {
-                            gobjs[i++] = g;
-                        }
-                        ToolUtils.saveRoomSetup("test.txt",gobjs,designData);
+                        Gdx.input.getTextInput(te, "File Name", "Room", "");
 
 
 
@@ -565,17 +592,20 @@ public class RoomWithHUD extends AppScreen  {
         assets.finishLoadingAsset(obj.assetName);
         Model model = assets.get(obj.assetName, Model.class);
         System.out.println("done loading asset.."+obj.assetName);
-        addObject(obj.assetName, model, obj.type,obj.positionMatrix);
+        addObject(obj.assetName, model, obj.type,obj.translation,obj.scale,obj.rotation,obj.val);
     }
 
     public void addObject(Model model, int type){
-        addObject(null,model, type,null);
+        addObject(null,model, type,null,null,null,null);
     }
     public void addObject(String assetName,Model model, int type){
-        addObject(assetName,model, type,null);
+        addObject(assetName,model, type,null,null,null,null);
     }
 
-    public void addObject(String assetName,Model model, int type,float[] positionMatrix){
+
+    public void addObject(String assetName,Model model, int type,float[] translation,
+            float[] scale,
+            float[] rotation,float[] val){
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
@@ -589,15 +619,20 @@ public class RoomWithHUD extends AppScreen  {
 
 
 
+
         if(type == GameObject.TYPE_WALL_OBJECT){
             object.transform.translate(camera.position.x, (backWallHeight / 2), dimension.z);
         }else{
             object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
         }
 
-        if(positionMatrix!=null){
-            //object.transform.val = positionMatrix;
+
+
+        if(val!=null){
+            object.transform.set(val);
         }
+
+
 
 
 //        object.newlyAdded = true;
@@ -613,13 +648,15 @@ public class RoomWithHUD extends AppScreen  {
         object.body.setUserValue(instances.size);
         object.body.setCollisionFlags(object.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         instances.add(object);
-
         if(type == GameObject.TYPE_WALL_OBJECT){
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, FLOOR_OBJECT_FLAG);
         }else{
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
+
+
     }
+
 
     private void doneLoading () {
         loading = false;
@@ -627,10 +664,28 @@ public class RoomWithHUD extends AppScreen  {
 
     @Override
     public void render(float delta) {
+
+        if ( back)
+        {
+            Main.getInstance().setScreen(new MenuScreen());
+            dispose();
+            back = false;
+        }
+
         if (loading && assets.update()){
             doneLoading();
         }
+        /*GameObject ga = null;
+        for (GameObject c:
+             instances) {
+            if(c.assetName!=null){
+                ga=c;
+                break;
+            }
 
+        }*/
+        //ga.transform.setTranslation(122,32,21);
+        //ga.transform.setToRotation(122,32,21,3);
         collisionWorld.performDiscreteCollisionDetection();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -907,4 +962,6 @@ public class RoomWithHUD extends AppScreen  {
     public void hide() {
 
     }
+
+
 }

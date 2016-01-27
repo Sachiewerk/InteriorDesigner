@@ -87,8 +87,8 @@ public class SaveFileLoader extends Window {
         TextButton okButton = new TextButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         TextButton cancelButton = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
 
-        table.add(okButton).width(100);
-        table.add(cancelButton).width(100).fillY();
+        table.add(okButton).width(100).height(40);
+        table.add(cancelButton).width(100).height(40).fillY();
 
         okButton.addListener(
                 new ClickListener() {
@@ -184,8 +184,26 @@ public class SaveFileLoader extends Window {
             if (++i % 3 == 0)
                 main.row();
         }
+        while(i<9){
+            main.add(createEmptyData());
+            if (++i % 3 == 0)
+                main.row();
+        }
+
+
         return new Container(main);
     }
+
+    private Container createEmptyData() {
+        SaveFilePanel main = new SaveFilePanel(null);
+
+//        final String name = data.getName();
+
+
+//        templates.put(data.getName(), main);
+        return new Container(main);
+    }
+
 
     private Container createSaveFileData(final FileHandle data) {
         SaveFilePanel main = new SaveFilePanel(data);
@@ -235,12 +253,21 @@ public class SaveFileLoader extends Window {
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
             //FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage());
-            Image image = new Image((new Texture("Common/no-image.png")));
+            Image image;
+            if(data==null){
+                image = new Image((new Texture("Common/empty-thumb.png")));
+            }
+            else {
+                image = new Image((new Texture("Common/room.png")));
+            }
 
             add(image).width(cardSize).height(cardSize / (w / h));
 
-            row();
-            add(new Label(data.name(), SkinManager.getDefaultLabelStyle()));
+
+            if(data!=null) {
+                row();
+                add(new Label(data.name(), SkinManager.getDefaultLabelStyle()));
+            }
 //            add(new Label(data.getName(), SkinManager.getDefaultLabelStyle()));
         }
     }
