@@ -47,12 +47,16 @@ public class SkinManager {
         clearPixmap.setColor(Color.CLEAR);
         clearPixmap.fill();
 
+        Pixmap optionPixmap = new Pixmap(100, 20, Pixmap.Format.RGBA8888);
+        optionPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.7f));
+        optionPixmap.fill();
 
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
         defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
         defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
         defaultSkin.add("clearTexture", new Texture(clearPixmap));
         defaultSkin.add("defaultFont", textFont);
+        defaultSkin.add("optionBackground", new Texture(optionPixmap));
 
         bloackPixmap.dispose();
         whitePixmap.dispose();

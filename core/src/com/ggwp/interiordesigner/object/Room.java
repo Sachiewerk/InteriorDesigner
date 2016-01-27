@@ -91,7 +91,6 @@ public class Room {
         createBackWall();
     }
 
-
     private void createBackWall() {
         blendingAttribute.opacity = 0.8f;
         backWallMaterial.set(blendingAttribute);
