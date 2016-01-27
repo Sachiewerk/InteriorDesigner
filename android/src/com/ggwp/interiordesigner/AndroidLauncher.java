@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ggwp.interfaces.AndroidOnlyInterface;
@@ -172,8 +173,7 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 
 		}
 		else if(requestCode == RequestType.GET_IMAGE_FROM_GALLERY.getRequestCode()){
-
-			Uri selectedImageUri = data.getData();
+            Uri selectedImageUri = data.getData();
 
 			for (RequestResultListner r: listeners) {
 				if(r.getRequestType()==RequestType.GET_IMAGE_FROM_GALLERY){
@@ -254,4 +254,12 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 	public String getProjectDirectory() {
 		return Environment.getExternalStorageDirectory()+"/interiordesigner/";
 	}
+
+	@Override
+	protected void onPause() {
+		Gdx.graphics.requestRendering();
+		super.onPause();
+	}
+
+
 }

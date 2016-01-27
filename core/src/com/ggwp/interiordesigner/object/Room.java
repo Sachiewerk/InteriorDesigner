@@ -316,6 +316,18 @@ public class Room {
         return walls;
     }
 
+    public Wall getBackWall(){
+        return backWall;
+    }
+
+    public Wall getRightWall(){
+        return rightWall;
+    }
+
+    public Wall getLeftWall(){
+        return leftWall;
+    }
+
     private void handleSideWallDrag(boolean dragUp) {
         if(nearLeft){
             if(dragUp){

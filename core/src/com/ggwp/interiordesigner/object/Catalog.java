@@ -477,7 +477,8 @@ public class Catalog extends Window {
         main.row();
 
         for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Vase " + i, "furnitures/vase/" + i + ".png", null));
+            main.add(createFurnitureCard("Vase " + i, "furnitures/vase/" + i + ".png",
+                    createListener("furnitures/vase/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
@@ -567,7 +568,8 @@ public class Catalog extends Window {
         main.row();
 
         for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Side Table " + i, "furnitures/sidetable/" + i + ".png", null));
+            main.add(createFurnitureCard("Side Table " + i, "furnitures/sidetable/" + i + ".png",
+                    createListener("furnitures/tables/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
@@ -585,7 +587,8 @@ public class Catalog extends Window {
         main.row();
 
         for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Lamp " + i, "furnitures/lamps/" + i + ".png", null));
+            main.add(createFurnitureCard("Lamp " + i, "furnitures/lamps/1.jpg",
+                    createListener("furnitures/lamps/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
@@ -621,7 +624,8 @@ public class Catalog extends Window {
         main.row();
 
         for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Dresser " + i, "furnitures/dresser/" + i + ".png", null));
+            main.add(createFurnitureCard("Dresser " + i, "furnitures/dresser/" + i + ".png",
+                    createListener("furnitures/dresser/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
@@ -693,7 +697,8 @@ public class Catalog extends Window {
         main.row();
 
         for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Mirror " + i, "furnitures/mirror/" + i + ".png", null));
+            main.add(createFurnitureCard("Mirror " + i, "furnitures/mirror/" + i + ".png",
+                    createListener("furnitures/mirror/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
             if(i % 3 == 0){
                 main.row();
