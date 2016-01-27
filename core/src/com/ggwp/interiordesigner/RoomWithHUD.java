@@ -668,7 +668,7 @@ public class RoomWithHUD extends AppScreen  {
         if ( back)
         {
             Main.getInstance().setScreen(new MenuScreen());
-            dispose();
+            //dispose();
             back = false;
         }
 
