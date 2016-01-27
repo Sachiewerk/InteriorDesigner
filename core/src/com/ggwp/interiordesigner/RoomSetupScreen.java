@@ -185,6 +185,16 @@ public class RoomSetupScreen extends AppScreen {
         stage.draw();
     }
 
+    private RoomDesignData getRoomDesignData(){
+        RoomDesignData data = new RoomDesignData();
+        data.setBackgroundImage(fileHandle.file().getAbsolutePath());
+
+        String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
+        data.setVertices(room.getVertices());
+        data.setName(name);
+        return data;
+    }
+
     private void saveCurrentRoomDesign(){
         RoomDesignData data = new RoomDesignData();
         data.setBackgroundImage(fileHandle.name());
@@ -226,7 +236,10 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(), fileHandle));
+
+                RoomDesignData rdata = getRoomDesignData();
+
+                Main.getInstance().setScreen(new RoomWithHUD(camera, rdata));
                 dispose();
             }
         });

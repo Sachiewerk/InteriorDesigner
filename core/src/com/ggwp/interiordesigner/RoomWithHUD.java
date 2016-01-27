@@ -310,7 +310,19 @@ public class RoomWithHUD extends AppScreen  {
 
         designData = rdata;
         Room room = new Room(rdata);
-        FileHandle backgroundSource= Gdx.files.internal("Rooms/Images/" + rdata.getBackgroundImage());
+
+        FileHandle backgroundSource;
+        if(rdata.getBackgroundImage().contains("/Rooms/Images/")){
+            backgroundSource= Gdx.files.internal(rdata.getBackgroundImage());
+        }
+        else if(rdata.getBackgroundImage().contains("/")){
+            backgroundSource= Gdx.files.absolute(rdata.getBackgroundImage());
+        }
+        else{
+            backgroundSource= Gdx.files.internal("Rooms/Images/" + rdata.getBackgroundImage());
+        }
+
+
 
         Array<Wall> walls = room.getWalls();
         init(camera,backgroundSource,walls);
@@ -476,6 +488,8 @@ public class RoomWithHUD extends AppScreen  {
 
                 TextButton btnYes = new TextButton("Save", SkinManager.getDefaultSubmitTextButtonStyle());
                 TextButton btnNo = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
+                btnYes.setHeight(100);
+                btnNo.setHeight(100);
 
                 final TextInputListener  te = new TextInputListener() {
                     @Override
