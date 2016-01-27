@@ -37,7 +37,7 @@ public class Main extends Game {
 	@Override
 	public void create () {
 		instance = this;
-		setScreen(new MenuScreen());
+		setScreen(new SplashScreen(this));
 		dispose();
 	}
 
