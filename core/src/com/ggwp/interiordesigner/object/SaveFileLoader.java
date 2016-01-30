@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -84,14 +85,19 @@ public class SaveFileLoader extends Window {
         table.defaults().left();
         table.columnDefaults(2).fillX();
 
-        TextButton okButton = new TextButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
-        TextButton cancelButton = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
+        ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+
+        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
+
+        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
+        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        //cancelButton.background(SkinManager.getDefaultCancelTextButtonStyle().up);
 
 
         //table.setWidth(Gdx.graphics.getWidth());
-        table.add(new TextButton("", SkinManager.getDefaultFillerButtonStyle())).width(Gdx.graphics.getWidth()-(Gdx.graphics.getWidth()/10)*2);
-        table.add(okButton).width(Gdx.graphics.getWidth() / 10);
-        table.add(cancelButton).width(Gdx.graphics.getWidth() / 10);
+        table.add(new TextButton("", SkinManager.getDefaultFillerButtonStyle())).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
+        table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         //table.pad(10);
         //table.background(SkinManager.getDefaultSkin().getDrawable("optionBackground"));
         //table.setWidth(500);

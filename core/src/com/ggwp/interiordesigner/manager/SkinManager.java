@@ -33,7 +33,10 @@ public class SkinManager {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 16;
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter1 = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter1.size = 24;
         BitmapFont textFont = generator.generateFont(parameter);
+        BitmapFont textFont1 = generator.generateFont(parameter1);
         generator.dispose();
 
 
@@ -71,6 +74,7 @@ public class SkinManager {
         defaultSkin.add("defaultFillerSkin", new Texture(fillerPixmap));
         defaultSkin.add("clearTexture", new Texture(clearPixmap));
         defaultSkin.add("defaultFont", textFont);
+        defaultSkin.add("defaultFont1", textFont1);
         defaultSkin.add("optionBackground", new Texture(optionPixmap));
 
         bloackPixmap.dispose();
@@ -115,6 +119,14 @@ public class SkinManager {
     public static Label.LabelStyle getDefaultLabelStyle(){
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = defaultSkin.getFont("defaultFont");
+        style.fontColor = Color.BLACK;
+
+        return style;
+    }
+
+    public static Label.LabelStyle getDialogLabelStyle(){
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = defaultSkin.getFont("defaultFont1");
         style.fontColor = Color.BLACK;
 
         return style;

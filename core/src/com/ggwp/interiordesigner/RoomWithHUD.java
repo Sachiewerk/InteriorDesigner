@@ -475,7 +475,8 @@ public class RoomWithHUD extends AppScreen  {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-                whitePixmap.setColor(Color.WHITE);
+                Color col = Color.valueOf("#3498db");
+                whitePixmap.setColor(Color.argb8888(col.r,col.g,col.b,0.7f));
                 whitePixmap.fill();
                 Texture texture = new Texture(whitePixmap);
                 whitePixmap.dispose();
@@ -486,10 +487,8 @@ public class RoomWithHUD extends AppScreen  {
                 confirmDialog.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 
 
-                TextButton btnYes = new TextButton("Save", SkinManager.getDefaultSubmitTextButtonStyle());
-                TextButton btnNo = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
-                btnYes.setHeight(100);
-                btnNo.setHeight(100);
+                ImageButton btnYes = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+                ImageButton btnNo = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
 
                 final TextInputListener te = new TextInputListener() {
                     @Override
@@ -541,15 +540,17 @@ public class RoomWithHUD extends AppScreen  {
                 });
 
 
-                VerticalGroup vgroup = new VerticalGroup();
-                vgroup.pad(20f);
-                vgroup.addActor(new Label("Save ?", SkinManager.getDefaultLabelStyle()));
-                vgroup.addActor(new Label("", SkinManager.getDefaultLabelStyle()));
-                HorizontalGroup hgroup = new HorizontalGroup();
-                hgroup.addActor(btnYes);
-                hgroup.addActor(btnNo);
-                vgroup.addActor(hgroup);
-                confirmDialog.add(vgroup);
+                Label l = new Label("Save? ", SkinManager.getDialogLabelStyle());
+                l.setFontScale(2);
+
+                Table hgroup = new Table();
+                hgroup.pad(Gdx.graphics.getHeight()/30);
+                hgroup.add(l);
+                hgroup.add(btnYes).height(Gdx.graphics.getHeight() / 10)
+                        .width(Gdx.graphics.getWidth() / 17);
+                hgroup.add(btnNo).height(Gdx.graphics.getHeight() / 10)
+                        .width(Gdx.graphics.getWidth() / 17);
+                confirmDialog.add(hgroup);
 
                 confirmDialog.show(stage);
             }
