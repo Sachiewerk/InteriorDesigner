@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -82,13 +83,27 @@ public class SaveFileLoader extends Window {
         Table table = new Table();
 
         table.defaults().left();
-        table.columnDefaults(0).width(Gdx.graphics.getWidth() - 200f);
+        table.columnDefaults(2).fillX();
 
-        TextButton okButton = new TextButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
-        TextButton cancelButton = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
+        ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
 
-        table.add(okButton).width(100).height(40);
-        table.add(cancelButton).width(100).height(40).fillY();
+        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
+
+        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
+        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        //cancelButton.background(SkinManager.getDefaultCancelTextButtonStyle().up);
+        TextButton tb = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
+
+        tb.padLeft(10f);
+        tb.getLabel().setAlignment(Align.left);
+
+        //table.setWidth(Gdx.graphics.getWidth());
+        table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
+        table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
+        //table.pad(10);
+        //table.background(SkinManager.getDefaultSkin().getDrawable("optionBackground"));
+        //table.setWidth(500);
 
         okButton.addListener(
                 new ClickListener() {
@@ -112,12 +127,12 @@ public class SaveFileLoader extends Window {
                             RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignDataData);
                             Main.getInstance().setScreen(roomWithHUD);
 
-                            if(objs!=null) {
+                            if (objs != null) {
                                 for (SaveFile.Object obj :
                                         objs) {
 
-                                    if(obj.assetName!=null) {
-                                        System.out.println("loading.."+obj.assetName);
+                                    if (obj.assetName != null) {
+                                        System.out.println("loading.." + obj.assetName);
                                         roomWithHUD.addObject(obj);
                                     }
 
@@ -144,6 +159,8 @@ public class SaveFileLoader extends Window {
                 });
 
         hg.addActor(table);
+        //hg.setFillParent(true);
+        //hg.setWidth(500);
         layoutTable.add(hg);
         layoutTable.row();
         layoutTable.add(furnituresContainer);

@@ -1,6 +1,7 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interfaces.RequestResultListner;
 
@@ -14,7 +15,9 @@ public class Main extends Game {
 		return instance;
 	}
 
+
 	public Main(AndroidOnlyInterface pAoi){
+
 		aoi = pAoi;
 
 		aoi.addResultListener(new RequestResultListner() {
@@ -37,7 +40,7 @@ public class Main extends Game {
 	@Override
 	public void create () {
 		instance = this;
-		setScreen(new SplashScreen(this));
+		setScreen(new MenuScreen());
 		dispose();
 	}
 

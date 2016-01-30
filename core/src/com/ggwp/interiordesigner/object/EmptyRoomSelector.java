@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -82,11 +83,23 @@ public class EmptyRoomSelector extends Window {
         table.defaults().left();
         table.columnDefaults(0).width(Gdx.graphics.getWidth() - 200f);
 
-        TextButton okButton = new TextButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
-        TextButton cancelButton = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
 
-        table.add(okButton).width(100);
-        table.add(cancelButton).width(100).fillY();
+
+        ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+
+        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
+
+        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
+        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+
+        TextButton tb = new TextButton("Select Empty Room", SkinManager.getDefaultFillerButtonStyle());
+
+        tb.padLeft(10f);
+        tb.getLabel().setAlignment(Align.left);
+
+        table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
+        table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
 
         okButton.addListener(
                 new ClickListener() {
@@ -203,7 +216,7 @@ public class EmptyRoomSelector extends Window {
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
-            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage());
+            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage().toLowerCase());
             Image image = new Image((new Texture(handle)));
 
             add(image).width(cardSize).height(cardSize / (w / h));
