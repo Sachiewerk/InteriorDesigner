@@ -13,7 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -26,6 +28,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.ggwp.interiordesigner.RoomWithHUD;
 import com.ggwp.interiordesigner.manager.SkinManager;
+
+import sun.awt.HorizBagLayout;
 
 
 /**
@@ -85,6 +89,7 @@ public class Catalog extends Window {
         layoutTable.columnDefaults(0).width(250f);
         layoutTable.columnDefaults(1).top().width(Gdx.graphics.getWidth() - 250f);
 
+
         categoriesScrollPane = new ScrollPane(categories);
         furnituresScrollPane = new ScrollPane(createBedsContainer());
 
@@ -92,6 +97,23 @@ public class Catalog extends Window {
         furnituresContainer.setFillParent(true);
         furnituresContainer.left();
 
+        Table grh = new Table();
+        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        TextButton tbuton = new TextButton("Furnitures", SkinManager.getDefaultFillerButtonStyle());
+
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.getActors().removeValue(instance, true);
+                initInputProcessors();
+            }
+        });
+
+        grh.add(tbuton).width(Gdx.graphics.getWidth() - 250f - ((Gdx.graphics.getWidth() - 250f) / 13)).height(Gdx.graphics.getHeight() / 10);
+        grh.add(cancelButton).width((Gdx.graphics.getWidth() - 250f) / 13).height(Gdx.graphics.getHeight()/10);
+        furnituresContainer.add(grh).fillX();//.width(Gdx.graphics.getWidth()-250f-((Gdx.graphics.getWidth()-250f)/17)).height(Gdx.graphics.getHeight() / 10);
+        //furnituresContainer.add(cancelButton).width((Gdx.graphics.getWidth()-250f)/17).height(Gdx.graphics.getHeight() / 10).left();
+        furnituresContainer.row();
         furnituresContainer.add(furnituresScrollPane);
 
         layoutTable.add(categoriesScrollPane);
@@ -314,6 +336,7 @@ public class Catalog extends Window {
 
     private Table createCategoryContainer(String label, String img, TextButton.TextButtonStyle buttonStyle, EventListener listener) {
         Table table = new Table();
+        table.setBackground(SkinManager.getDefaultFillerButtonStyle().up);
         Image image = new Image((new Texture(img)));
         TextButton button = new TextButton(label,buttonStyle);
         button.getLabel().setColor(Color.WHITE);

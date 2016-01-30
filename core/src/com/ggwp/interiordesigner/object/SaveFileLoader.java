@@ -171,9 +171,10 @@ public class SaveFileLoader extends Window {
     private Container createBedsContainer() {
         Table main = new Table();
 
+        //main.background(SkinManager.getDefaultSkin().getDrawable("blackBackground"));
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
-        main.columnDefaults(2).padRight(20f);
+        main.columnDefaults(2).padRight(30f);
         //main.setHeight(Gdx.graphics.getHeight());
         //main.setFillParent(true);
         main.row();
@@ -264,7 +265,7 @@ public class SaveFileLoader extends Window {
         public SaveFilePanel(FileHandle data) {
             super();
             this.data = data;
-
+            //this.setBackground((new Texture("Common/empty-thumb.png")));
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;

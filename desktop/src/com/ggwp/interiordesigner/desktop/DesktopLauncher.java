@@ -17,7 +17,7 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		double multiplier=1;
+		double multiplier=1.5;
 		config.width = (int)Math.floor(1024*multiplier);
 		config.height = (int)(576*multiplier);
 		launcher = new DesktopLauncher();
@@ -66,6 +66,12 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 			case IMAGE_CAPTURE:
 				String saveDirectory = params.get("savedirectory").toString();
 				takeSnapShot(saveDirectory);
+				break;
+			case LOG:
+				String title2 = params.get("title").toString();
+				String msg2 = params.get("message").toString();
+
+				System.out.println(msg2);
 				break;
 		}
 

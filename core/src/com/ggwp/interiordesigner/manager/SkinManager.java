@@ -35,6 +35,7 @@ public class SkinManager {
         parameter.size = 16;
         FreeTypeFontGenerator.FreeTypeFontParameter parameter1 = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter1.size = 24;
+        //parameter1.color = Color.WHITE;
         BitmapFont textFont = generator.generateFont(parameter);
         BitmapFont textFont1 = generator.generateFont(parameter1);
         generator.dispose();
@@ -65,9 +66,17 @@ public class SkinManager {
         optionPixmap.fill();
 
         Pixmap fillerPixmap = new Pixmap(100, buttonHeight, Pixmap.Format.RGBA8888);
-        fillerPixmap.setColor(Color.rgba8888(1f, 1f, 1f, 0.5f));
+        //fillerPixmap.setColor(Color.rgba8888(1f, 1f, 1f, 0.5f));
+        Color col = Color.valueOf("#3498db");
+        fillerPixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.5f));
         fillerPixmap.fill();
 
+        Pixmap blackPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        blackPixmap.setColor(Color.valueOf("#34495e"));
+        blackPixmap.fill();
+
+
+        defaultSkin.add("blackBackground", new Texture(blackPixmap));
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
         defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
         defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
@@ -96,7 +105,7 @@ public class SkinManager {
         TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
         defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultFillerSkin");
         defaultTextButtonStyle.font = defaultSkin.getFont("defaultFont1");
-
+        defaultTextButtonStyle.fontColor = Color.WHITE;
         return defaultTextButtonStyle;
     }
 
@@ -128,7 +137,7 @@ public class SkinManager {
     public static Label.LabelStyle getDialogLabelStyle(){
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = defaultSkin.getFont("defaultFont1");
-        style.fontColor = Color.BLACK;
+        style.fontColor = Color.WHITE;
 
         return style;
     }

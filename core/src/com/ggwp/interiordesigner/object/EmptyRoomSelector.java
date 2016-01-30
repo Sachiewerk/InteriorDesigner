@@ -96,6 +96,7 @@ public class EmptyRoomSelector extends Window {
 
         tb.padLeft(10f);
         tb.getLabel().setAlignment(Align.left);
+        //tb.setColor(Color.WHITE);
 
         table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
         table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);

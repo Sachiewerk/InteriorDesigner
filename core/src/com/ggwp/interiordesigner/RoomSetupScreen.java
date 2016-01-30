@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -26,11 +27,13 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -227,11 +230,17 @@ public class RoomSetupScreen extends AppScreen {
         textButtonStyle.down = skin.newDrawable("defaultButton");
         textButtonStyle.font = skin.getFont("defaultFont");
 
-        TextButton backButton = new TextButton("BACK", textButtonStyle);
-        backButton.setBounds(5f, 5f, 70f, 40f);
 
-        TextButton doneButton = new TextButton("DONE", textButtonStyle);
-        doneButton.setBounds(80f, 5f, 70f, 40f);
+        ImageButton doneButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+
+        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
+
+        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
+        ImageButton backButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+
+        backButton.setBounds(5f, 10f, Gdx.graphics.getWidth()/7, Gdx.graphics.getHeight()/5);
+
+        doneButton.setBounds(Gdx.graphics.getWidth()-(Gdx.graphics.getWidth()/7)-5f, 10f, Gdx.graphics.getWidth()/7, Gdx.graphics.getHeight()/5);
 
         doneButton.addListener(new ClickListener() {
             @Override
