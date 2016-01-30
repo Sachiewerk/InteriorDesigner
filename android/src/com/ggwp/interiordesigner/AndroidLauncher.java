@@ -67,8 +67,8 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		File image = new File(storageDir,imageFileName);
 
 		// Save a file: path for use with ACTION_VIEW intents
-		mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-		toast(mCurrentPhotoPath);
+		//mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+		//toast(mCurrentPhotoPath);
 		return image;
 	}
 
@@ -173,6 +173,8 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 
 		}
 		else if(requestCode == RequestType.GET_IMAGE_FROM_GALLERY.getRequestCode()){
+			if(data==null)
+				return;
             Uri selectedImageUri = data.getData();
 
 			for (RequestResultListner r: listeners) {

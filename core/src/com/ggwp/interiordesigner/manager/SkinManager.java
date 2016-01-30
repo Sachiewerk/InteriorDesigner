@@ -95,6 +95,7 @@ public class SkinManager {
     public static TextButton.TextButtonStyle getDefaultFillerButtonStyle(){
         TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
         defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultFillerSkin");
+        defaultTextButtonStyle.font = defaultSkin.getFont("defaultFont1");
 
         return defaultTextButtonStyle;
     }

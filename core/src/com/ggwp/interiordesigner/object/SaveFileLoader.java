@@ -92,10 +92,13 @@ public class SaveFileLoader extends Window {
         //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
         //cancelButton.background(SkinManager.getDefaultCancelTextButtonStyle().up);
+        TextButton tb = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
 
+        tb.padLeft(10f);
+        tb.getLabel().setAlignment(Align.left);
 
         //table.setWidth(Gdx.graphics.getWidth());
-        table.add(new TextButton("", SkinManager.getDefaultFillerButtonStyle())).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
         table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         //table.pad(10);

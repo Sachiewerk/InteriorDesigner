@@ -92,7 +92,12 @@ public class EmptyRoomSelector extends Window {
         //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
 
-        table.add(new TextButton("", SkinManager.getDefaultFillerButtonStyle())).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        TextButton tb = new TextButton("Select Empty Room", SkinManager.getDefaultFillerButtonStyle());
+
+        tb.padLeft(10f);
+        tb.getLabel().setAlignment(Align.left);
+
+        table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
         table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
 
@@ -211,7 +216,7 @@ public class EmptyRoomSelector extends Window {
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
-            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage());
+            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage().toLowerCase());
             Image image = new Image((new Texture(handle)));
 
             add(image).width(cardSize).height(cardSize / (w / h));
