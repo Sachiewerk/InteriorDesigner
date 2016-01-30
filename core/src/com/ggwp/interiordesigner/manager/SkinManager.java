@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.ggwp.interiordesigner.Main;
 
 /**
  * Created by Raymond on 1/22/2016.
@@ -35,15 +36,24 @@ public class SkinManager {
         BitmapFont textFont = generator.generateFont(parameter);
         generator.dispose();
 
-        Pixmap cancelPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+
+        // buttons
+
+        int buttonHeight = (int)(Gdx.graphics.getHeight()/10);
+        int buttonWidth = (int)(Gdx.graphics.getWidth()/7);
+
+        Pixmap cancelPixmap = new Pixmap(buttonWidth, buttonHeight, Pixmap.Format.RGBA8888);
         cancelPixmap.setColor(Color.rgba8888(Color.RED.r, Color.RED.g, Color.RED.b, .5f));
         cancelPixmap.fill();
 
-        Pixmap submitPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+
+        Pixmap submitPixmap = new Pixmap(buttonWidth, buttonHeight, Pixmap.Format.RGBA8888);
         submitPixmap.setColor(Color.rgba8888(Color.GREEN.r, Color.GREEN.g, Color.GREEN.b, .5f));
         submitPixmap.fill();
 
-        Pixmap clearPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+
+
+        Pixmap clearPixmap = new Pixmap(buttonWidth, buttonHeight, Pixmap.Format.RGBA8888);
         clearPixmap.setColor(Color.CLEAR);
         clearPixmap.fill();
 
@@ -51,9 +61,14 @@ public class SkinManager {
         optionPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.7f));
         optionPixmap.fill();
 
+        Pixmap fillerPixmap = new Pixmap(100, buttonHeight, Pixmap.Format.RGBA8888);
+        fillerPixmap.setColor(Color.rgba8888(1f, 1f, 1f, 0.5f));
+        fillerPixmap.fill();
+
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
         defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
         defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
+        defaultSkin.add("defaultFillerSkin", new Texture(fillerPixmap));
         defaultSkin.add("clearTexture", new Texture(clearPixmap));
         defaultSkin.add("defaultFont", textFont);
         defaultSkin.add("optionBackground", new Texture(optionPixmap));
@@ -73,9 +88,18 @@ public class SkinManager {
         return defaultTextButtonStyle;
     }
 
+    public static TextButton.TextButtonStyle getDefaultFillerButtonStyle(){
+        TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
+        defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultFillerSkin");
+
+        return defaultTextButtonStyle;
+    }
+
     public static TextButton.TextButtonStyle getDefaultSubmitTextButtonStyle(){
         TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
         defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultSubmitButton");
+
+
 
         return defaultTextButtonStyle;
     }

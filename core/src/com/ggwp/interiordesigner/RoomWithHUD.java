@@ -406,15 +406,15 @@ public class RoomWithHUD extends AppScreen  {
         ImageButton cancellButon = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancel.png"))));
 
 
-        addButton.setBounds(0, 10f, 40f, 40f);
-        removeButton.setBounds(60f, 10f, 40f, 40f);
-        moveButton.setBounds(120, 10f, 40f, 40f);
-        rotateButton.setBounds(180f, 10f, 40f, 40f);
-        clearButton.setBounds(240, 10f, 40f, 40f);
+        addButton.setBounds(0, 0, Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
+        removeButton.setBounds(Gdx.graphics.getWidth()/10, 0f, Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
+        moveButton.setBounds(Gdx.graphics.getWidth()/10*2, 0f, Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
+        rotateButton.setBounds(Gdx.graphics.getWidth()/10*3, 0f, Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
+        clearButton.setBounds(Gdx.graphics.getWidth()/10*4, 0f, Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
 
 
-        saveButton.setBounds(Gdx.graphics.getWidth() - 120f, 10f, 40f, 40f);
-        cancellButon.setBounds(Gdx.graphics.getWidth() - 60f, 10f, 40f, 40f);
+        saveButton.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10 * 2, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
+        cancellButon.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
 
        final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
 
@@ -471,7 +471,7 @@ public class RoomWithHUD extends AppScreen  {
         });
 
 
-        saveButton.addListener(new ClickListener(){
+        saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -483,7 +483,7 @@ public class RoomWithHUD extends AppScreen  {
 
                 final Dialog confirmDialog = new Dialog("", new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture))));
                 confirmDialog.setModal(true);
-                confirmDialog.setSize(400, 400);
+                confirmDialog.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 
 
                 TextButton btnYes = new TextButton("Save", SkinManager.getDefaultSubmitTextButtonStyle());
@@ -491,17 +491,17 @@ public class RoomWithHUD extends AppScreen  {
                 btnYes.setHeight(100);
                 btnNo.setHeight(100);
 
-                final TextInputListener  te = new TextInputListener() {
+                final TextInputListener te = new TextInputListener() {
                     @Override
-                    public void input (String text) {
+                    public void input(String text) {
 
                         GameObject[] gobjs = new GameObject[instances.size];
                         int i = 0;
-                        for (GameObject g:
+                        for (GameObject g :
                                 instances) {
                             gobjs[i++] = g;
                         }
-                        ToolUtils.saveRoomSetup(text+".dat",gobjs,designData);
+                        ToolUtils.saveRoomSetup(text + ".dat", gobjs, designData);
 
                         Object[][] tests = {{"title", "Message"},
                                 {"message", "File Saved."}};
@@ -515,12 +515,12 @@ public class RoomWithHUD extends AppScreen  {
                     }
 
                     @Override
-                    public void canceled () {
+                    public void canceled() {
                         confirmDialog.hide();
                     }
                 };
 
-                btnYes.addListener(new ClickListener(){
+                btnYes.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
 
@@ -542,7 +542,9 @@ public class RoomWithHUD extends AppScreen  {
 
 
                 VerticalGroup vgroup = new VerticalGroup();
+                vgroup.pad(20f);
                 vgroup.addActor(new Label("Save ?", SkinManager.getDefaultLabelStyle()));
+                vgroup.addActor(new Label("", SkinManager.getDefaultLabelStyle()));
                 HorizontalGroup hgroup = new HorizontalGroup();
                 hgroup.addActor(btnYes);
                 hgroup.addActor(btnNo);
@@ -553,7 +555,7 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        cancellButon.addListener(new ClickListener(){
+        cancellButon.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Main.getInstance().setScreen(new MenuScreen());
@@ -561,18 +563,18 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight()/10+20, Pixmap.Format.RGBA8888);
         whitePixmap.setColor(Color.rgba8888(1f, 1f, 1f, .5f));
         whitePixmap.fill();
 
         Table tools = new Table();
         tools.setBackground(new SpriteDrawable(new Sprite(new Texture(whitePixmap))));
-        tools.setBounds(0, Gdx.graphics.getHeight() - 60f, Gdx.graphics.getWidth(), 60f);
+        tools.setBounds(0, (Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 10)), Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 10);
 
-        tools.defaults().pad(10f);
-        tools.defaults().width(40f).height(40f);
-        tools.columnDefaults(2).width(40f).height(40f);
-        tools.columnDefaults(3).width(40f).height(40f);
+//        tools.defaults().pad(10f);
+        tools.defaults().width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight()/10);
+        tools.columnDefaults(2).width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight() / 10);
+        tools.columnDefaults(3).width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight()/10);
 
         tools.addActor(addButton);
         tools.addActor(removeButton);

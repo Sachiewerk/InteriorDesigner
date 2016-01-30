@@ -82,13 +82,19 @@ public class SaveFileLoader extends Window {
         Table table = new Table();
 
         table.defaults().left();
-        table.columnDefaults(0).width(Gdx.graphics.getWidth() - 200f);
+        table.columnDefaults(2).fillX();
 
         TextButton okButton = new TextButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         TextButton cancelButton = new TextButton("Cancel", SkinManager.getDefaultCancelTextButtonStyle());
 
-        table.add(okButton).width(100).height(40);
-        table.add(cancelButton).width(100).height(40).fillY();
+
+        //table.setWidth(Gdx.graphics.getWidth());
+        table.add(new TextButton("", SkinManager.getDefaultFillerButtonStyle())).width(Gdx.graphics.getWidth()-(Gdx.graphics.getWidth()/10)*2);
+        table.add(okButton).width(Gdx.graphics.getWidth() / 10);
+        table.add(cancelButton).width(Gdx.graphics.getWidth() / 10);
+        //table.pad(10);
+        //table.background(SkinManager.getDefaultSkin().getDrawable("optionBackground"));
+        //table.setWidth(500);
 
         okButton.addListener(
                 new ClickListener() {
@@ -112,12 +118,12 @@ public class SaveFileLoader extends Window {
                             RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignDataData);
                             Main.getInstance().setScreen(roomWithHUD);
 
-                            if(objs!=null) {
+                            if (objs != null) {
                                 for (SaveFile.Object obj :
                                         objs) {
 
-                                    if(obj.assetName!=null) {
-                                        System.out.println("loading.."+obj.assetName);
+                                    if (obj.assetName != null) {
+                                        System.out.println("loading.." + obj.assetName);
                                         roomWithHUD.addObject(obj);
                                     }
 
@@ -144,6 +150,8 @@ public class SaveFileLoader extends Window {
                 });
 
         hg.addActor(table);
+        //hg.setFillParent(true);
+        //hg.setWidth(500);
         layoutTable.add(hg);
         layoutTable.row();
         layoutTable.add(furnituresContainer);
