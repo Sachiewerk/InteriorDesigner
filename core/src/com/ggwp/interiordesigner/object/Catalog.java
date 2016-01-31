@@ -413,13 +413,7 @@ public class Catalog extends Window {
         main.add(new Label("Washing Machines", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Washing Machine " + i, "furnitures/washingmachine/" + i + ".png", null));
-
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
+        main.add(createFurnitureCard("LG WD-80302NUP", "furnitures/washingmachine/1/1.jpg", createListener("furnitures/washingmachine/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
