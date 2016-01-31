@@ -282,7 +282,7 @@ public class Catalog extends Window {
         TextButton.TextButtonStyle defaultTextButtonStyle = SkinManager.getDefaultTextButtonStyle();
         categories.addActor(createCategoryContainer("Beds", "furnitures/categories/bed.png", defaultTextButtonStyle, bedsClickListener));
         categories.addActor(createCategoryContainer("Refrigerators", "furnitures/categories/refrigerator.png", defaultTextButtonStyle, refrigeratorClickListener));
-        categories.addActor(createCategoryContainer("Ovens", "furnitures/categories/oven.png", defaultTextButtonStyle, ovenClickListener));
+//        categories.addActor(createCategoryContainer("Ovens", "furnitures/categories/oven.png", defaultTextButtonStyle, ovenClickListener));
         categories.addActor(createCategoryContainer("Frames", "furnitures/categories/frame.png", defaultTextButtonStyle, framesClickListener));
         categories.addActor(createCategoryContainer("Tables", "furnitures/categories/sidetable.png", defaultTextButtonStyle, sideTableClickListener));
         categories.addActor(createCategoryContainer("Vase", "furnitures/categories/vase.png", defaultTextButtonStyle, vaseClickListener));
@@ -296,7 +296,7 @@ public class Catalog extends Window {
         categories.addActor(createCategoryContainer("TV", "furnitures/categories/tv.png", defaultTextButtonStyle, tvClickListener));
         categories.addActor(createCategoryContainer("Washing Machine", "furnitures/categories/washingmachine.png", defaultTextButtonStyle, washingMachineClickListener));
         categories.addActor(createCategoryContainer("Electric Fan", "furnitures/categories/electricfan.png", defaultTextButtonStyle, electricFanClickListener));
-        categories.addActor(createCategoryContainer("Aircon", "furnitures/categories/aircon.png", defaultTextButtonStyle, airconClickListener));
+//        categories.addActor(createCategoryContainer("Aircon", "furnitures/categories/aircon.png", defaultTextButtonStyle, airconClickListener));
 
         this.add(layoutTable);
     }
