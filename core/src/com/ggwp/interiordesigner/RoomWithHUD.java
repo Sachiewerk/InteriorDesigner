@@ -174,6 +174,10 @@ public class RoomWithHUD extends AppScreen  {
     private RoomDesignData designData;
     private boolean back = false;
     private float toolsPanelYBounds;
+
+    //To limit left and right moving of floor object
+    private float minPosX;
+    private float maxPosX;
 //    private DebugDrawer debugDrawer;
 
     private void initEnvironment(){
@@ -260,6 +264,13 @@ public class RoomWithHUD extends AppScreen  {
 
                 boundingBox.getCorner001(pos);
                 wallY = pos.y;
+
+                if(wall.location == Wall.LEFT){
+                    minPosX = pos.x;
+                }
+                if(wall.location == Wall.RIGHT){
+                    maxPosX = pos.x;
+                }
 
                 if(wall.isSide()){
                     if(pos.z != 0){
@@ -757,7 +768,7 @@ public class RoomWithHUD extends AppScreen  {
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
         if(screenY <= toolsPanelYBounds){
-            return  super.touchDragged(screenX, screenY, pointer);
+            return super.touchDragged(screenX, screenY, pointer);
         }
         if (selected < 0) return false;
 
@@ -912,7 +923,15 @@ public class RoomWithHUD extends AppScreen  {
         position.set(ray.direction).scl(distance).add(ray.origin);
 
         if(tranformTool == TransformTool.MOVE){
-
+            if(((position.z - (gameObject.dimensions.z / 2))) < 1 ){
+                position.z = gameObject.dimensions.z;
+            }
+            if((position.x - (gameObject.dimensions.x / 2)) < minPosX){
+                position.x = minPosX + (gameObject.dimensions.x / 2);
+            }
+            if((position.x + (gameObject.dimensions.x / 2)) > maxPosX){
+                position.x = maxPosX - (gameObject.dimensions.x / 2);
+            }
             gameObject.transform.setTranslation(position);
         } else {
             if (ray.direction.x > ray.origin.x){
