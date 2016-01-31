@@ -595,7 +595,9 @@ public class Catalog extends Window {
         main.row();
 
 
-        main.add(createFurnitureCard("Corner Dresser", "furnitures/bookshelves/1/1.jpg", createListener("furnitures/bookshelves/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Small", "furnitures/bookshelves/1/1.jpg", createListener("furnitures/bookshelves/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Tall", "furnitures/bookshelves/2/2.jpg", createListener("furnitures/bookshelves/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Wall Mounted", "furnitures/bookshelves/3/3.jpg", createListener("furnitures/bookshelves/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
         return new Container(main);
     }
 
@@ -607,14 +609,12 @@ public class Catalog extends Window {
         main.add(new Label("Mirrors", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Mirror " + i, "furnitures/mirror/" + i + ".png",
-                    createListener("furnitures/mirror/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
+        main.add(createFurnitureCard("Ribbon Mirror", "furnitures/mirror/1/1.jpg", createListener("furnitures/mirror/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Romantic White ", "furnitures/mirror/2/2.jpg", createListener("furnitures/mirror/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Wooden Frame(Portrait)", "furnitures/mirror/3/3.jpg", createListener("furnitures/mirror/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Wooden Frame(Landscape)", "furnitures/mirror/4/4.jpg", createListener("furnitures/mirror/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
         return new Container(main);
     }
 
