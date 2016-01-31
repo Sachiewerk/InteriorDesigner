@@ -7,6 +7,7 @@ import com.ggwp.interfaces.RequestResultListner;
 
 public class Main extends Game {
 
+	public static final String DEFAULT_EMPTY_ROOM_DIR = "Rooms/Images/";
 	public static AndroidOnlyInterface aoi;
 	private static Main instance;
 	public static String screenTemplateSaveDirectory;

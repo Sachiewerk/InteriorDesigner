@@ -42,6 +42,7 @@ public class EmptyRoomSelector extends Window {
     private RoomDesignPanel selectedTemplate;
     private Map<String, RoomDesignPanel> templates = new HashMap<String, RoomDesignPanel>();
 
+
     public static EmptyRoomSelector construct(Stage stage) {
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixmap.setColor(Color.WHITE);
@@ -217,7 +218,7 @@ public class EmptyRoomSelector extends Window {
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
-            FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage().toLowerCase());
+            FileHandle handle = Gdx.files.internal( Main.DEFAULT_EMPTY_ROOM_DIR+ data.getBackgroundImage().toLowerCase());
             Image image = new Image((new Texture(handle)));
 
             add(image).width(cardSize).height(cardSize / (w / h));

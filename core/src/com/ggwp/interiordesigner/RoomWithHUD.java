@@ -295,16 +295,16 @@ public class RoomWithHUD extends AppScreen  {
 
         designData = rdata;
         Room room = new Room(rdata);
-
+        //System.out.println("TEST:"+rdata.getBackgroundImage());
         FileHandle backgroundSource;
-        if(rdata.getBackgroundImage().contains("/Rooms/Images/")){
+        if(rdata.getBackgroundImage().contains(Main.DEFAULT_EMPTY_ROOM_DIR)){
             backgroundSource= Gdx.files.internal(rdata.getBackgroundImage());
         }
         else if(rdata.getBackgroundImage().contains("/")){
             backgroundSource= Gdx.files.absolute(rdata.getBackgroundImage());
         }
         else{
-            backgroundSource= Gdx.files.internal(rdata.getBackgroundImage());
+            backgroundSource= Gdx.files.internal(Main.DEFAULT_EMPTY_ROOM_DIR+rdata.getBackgroundImage());
         }
 
 
