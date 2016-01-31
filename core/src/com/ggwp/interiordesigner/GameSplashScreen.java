@@ -12,7 +12,7 @@ import com.badlogic.gdx.Screen;
 /**
  * Created by bytexe on 1/28/2016.
  */
-public class SplashScreen  implements Screen{
+public class GameSplashScreen  implements Screen{
 
     private SpriteBatch batch;
     private Game myGame;
@@ -21,7 +21,7 @@ public class SplashScreen  implements Screen{
     private long startTime;
     private int rendCount;
 
-    public SplashScreen  (Game g) // ** constructor called initially **//
+    public GameSplashScreen  (Game g) // ** constructor called initially **//
     {
         Gdx.app.log("my Spash Screen", "constructor called");
         myGame = g; // ** get Game parameter **//

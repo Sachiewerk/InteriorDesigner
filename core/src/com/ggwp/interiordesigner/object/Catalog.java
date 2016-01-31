@@ -122,7 +122,7 @@ public class Catalog extends Window {
         EventListener bedsClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createBedsContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -131,7 +131,7 @@ public class Catalog extends Window {
         EventListener framesClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createFramesContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -140,7 +140,7 @@ public class Catalog extends Window {
         EventListener refrigeratorClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createRefrigeratorContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -149,7 +149,7 @@ public class Catalog extends Window {
         EventListener ovenClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createOvenContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -158,7 +158,7 @@ public class Catalog extends Window {
         EventListener tvClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createTVContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -167,7 +167,7 @@ public class Catalog extends Window {
         EventListener tvRackClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createTVRackContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -176,7 +176,7 @@ public class Catalog extends Window {
         EventListener washingMachineClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createWashingMachineContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -185,7 +185,7 @@ public class Catalog extends Window {
         EventListener airconClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createAirconContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -194,7 +194,7 @@ public class Catalog extends Window {
         EventListener vaseClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createVaseContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -203,7 +203,7 @@ public class Catalog extends Window {
         EventListener electricFanClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createElectricFanContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -212,7 +212,7 @@ public class Catalog extends Window {
         EventListener sideTableClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createSideTableContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -221,7 +221,7 @@ public class Catalog extends Window {
         EventListener lampClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createLampContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -230,7 +230,7 @@ public class Catalog extends Window {
         EventListener dresserClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createDresserContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -239,7 +239,7 @@ public class Catalog extends Window {
         EventListener sofaClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createSofaContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -248,7 +248,7 @@ public class Catalog extends Window {
         EventListener coffeeTableClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createCoffeeTableContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -257,7 +257,7 @@ public class Catalog extends Window {
         EventListener vanityTableClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createVanityTableContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -266,7 +266,7 @@ public class Catalog extends Window {
         EventListener bookShelfClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createBookShelfContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -275,7 +275,7 @@ public class Catalog extends Window {
         EventListener mirrorClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createMirrorContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -284,7 +284,7 @@ public class Catalog extends Window {
         EventListener diningClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createDiningContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -293,7 +293,7 @@ public class Catalog extends Window {
         EventListener kitchenClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createKitchenContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
@@ -302,7 +302,7 @@ public class Catalog extends Window {
         EventListener wallClockClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                furnituresContainer.clear();
+                furnituresScrollPane.remove();
                 furnituresScrollPane = new ScrollPane(createWallClockContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
