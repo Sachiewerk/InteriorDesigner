@@ -381,13 +381,8 @@ public class Catalog extends Window {
         main.add(new Label("Refrigerators", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Refrigerator " + i, "furnitures/refrigerator/" + i + ".png", null));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
+        main.add(createFurnitureCard("LG Refrigerator ", "furnitures/refrigerator/1/1.jpg", createListener("furnitures/refrigerator/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
@@ -459,13 +454,8 @@ public class Catalog extends Window {
         main.add(new Label("Electric Fans", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Electric Fan " + i, "furnitures/electricfan/" + i + ".png", null));
+        main.add(createFurnitureCard("Batur ", "furnitures/electricfan/1/1.jpg", createListener("furnitures/electricfan/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
