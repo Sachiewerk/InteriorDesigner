@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -45,9 +47,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
@@ -72,6 +76,7 @@ public class RoomWithHUD extends AppScreen  {
     final static class TransformTool {
         static final int MOVE = 0;
         static final int ROTATE = 1;
+        static final int PAINT = 2;
     }
 
     class MyContactListener extends ContactListener {
@@ -99,8 +104,6 @@ public class RoomWithHUD extends AppScreen  {
             if(!collidedInstances.contains(obj1, true)){
                 collidedInstances.add(obj1);
             }
-
-
 
             System.out.println("contact");
             return true;
@@ -143,18 +146,14 @@ public class RoomWithHUD extends AppScreen  {
     private Vector3 origPosition = new Vector3();
     private Quaternion origRotation = new Quaternion();
 
-
     private int selected = -1,selecting = -1;
-
     private int tranformTool = 0;
-
 
     private btCollisionConfiguration collisionConfig;
     private btDispatcher dispatcher;
     private MyContactListener contactListener;
     private btBroadphaseInterface broadphase;
     private btCollisionWorld collisionWorld;
-
 
     final static short WALL_FLAG = 1<<8;
     final static short FLOOR_OBJECT_FLAG = 1<<9;
@@ -197,7 +196,6 @@ public class RoomWithHUD extends AppScreen  {
             camera.far = 300f;
             camera.update();
         }
-
     }
 
     private void removeScreenInputProcessor(){
@@ -209,8 +207,6 @@ public class RoomWithHUD extends AppScreen  {
     public RoomWithHUD(){
         this(null, null);
     }
-
-
 
     private void init(PerspectiveCamera camera,FileHandle backgroundSource, Array<Wall> walls){
         Bullet.init();
@@ -230,11 +226,7 @@ public class RoomWithHUD extends AppScreen  {
 
 
         filePath.clear();
-
-
         loading = true;
-
-
 
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
@@ -253,7 +245,6 @@ public class RoomWithHUD extends AppScreen  {
             origWallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.6f, 1f, 0.5f)));
             BlendingAttribute ba = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             ba.opacity = 0.4f;
-
 
             origWallMaterial.set(ba);
 
@@ -292,13 +283,19 @@ public class RoomWithHUD extends AppScreen  {
                 collisionWorld.addCollisionObject(wall.body, WALL_FLAG, FLOOR_OBJECT_FLAG);
 
                 instances.add(wall);
+
+                if(wall.isSide() == false){
+                    backWall = wall;
+                }
             }
         }
         background = new Texture(backgroundSource);
+
+        setupOverlay();
+        setupPaintableTiles();
     }
 
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
-
         init(camera, backgroundSource, walls);
     }
 
@@ -391,28 +388,31 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void initHUD(){
-        ImageButton addButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/add.png"))));
-        ImageButton removeButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
-        ImageButton moveButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/move.png"))));
-        ImageButton rotateButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/rotate.png"))));
+        Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
+        Color col = Color.WHITE;
+        whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
+        whitePixmap.fill();
 
-        ImageButton clearButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/clear.png"))));
-        ImageButton saveButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/save.png"))));
-        ImageButton cancellButon = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancel.png"))));
+        Table tools = new Table();
+        tools.setBackground(new SpriteDrawable(new Sprite(new Texture(whitePixmap))));
+        tools.setBounds(0, (Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 10)), Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 10);
 
+        toolsPanelYBounds = (Gdx.graphics.getHeight() / 10);
+        tools.defaults().width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
+        tools.columnDefaults(2).width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
+        tools.columnDefaults(3).width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
 
-        addButton.setBounds(0, 0, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-        removeButton.setBounds(Gdx.graphics.getWidth() / 10, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-        moveButton.setBounds(Gdx.graphics.getWidth() / 10 * 2, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-        rotateButton.setBounds(Gdx.graphics.getWidth() / 10 * 3, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
+        ImageButton addButton = createAndAddImageButtonTool(0, "Common/add.png", tools);
+        ImageButton removeButton = createAndAddImageButtonTool(1, "Common/remove.png", tools);
+        ImageButton moveButton = createAndAddImageButtonTool(2, "Common/move.png", tools);
+        ImageButton rotateButton = createAndAddImageButtonTool(3, "Common/rotate.png", tools);
+        ImageButton clearButton = createAndAddImageButtonTool(4, "Common/clear.png", tools);
+        ImageButton paintButton = createAndAddImageButtonTool(5, "Common/roller.png", tools);
+        ImageButton paletteButton = createAndAddImageButtonTool(6, "Common/palette.png", tools);
+        ImageButton saveButton = createAndAddImageButtonTool(7, "Common/save.png", tools);
+        ImageButton cancelButton = createAndAddImageButtonTool(8, "Common/cancel.png", tools);
 
-        clearButton.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10 * 3, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-
-
-        saveButton.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10 * 2, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-        cancellButon.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-
-        final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
+        final Catalog catalog = Catalog.construct(stage, assets, instances, (InputMultiplexer) Gdx.input.getInputProcessor(), this);
 
         addButton.addListener(new ClickListener() {
             @Override
@@ -422,7 +422,7 @@ public class RoomWithHUD extends AppScreen  {
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                         ToolUtils.createMapFromList(tests));
                 removeScreenInputProcessor();
-                stage.addActor(c);
+                stage.addActor(catalog);
             }
         });
 
@@ -467,6 +467,20 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
+        paletteButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.addActor(overlay);
+            }
+        });
+
+        paintButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tranformTool = TransformTool.PAINT;
+            }
+        });
+
         clearButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -483,97 +497,17 @@ public class RoomWithHUD extends AppScreen  {
                 }
                 selected = -1;
                 removeGameObjects(objects);
-
             }
         });
-
 
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-                Color col = Color.valueOf("#3498db");
-                whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
-                whitePixmap.fill();
-                Texture texture = new Texture(whitePixmap);
-                whitePixmap.dispose();
-
-
-                final Dialog confirmDialog = new Dialog("", new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture))));
-                confirmDialog.setModal(true);
-                confirmDialog.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-
-
-                ImageButton btnYes = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-                ImageButton btnNo = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
-
-                final TextInputListener te = new TextInputListener() {
-                    @Override
-                    public void input(String text) {
-
-                        GameObject[] gobjs = new GameObject[instances.size];
-                        int i = 0;
-                        for (GameObject g :
-                                instances) {
-                            gobjs[i++] = g;
-                        }
-                        ToolUtils.saveRoomSetup(text + ".dat", gobjs, designData);
-
-                        Object[][] tests = {{"title", "Message"},
-                                {"message", "File Saved."}};
-                        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                                ToolUtils.createMapFromList(tests));
-
-                        back = true;
-
-                        confirmDialog.hide();
-
-                    }
-
-                    @Override
-                    public void canceled() {
-                        confirmDialog.hide();
-                    }
-                };
-
-                btnYes.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-
-                        Gdx.input.getTextInput(te, "File Name", "Room", "");
-
-
-
-                        /*Main.getInstance().setScreen(new MenuScreen());
-                        dispose();*/
-                    }
-                });
-
-                btnNo.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        confirmDialog.hide();
-                    }
-                });
-
-
-                Label l = new Label("Save? ", SkinManager.getDialogLabelStyle());
-                l.setFontScale(2);
-
-                Table hgroup = new Table();
-                hgroup.pad(Gdx.graphics.getHeight() / 30);
-                hgroup.add(l);
-                hgroup.add(btnYes).height(Gdx.graphics.getHeight() / 10)
-                        .width(Gdx.graphics.getWidth() / 17);
-                hgroup.add(btnNo).height(Gdx.graphics.getHeight() / 10)
-                        .width(Gdx.graphics.getWidth() / 17);
-                confirmDialog.add(hgroup);
-
-                confirmDialog.show(stage);
+                onSaveButtonClicked();
             }
         });
 
-        cancellButon.addListener(new ClickListener() {
+        cancelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Main.getInstance().setScreen(new MenuScreen());
@@ -581,44 +515,88 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
-        Color col = Color.WHITE;//Color.valueOf("#3498db");
-        whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
-        whitePixmap.fill();
-
-        Table tools = new Table();
-        tools.setBackground(new SpriteDrawable(new Sprite(new Texture(whitePixmap))));
-        tools.setBounds(0, (Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 10)), Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 10);
-
-        toolsPanelYBounds = (Gdx.graphics.getHeight() / 10);
-//        tools.defaults().pad(10f);
-        tools.defaults().width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight()/10);
-        tools.columnDefaults(2).width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight() / 10);
-        tools.columnDefaults(3).width(Gdx.graphics.getWidth()/10).height(Gdx.graphics.getHeight()/10);
-
-        tools.addActor(addButton);
-        tools.addActor(removeButton);
-        tools.addActor(moveButton);
-        tools.addActor(rotateButton);
-        tools.addActor(clearButton);
-        tools.addActor(saveButton);
-        tools.addActor(cancellButon);
-
         whitePixmap.dispose();
         stage.addActor(tools);
     }
 
+    private void onSaveButtonClicked(){
+        Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        Color col = Color.valueOf("#3498db");
+        whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
+        whitePixmap.fill();
+        Texture texture = new Texture(whitePixmap);
+        whitePixmap.dispose();
 
+        final Dialog confirmDialog = new Dialog("", new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture))));
+        confirmDialog.setModal(true);
+        confirmDialog.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 
-/*    private float volumeOfMesh(Mesh mesh) {
-        float vols = from t in mesh.Triangles
-        select SignedVolumeOfTriangle(t.P1, t.P2, t.P3);
-        return Math.Abs(vols.Sum());
-    }*/
+        ImageButton btnYes = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+        ImageButton btnNo = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
 
-    public static float signedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
-    {
-        return p1.dot(p2.crs(p3)) / 6.0f;
+        final TextInputListener te = new TextInputListener() {
+            @Override
+            public void input(String text) {
+
+                GameObject[] gobjs = new GameObject[instances.size];
+                int i = 0;
+                for (GameObject g : instances) {
+                    gobjs[i++] = g;
+                }
+                ToolUtils.saveRoomSetup(text + ".dat", gobjs, designData);
+
+                Object[][] tests = {{"title", "Message"},
+                        {"message", "File Saved."}};
+                Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                        ToolUtils.createMapFromList(tests));
+
+                back = true;
+                confirmDialog.hide();
+            }
+
+            @Override
+            public void canceled() {
+                confirmDialog.hide();
+            }
+        };
+
+        btnYes.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.input.getTextInput(te, "File Name", "Room", "");
+                        /*Main.getInstance().setScreen(new MenuScreen());
+                        dispose();*/
+            }
+        });
+
+        btnNo.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                confirmDialog.hide();
+            }
+        });
+
+        Label label = new Label("Save? ", SkinManager.getDialogLabelStyle());
+        label.setFontScale(2);
+
+        Table group = new Table();
+        group.pad(Gdx.graphics.getHeight() / 30);
+        group.add(label);
+        group.add(btnYes).height(Gdx.graphics.getHeight() / 10)
+                .width(Gdx.graphics.getWidth() / 17);
+        group.add(btnNo).height(Gdx.graphics.getHeight() / 10)
+                .width(Gdx.graphics.getWidth() / 17);
+        confirmDialog.add(group);
+
+        confirmDialog.show(stage);
+    }
+
+    private ImageButton createAndAddImageButtonTool(Integer index, String icon, Table tools){
+        ImageButton imageButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture(icon))));
+        float xPoint = index * (Gdx.graphics.getWidth() / 10);
+        imageButton.setBounds(xPoint, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
+        tools.addActor(imageButton);
+        return imageButton;
     }
 
     public void addObject(SaveFile.Object obj){
@@ -633,16 +611,16 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     public void addObject(Model model, int type){
-        addObject(null,model, type,null,null,null,null);
+        addObject(null, model, type, null, null, null, null);
     }
+
     public void addObject(String assetName,Model model, int type){
-        addObject(assetName,model, type,null,null,null,null);
+        addObject(assetName, model, type, null, null, null, null);
     }
 
-
-    public void addObject(String assetName,Model model, int type,float[] translation,
+    public void addObject(String assetName, Model model, int type, float[] translation,
                           float[] scale,
-                          float[] rotation,float[] val){
+                          float[] rotation, float[] val) {
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
@@ -652,28 +630,19 @@ public class RoomWithHUD extends AppScreen  {
         dimension.x -= (dimension.x / 2f);
         dimension.y -= (dimension.y / 2f);
         dimension.z -= (dimension.z / 2f);
-        GameObject object = new GameObject(model,new btBoxShape(dimension),type,assetName);
-
-
-
+        GameObject object = new GameObject(model, new btBoxShape(dimension), type, assetName);
 
         if(type == GameObject.TYPE_WALL_OBJECT){
             object.transform.translate(camera.position.x, wallY + (backWallHeight / 2), dimension.z);
-        }else{
+        } else {
             object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2f), dimension.z + 1);
         }
 
         System.out.println(dimension.y + (dimension.y * 2));
 
-
-        if(val!=null){
+        if (val != null) {
             object.transform.set(val);
         }
-
-
-
-
-//        object.newlyAdded = true;
 
         BoundingBox bb = new BoundingBox();
         object.calculateBoundingBox(bb);
@@ -686,9 +655,10 @@ public class RoomWithHUD extends AppScreen  {
         object.body.setUserValue(instances.size);
         object.body.setCollisionFlags(object.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         instances.add(object);
-        if(type == GameObject.TYPE_WALL_OBJECT){
+
+        if (type == GameObject.TYPE_WALL_OBJECT) {
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, FLOOR_OBJECT_FLAG);
-        }else{
+        } else {
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
 
@@ -702,8 +672,7 @@ public class RoomWithHUD extends AppScreen  {
 
     @Override
     public void render(float delta) {
-        if ( back)
-        {
+        if (back) {
             Main.getInstance().setScreen(new MenuScreen());
             //dispose();
             back = false;
@@ -712,25 +681,13 @@ public class RoomWithHUD extends AppScreen  {
         if (loading && assets.update()){
             doneLoading();
         }
-        /*GameObject ga = null;
-        for (GameObject c:
-             instances) {
-            if(c.assetName!=null){
-                ga=c;
-                break;
-            }
 
-        }*/
-        //ga.transform.setTranslation(122,32,21);
-        //ga.transform.setToRotation(122,32,21,3);
         collisionWorld.performDiscreteCollisionDetection();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-
         if(background != null){
-
             spriteBatch.begin();
             spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             spriteBatch.end();
@@ -740,28 +697,37 @@ public class RoomWithHUD extends AppScreen  {
 //        collisionWorld.debugDrawWorld();
 //        debugDrawer.end();
 
-
-
         modelBatch.begin(camera);
-        modelBatch.render(instances, environment);
+
+        for(GameObject object : instances){
+            if(object instanceof Wall){
+                modelBatch.render(object);
+            } else {
+                modelBatch.render(object, environment);
+            }
+        }
+        modelBatch.render(paintableTiles);
         modelBatch.end();
         stage.act();
         stage.draw();
-
     }
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
         if(screenY <= toolsPanelYBounds){
-            return  super.touchDown(screenX,screenY,pointer,button);
-        }
-        selecting = getSelectedObject(screenX, screenY);
-        selected = selecting;
-        if(selecting >= 0) {
-            instances.get(selecting).transform.getTranslation(origPosition);
-            instances.get(selecting).transform.getRotation(origRotation);
+            return super.touchDown(screenX,screenY,pointer,button);
         }
 
+        if(tranformTool == TransformTool.PAINT){
+            paintSelectedTile(screenX, screenY);
+        } else {
+            selecting = getSelectedObject(screenX, screenY);
+            selected = selecting;
+            if(selecting >= 0) {
+                instances.get(selecting).transform.getTranslation(origPosition);
+                instances.get(selecting).transform.getRotation(origRotation);
+            }
+        }
         return selecting >= 0;
     }
 
@@ -770,6 +736,12 @@ public class RoomWithHUD extends AppScreen  {
         if(screenY <= toolsPanelYBounds){
             return super.touchDragged(screenX, screenY, pointer);
         }
+
+        if(tranformTool == TransformTool.PAINT){
+            paintSelectedTile(screenX, screenY);
+            return super.touchDragged(screenX, screenY, pointer);
+        }
+
         if (selected < 0) return false;
 
         if (selected == selecting) {
@@ -779,21 +751,20 @@ public class RoomWithHUD extends AppScreen  {
             if(gameObject.type == GameObject.TYPE_WALL_OBJECT){
                 int selectedWallIndex = getSelectedWall(screenX, screenY);
 
-
                 handleWallObjectDrag(gameObject, ray);
 
                 Vector3 pos = new Vector3();
                 gameObject.transform.getTranslation(pos);
                 Wall selectedWall = null;
-                if(selectedWallIndex >= 0 && instances.get(selectedWallIndex) != null) {
+                if (selectedWallIndex >= 0 && instances.get(selectedWallIndex) != null) {
                     selectedWall = (Wall) instances.get(selectedWallIndex);
 
                     float halfz = (gameObject.dimensions.z / 2);
-                    if(selectedWall.location == Wall.BACK){
+                    if (selectedWall.location == Wall.BACK) {
                         pos.z += halfz;
-                    }else if(selectedWall.location == Wall.LEFT){
+                    } else if (selectedWall.location == Wall.LEFT) {
                         pos.x += halfz;
-                    }else{
+                    } else {
                         pos.x -= halfz;
                     }
                 }
@@ -805,28 +776,22 @@ public class RoomWithHUD extends AppScreen  {
                     pos.y = wallY - (gameObject.dimensions.y / 2);
                 }
                 gameObject.transform.setTranslation(pos);
-
-//                System.out.println("x = " + pos.x + " y = " + pos.y + " z = " + pos.z);
             } else {
                 handleFloorObjectDrag(gameObject, ray);
             }
-
-
             gameObject.body.setWorldTransform(gameObject.transform);
         }
-
         return true;
     }
 
     private void checkColission(GameObject gameObject){
         if(gameObject != null && gameObject.type != GameObject.TYPE_WALL && collidedInstances != null){
-            if(collidedInstances.contains(gameObject,true)){
+            if (collidedInstances.contains(gameObject, true)) {
                 moveToPreviousLocation(gameObject);
-            }else{
+            } else {
 
             }
 
-//
 //            if(gameObject.collided) {
 //                if(tranformTool == TransformTool.MOVE){
 //                    gameObject.transform.setTranslation(origPosition);
@@ -851,7 +816,7 @@ public class RoomWithHUD extends AppScreen  {
                 if(tranformTool == TransformTool.MOVE){
                     gameObject.transform.setTranslation(origPosition);
                     gameObject.collided = false;
-                }else{
+                } else {
                     gameObject.transform.setToTranslation(origPosition);
                     gameObject.transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
                     gameObject.collided = false;
@@ -872,7 +837,6 @@ public class RoomWithHUD extends AppScreen  {
 
                 BoundingBox boundingBox = new BoundingBox();
                 wall.calculateBoundingBox(boundingBox).mul(wall.transform);
-
 
                 Vector3 cornerA = new Vector3();
                 Vector3 cornerB = new Vector3();
@@ -913,7 +877,6 @@ public class RoomWithHUD extends AppScreen  {
         if(tranformTool == TransformTool.MOVE){
             gameObject.transform.set(pointAtWall, wallQuaternion);
         }
-
     }
 
     private void handleFloorObjectDrag(GameObject gameObject, Ray ray) {
@@ -1024,5 +987,136 @@ public class RoomWithHUD extends AppScreen  {
 
     }
 
+    private Table overlay;
+
+    private void setupOverlay(){
+        overlay = new Table(SkinManager.getDefaultSkin());
+        overlay.setFillParent(true);
+        overlay.background(new SpriteDrawable(new Sprite(new Texture("gradient-overlay.png"))));
+
+        Table table = new Table();
+
+        String[] hexes = new String[] {
+                "#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#34495e",
+                "#16a085", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50",
+                "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#95a5a6",
+                "#f39c12", "#d35400", "#c0392b", "#bdc3c7", "#7f8c8d"
+        };
+
+        float width = Gdx.graphics.getWidth() / 10;
+        float height = Gdx.graphics.getHeight() / 8;
+
+        for(int i = 0; i < hexes.length; i++){
+            final Color color = Color.valueOf(hexes[i]);
+            TextButton button = new TextButton("", createButtonStyle(color));
+            button.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    selectedColor = color;
+                    overlay.remove();
+                }
+            });
+
+            table.add(button).align(Align.center).width(width).height(height).pad(10f);
+
+            if((i + 1) % 5 == 0){
+                table.row();
+            }
+        }
+
+        overlay.add(table);
+    }
+
+    private TextButton.TextButtonStyle createButtonStyle(Color color) {
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        Pixmap map = new Pixmap(100, 20, Pixmap.Format.RGBA8888);
+        map.setColor(color);
+        map.fill();
+        SkinManager.getDefaultSkin().add(color.toString(), new Texture(map));
+        textButtonStyle.up = SkinManager.getDefaultSkin().getDrawable(color.toString());
+        textButtonStyle.font = SkinManager.getDefaultSkin().getFont("defaultFont");
+        return textButtonStyle;
+    }
+
+    private ModelBuilder builder = new ModelBuilder();
+    private BlendingAttribute paintBlendingAttribute = new BlendingAttribute();
+    private Color selectedColor;
+
+    private Wall backWall;
+
+    private Array<GameObject> paintableTiles = new Array<GameObject>();
+
+    private void setupPaintableTiles() {
+        float horizontalTileCount = 8;
+        float verticalTileCount = 8;
+
+        BoundingBox box = new BoundingBox();
+        backWall.calculateBoundingBox(box);
+
+        float tileHeight = box.getHeight() / verticalTileCount;
+        float tileWidth = box.getWidth() / horizontalTileCount;
+
+        for(int h = 0; h < horizontalTileCount; h++) {
+            for(int v = 0; v < verticalTileCount; v++) {
+
+                Vector3 corner = new Vector3();
+                box.getCorner000(corner);
+
+                float startH = tileWidth * h + corner.x;
+                float startV = tileHeight * v + corner.y;
+
+                Material material = new Material(ColorAttribute.createDiffuse(Color.CLEAR));
+                paintBlendingAttribute.opacity = 0f;
+                material.set(paintBlendingAttribute);
+
+                Model model = builder.createRect(
+                        startH, startV, backWall.center.z,
+                        startH + tileWidth, startV, backWall.center.z,
+                        startH + tileWidth, startV + tileHeight, backWall.center.z,
+                        startH, startV + tileHeight, backWall.center.z,
+                        1, 1, 1,
+                        material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
+                );
+                GameObject object = new GameObject(model, -1);
+                paintableTiles.add(object);
+            }
+        }
+    }
+
+    public int paintSelectedTile(int screenX, int screenY){
+        Ray ray = camera.getPickRay(screenX, screenY);
+        int result = -1;
+
+        for (int i = 0; i < paintableTiles.size; i++) {
+            GameObject instance = paintableTiles.get(i);
+            BoundingBox box = new BoundingBox();
+            instance.calculateBoundingBox(box);
+
+            if(Intersector.intersectRayBoundsFast(ray, box)){
+                result = i;
+                for(Material material : instance.materials){
+                    material.set(ColorAttribute.createDiffuse(selectedColor));
+                    paintBlendingAttribute.opacity = 0.6f;
+                    material.set(paintBlendingAttribute);
+                }
+            }
+        }
+
+        if(result < 0){
+            int wallIndex = getSelectedWall(screenX, screenY);
+
+            if(wallIndex >= 0){
+                Wall wall = (Wall) instances.get(wallIndex);
+
+                for(Material material : wall.materials){
+                    material.set(ColorAttribute.createDiffuse(selectedColor));
+                    paintBlendingAttribute.opacity = 0.6f;
+                    material.set(paintBlendingAttribute);
+                }
+            }
+
+        }
+        return result;
+    }
 
 }
