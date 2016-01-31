@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -29,7 +28,6 @@ import com.badlogic.gdx.utils.Array;
 import com.ggwp.interiordesigner.RoomWithHUD;
 import com.ggwp.interiordesigner.manager.SkinManager;
 
-import sun.awt.HorizBagLayout;
 
 
 /**
@@ -164,15 +162,6 @@ public class Catalog extends Window {
             }
         };
 
-        EventListener tvRackClickListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                furnituresScrollPane.remove();
-                furnituresScrollPane = new ScrollPane(createTVRackContainer());
-                furnituresContainer.add(furnituresScrollPane);
-            }
-        };
-
         EventListener washingMachineClickListener = new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -213,7 +202,7 @@ public class Catalog extends Window {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 furnituresScrollPane.remove();
-                furnituresScrollPane = new ScrollPane(createSideTableContainer());
+                furnituresScrollPane = new ScrollPane(createTablesContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
         };
@@ -240,25 +229,7 @@ public class Catalog extends Window {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 furnituresScrollPane.remove();
-                furnituresScrollPane = new ScrollPane(createSofaContainer());
-                furnituresContainer.add(furnituresScrollPane);
-            }
-        };
-
-        EventListener coffeeTableClickListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                furnituresScrollPane.remove();
-                furnituresScrollPane = new ScrollPane(createCoffeeTableContainer());
-                furnituresContainer.add(furnituresScrollPane);
-            }
-        };
-
-        EventListener vanityTableClickListener = new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                furnituresScrollPane.remove();
-                furnituresScrollPane = new ScrollPane(createVanityTableContainer());
+                furnituresScrollPane = new ScrollPane(createSeatingsContainer());
                 furnituresContainer.add(furnituresScrollPane);
             }
         };
@@ -309,18 +280,15 @@ public class Catalog extends Window {
         };
 
         TextButton.TextButtonStyle defaultTextButtonStyle = SkinManager.getDefaultTextButtonStyle();
-        categories.addActor(createCategoryContainer("Bed with pillows", "furnitures/categories/bed.png", defaultTextButtonStyle, bedsClickListener));
+        categories.addActor(createCategoryContainer("Beds", "furnitures/categories/bed.png", defaultTextButtonStyle, bedsClickListener));
         categories.addActor(createCategoryContainer("Refrigerators", "furnitures/categories/refrigerator.png", defaultTextButtonStyle, refrigeratorClickListener));
         categories.addActor(createCategoryContainer("Ovens", "furnitures/categories/oven.png", defaultTextButtonStyle, ovenClickListener));
         categories.addActor(createCategoryContainer("Frames", "furnitures/categories/frame.png", defaultTextButtonStyle, framesClickListener));
-        categories.addActor(createCategoryContainer("Side Tables", "furnitures/categories/sidetable.png", defaultTextButtonStyle, sideTableClickListener));
+        categories.addActor(createCategoryContainer("Tables", "furnitures/categories/sidetable.png", defaultTextButtonStyle, sideTableClickListener));
         categories.addActor(createCategoryContainer("Vase", "furnitures/categories/vase.png", defaultTextButtonStyle, vaseClickListener));
         categories.addActor(createCategoryContainer("Lamps", "furnitures/categories/lamp.png", defaultTextButtonStyle, lampClickListener));
-        categories.addActor(createCategoryContainer("Dresser Cabinets/Drawers", "furnitures/categories/dresser.png", defaultTextButtonStyle, dresserClickListener));
-        categories.addActor(createCategoryContainer("Vanity Tables and Chairs", "furnitures/categories/vanitytable.png", defaultTextButtonStyle, vanityTableClickListener));
-        categories.addActor(createCategoryContainer("Sofa Set/Couch", "furnitures/categories/sofa.png", defaultTextButtonStyle, sofaClickListener));
-        categories.addActor(createCategoryContainer("Coffee Tables", "furnitures/categories/coffeetable.png", defaultTextButtonStyle, coffeeTableClickListener));
-        categories.addActor(createCategoryContainer("Tv Rack", "furnitures/categories/tvrack.png", defaultTextButtonStyle, tvRackClickListener));
+        categories.addActor(createCategoryContainer("Cabinets", "furnitures/categories/dresser.png", defaultTextButtonStyle, dresserClickListener));
+        categories.addActor(createCategoryContainer("Seatings", "furnitures/categories/sofa.png", defaultTextButtonStyle, sofaClickListener));
         categories.addActor(createCategoryContainer("Book Shelves", "furnitures/categories/book.png", defaultTextButtonStyle, bookShelfClickListener));
         categories.addActor(createCategoryContainer("Mirrors", "furnitures/categories/mirror.png", defaultTextButtonStyle, mirrorClickListener));
         categories.addActor(createCategoryContainer("Dining Set", "furnitures/categories/dining.png", defaultTextButtonStyle, diningClickListener));
@@ -380,18 +348,11 @@ public class Catalog extends Window {
         main.add(new Label("Bed with pillow/mattresses", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        ClickListener listener = createListener("furnitures/bed/bed1/bed1.obj", GameObject.TYPE_FLOOR_OBJECT);
-        main.add(createFurnitureCard("b1", "Common/no-image.png", createListener("furnitures/bed/bed1/bed1.obj",GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("b2", "Common/no-image.png", createListener("furnitures/bed/bed2/bed2.obj",GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("b3", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("Bed with Quilt", "furnitures/bed/1/1.jpg", createListener("furnitures/bed/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Bed with Quilt(double)", "furnitures/bed/2/2.jpg", createListener("furnitures/bed/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Alpine Bed(queen)", "furnitures/bed/3/3.jpg", createListener("furnitures/bed/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("b4", "Common/no-image.png", listener));
-        main.add(createFurnitureCard("b5", "Common/no-image.png", listener));
-        main.add(createFurnitureCard("b6", "Common/no-image.png", listener));
-        main.row();
-        main.add(createFurnitureCard("b7", "Common/no-image.png", listener));
-        main.add(createFurnitureCard("b8", "Common/no-image.png", listener));
-        main.add(createFurnitureCard("b9", "Common/no-image.png", listener));
+        main.add(createFurnitureCard("Alpine Bed(single)", "furnitures/bed/4/4.jpg", createListener("furnitures/bed/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
         return new Container(main);
     }
@@ -404,17 +365,11 @@ public class Catalog extends Window {
         main.add(new Label("Frames", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("f1", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f2", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f3", "Common/no-image.png", null));
+        main.add(createFurnitureCard("Quadrp Grunge", "furnitures/frames/1/1.jpg", createListener("furnitures/frames/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Tenor", "furnitures/frames/2/2.jpg", createListener("furnitures/frames/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("The Kissing Custom", "furnitures/frames/3/3.jpg", createListener("furnitures/frames/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("f4", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f5", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f6", "Common/no-image.png", null));
-        main.row();
-        main.add(createFurnitureCard("f7", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f8", "Common/no-image.png", null));
-        main.add(createFurnitureCard("f9", "Common/no-image.png", null));
+        main.add(createFurnitureCard("Cyndi", "furnitures/frames/4/4.jpg", createListener("furnitures/frames/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
 
         return new Container(main);
     }
@@ -445,31 +400,9 @@ public class Catalog extends Window {
         main.add(new Label("Televisions", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("TV " + i, "furnitures/tv/" + i + ".png", null));
+        main.add(createFurnitureCard("TV with audio", "furnitures/tv/1/1.jpg", createListener("furnitures/tv/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Samsung Smart LED 4K TV", "furnitures/tv/2/2.jpg", createListener("furnitures/tv/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
-        return new Container(main);
-    }
-
-    private Container createTVRackContainer(){
-        Table main = new Table();
-        main.setFillParent(true);
-        main.defaults().left().pad(20f).padRight(0);
-        main.columnDefaults(2).padRight(20f);
-        main.add(new Label("TV Racks", SkinManager.getDefaultLabelStyle())).colspan(3);
-        main.row();
-
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("TV Rack " + i, "furnitures/tvrack/" + i + ".png", null));
-
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
@@ -499,14 +432,11 @@ public class Catalog extends Window {
         main.add(new Label("Vases", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Vase " + i, "furnitures/vase/" + i + ".png",
-                    createListener("furnitures/vase/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Batur ", "furnitures/vase/1/1.jpg", createListener("furnitures/vase/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Plain White", "furnitures/vase/2/2.jpg", createListener("furnitures/vase/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Silver ", "furnitures/vase/3/3.jpg", createListener("furnitures/vase/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
@@ -582,22 +512,22 @@ public class Catalog extends Window {
         return new Container(main);
     }
 
-    private Container createSideTableContainer(){
+    private Container createTablesContainer(){
         Table main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Side Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.add(new Label("Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Side Table " + i, "furnitures/sidetable/" + i + ".png",
-                    createListener("furnitures/tables/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Walnut coffee table", "furnitures/tables/1/1.jpg", createListener("furnitures/tables/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Meja rias", "furnitures/tables/2/2.jpg", createListener("furnitures/tables/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("IKEA BUSKBO Coffee table", "furnitures/tables/3/3.jpg", createListener("furnitures/tables/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Vanity Table", "furnitures/tables/4/4.jpg", createListener("furnitures/tables/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Shaker-Style Side Table", "furnitures/tables/5/5.jpg", createListener("furnitures/tables/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Console Table", "furnitures/tables/5/5.jpg", createListener("furnitures/tables/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
@@ -609,32 +539,31 @@ public class Catalog extends Window {
         main.add(new Label("Lamps", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Lamp " + i, "furnitures/lamps/1.jpg",
-                    createListener("furnitures/lamps/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Vintage", "furnitures/lamps/1/1.jpg", createListener("furnitures/lamps/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Giorgetti Planet ", "furnitures/lamps/2/2.jpg", createListener("furnitures/lamps/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Wooden Wall Mounted Lamp ", "furnitures/lamps/3/3.jpg", createListener("furnitures/lamps/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
-    private Container createSofaContainer(){
+    private Container createSeatingsContainer(){
         Table main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Sofa/Couches", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.add(new Label("Seatings", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Sofa " + i, "furnitures/sofa/" + i + ".png", null));
+        main.add(createFurnitureCard("Long Black", "furnitures/sofa/1/1.jpg", createListener("furnitures/sofa/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Charcoal", "furnitures/sofa/2/2.jpg", createListener("furnitures/sofa/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Tufted couch", "furnitures/sofa/3/3.jpg", createListener("furnitures/sofa/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Soft Seat Lounge Reception Chair", "furnitures/sofa/4/4.jpg", createListener("furnitures/sofa/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Walnut Sofa Set", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Single Walnut Sofa", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Walnut Sofa", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/7/7.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
@@ -643,55 +572,19 @@ public class Catalog extends Window {
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Dressers", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.add(new Label("Cabinets", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Dresser " + i, "furnitures/dresser/" + i + ".png",
-                    createListener("furnitures/dresser/1/1.obj",GameObject.TYPE_FLOOR_OBJECT)));
-
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
+        main.add(createFurnitureCard("Solid Wood(medium)", "furnitures/cabinets/1/1.jpg", createListener("furnitures/cabinets/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Solid Wood(large)", "furnitures/cabinets/2/2.jpg", createListener("furnitures/cabinets/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Solid Wood(small)", "furnitures/cabinets/3/3.jpg", createListener("furnitures/cabinets/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Cafelle Wood", "furnitures/cabinets/4/4.jpg", createListener("furnitures/cabinets/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Corner Dresser", "furnitures/cabinets/5/5.jpg", createListener("furnitures/cabinets/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
-    private Container createCoffeeTableContainer(){
-        Table main = new Table();
-        main.setFillParent(true);
-        main.defaults().left().pad(20f).padRight(0);
-        main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Coffee Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
-        main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Coffee Table " + i, "furnitures/coffeetable/" + i + ".png", null));
-
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
-        return new Container(main);
-    }
-
-    private Container createVanityTableContainer(){
-        Table main = new Table();
-        main.setFillParent(true);
-        main.defaults().left().pad(20f).padRight(0);
-        main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Vanity Tables", SkinManager.getDefaultLabelStyle())).colspan(3);
-        main.row();
-
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Vanity Table " + i, "furnitures/vanitytable/" + i + ".png", createListener("furnitures/chair/chair"+i+".obj",GameObject.TYPE_FLOOR_OBJECT)));
-
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
-        return new Container(main);
-    }
 
     private Container createBookShelfContainer(){
         Table main = new Table();
@@ -735,17 +628,17 @@ public class Catalog extends Window {
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Dinings", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.add(new Label("Dining Sets", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Dining " + i, "furnitures/dining/" + i + ".png",
-                    createListener("furnitures/tables/tb1/tb1.obj",GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Restaurant Table Setting(4)", "furnitures/dining/1/1.jpg", createListener("furnitures/dining/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Restaurant Table Setting(6)", "furnitures/dining/2/2.jpg", createListener("furnitures/dining/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Picnic Table", "furnitures/dining/3/3.jpg", createListener("furnitures/dining/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Fine Dining", "furnitures/dining/4/4.jpg", createListener("furnitures/dining/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Round Dining", "furnitures/dining/5/5.jpg", createListener("furnitures/dining/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Terrace Dining", "furnitures/dining/6/6.jpg", createListener("furnitures/dining/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
