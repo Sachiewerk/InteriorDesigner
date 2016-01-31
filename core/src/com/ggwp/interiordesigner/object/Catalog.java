@@ -526,7 +526,7 @@ public class Catalog extends Window {
         main.row();
         main.add(createFurnitureCard("Vanity Table", "furnitures/tables/4/4.jpg", createListener("furnitures/tables/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("Shaker-Style Side Table", "furnitures/tables/5/5.jpg", createListener("furnitures/tables/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Console Table", "furnitures/tables/5/5.jpg", createListener("furnitures/tables/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Console Table", "furnitures/tables/6/6.jpg", createListener("furnitures/tables/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
         return new Container(main);
     }
@@ -591,16 +591,11 @@ public class Catalog extends Window {
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(20f);
-        main.add(new Label("Book Shelfs", SkinManager.getDefaultLabelStyle())).colspan(3);
+        main.add(new Label("Book Shelves", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Book Shelf " + i, "furnitures/wallclock/" + i + ".png", null));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
+        main.add(createFurnitureCard("Corner Dresser", "furnitures/cabinets/5/5.jpg", createListener("furnitures/bookshelves/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
