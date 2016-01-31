@@ -454,7 +454,7 @@ public class Catalog extends Window {
         main.add(new Label("Electric Fans", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("Batur ", "furnitures/electricfan/1/1.jpg", createListener("furnitures/electricfan/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Wall fan", "furnitures/electricfan/1/1.jpg", createListener("furnitures/electricfan/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
 
         return new Container(main);
     }
