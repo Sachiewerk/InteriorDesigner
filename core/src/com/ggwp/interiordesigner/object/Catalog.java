@@ -595,7 +595,7 @@ public class Catalog extends Window {
         main.row();
 
 
-        main.add(createFurnitureCard("Corner Dresser", "furnitures/cabinets/5/5.jpg", createListener("furnitures/bookshelves/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Corner Dresser", "furnitures/bookshelves/1/1.jpg", createListener("furnitures/bookshelves/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
