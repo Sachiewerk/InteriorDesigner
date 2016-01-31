@@ -1,8 +1,6 @@
 package com.ggwp.interiordesigner;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
@@ -23,13 +21,11 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
@@ -37,7 +33,6 @@ import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
 import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape;
 import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
@@ -47,12 +42,9 @@ import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -68,13 +60,9 @@ import com.ggwp.interiordesigner.object.RoomDesignData;
 import com.ggwp.interiordesigner.object.SaveFile;
 import com.ggwp.interiordesigner.object.Wall;
 import com.ggwp.utils.ToolUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Raymond on 1/19/2016.
@@ -139,12 +127,10 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     protected PerspectiveCamera camera;
-    protected SpriteBatch batch;
     protected ModelBatch modelBatch;
     protected AssetManager assets;
     protected Environment environment;
     protected boolean loading;
-    private ShapeRenderer shapeRenderer;
 
     private SpriteBatch spriteBatch;
     private Texture background;
@@ -154,14 +140,11 @@ public class RoomWithHUD extends AppScreen  {
 
     protected Stage stage;
     private Vector3 position = new Vector3();
-    private Quaternion rotation = new Quaternion();
     private Vector3 origPosition = new Vector3();
     private Quaternion origRotation = new Quaternion();
 
 
     private int selected = -1,selecting = -1;
-    private Material selectionMaterial;
-    private Material originalMaterial;
 
     private int tranformTool = 0;
 
@@ -196,7 +179,9 @@ public class RoomWithHUD extends AppScreen  {
     private void initEnvironment(){
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(Color.WHITE, 40f, 65f, -50f));
+        environment.add(new DirectionalLight().set(Color.WHITE, -25f, 40f, 20f));
+        environment.add(new DirectionalLight().set(Color.WHITE, 90f, 40f, 20f));
     }
 
     private void initCamera(){
@@ -231,13 +216,13 @@ public class RoomWithHUD extends AppScreen  {
 
         initEnvironment();
         initCamera();
+
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
 
         initHUD();
 
         spriteBatch = new SpriteBatch();
         modelBatch = new ModelBatch();
-        shapeRenderer = new ShapeRenderer();
 
 
         filePath.clear();
@@ -264,11 +249,16 @@ public class RoomWithHUD extends AppScreen  {
             origWallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.6f, 1f, 0.5f)));
             BlendingAttribute ba = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             ba.opacity = 0.4f;
+
+
             origWallMaterial.set(ba);
 
             for(Wall wall : walls){
+                BoundingBox boundingBox = new BoundingBox();
+                wall.calculateBoundingBox(boundingBox).mul(wall.transform);
                 Vector3 pos = new Vector3();
-                wall.transform.getTranslation(pos);
+
+                boundingBox.getCorner001(pos);
                 wallY = pos.y;
 
                 if(wall.isSide()){
@@ -294,12 +284,6 @@ public class RoomWithHUD extends AppScreen  {
             }
         }
         background = new Texture(backgroundSource);
-
-        BlendingAttribute selectedBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        selectedBlendingAttrib.opacity = 0.5f;
-        selectionMaterial = new Material(ColorAttribute.createDiffuse(new Color(1f, 0.647f, 0f,0.6f)));
-        selectionMaterial.set(selectedBlendingAttrib);
-        originalMaterial = new Material();
     }
 
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
@@ -320,13 +304,12 @@ public class RoomWithHUD extends AppScreen  {
             backgroundSource= Gdx.files.absolute(rdata.getBackgroundImage());
         }
         else{
-            backgroundSource= Gdx.files.internal("Rooms/Images/" + rdata.getBackgroundImage());
+            backgroundSource= Gdx.files.internal(rdata.getBackgroundImage());
         }
 
 
 
-        Array<Wall> walls = room.getWalls();
-        init(camera,backgroundSource,walls);
+        init(camera,backgroundSource,room.getWalls());
     }
 
     private void removeWallTexture(Wall wall){
@@ -418,7 +401,7 @@ public class RoomWithHUD extends AppScreen  {
         saveButton.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10 * 2, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
         cancellButon.setBounds(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 10, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
 
-       final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
+        final Catalog c = Catalog.construct(stage,assets,instances, (InputMultiplexer) Gdx.input.getInputProcessor(),this);
 
         addButton.addListener(new ClickListener() {
             @Override
@@ -587,7 +570,7 @@ public class RoomWithHUD extends AppScreen  {
             }
         });
 
-        Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight()/10, Pixmap.Format.RGBA8888);
+        Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
         Color col = Color.WHITE;//Color.valueOf("#3498db");
         whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
         whitePixmap.fill();
@@ -647,8 +630,8 @@ public class RoomWithHUD extends AppScreen  {
 
 
     public void addObject(String assetName,Model model, int type,float[] translation,
-            float[] scale,
-            float[] rotation,float[] val){
+                          float[] scale,
+                          float[] rotation,float[] val){
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
@@ -664,11 +647,12 @@ public class RoomWithHUD extends AppScreen  {
 
 
         if(type == GameObject.TYPE_WALL_OBJECT){
-            object.transform.translate(camera.position.x, (backWallHeight / 2), dimension.z);
+            object.transform.translate(camera.position.x, wallY + (backWallHeight / 2), dimension.z);
         }else{
-            object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2), (camera.position.z / 2));
+            object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2f), dimension.z + 1);
         }
 
+        System.out.println(dimension.y + (dimension.y * 2));
 
 
         if(val!=null){
@@ -703,11 +687,16 @@ public class RoomWithHUD extends AppScreen  {
 
     private void doneLoading () {
         loading = false;
+        if(!assets.isLoaded("furnitures/bed/3/3.obj")){
+            assets.load("furnitures/bed/3/3.obj", Model.class);
+        }
+
+        assets.finishLoadingAsset("furnitures/bed/3/3.obj");
+        addObject("furnitures/bed/3/3.obj",assets.get("furnitures/bed/3/3.obj", Model.class), GameObject.TYPE_FLOOR_OBJECT);
     }
 
     @Override
     public void render(float delta) {
-
         if ( back)
         {
             Main.getInstance().setScreen(new MenuScreen());
@@ -761,14 +750,14 @@ public class RoomWithHUD extends AppScreen  {
         if(screenY <= toolsPanelYBounds){
             return  super.touchDown(screenX,screenY,pointer,button);
         }
-            selecting = getSelectedObject(screenX, screenY);
-            selected = selecting;
-            /*if(selecting >= 0) {
-                instances.get(selecting).transform.getTranslation(origPosition);
-                instances.get(selecting).transform.getRotation(origRotation);
-            }*/
+        selecting = getSelectedObject(screenX, screenY);
+        selected = selecting;
+        if(selecting >= 0) {
+            instances.get(selecting).transform.getTranslation(origPosition);
+            instances.get(selecting).transform.getRotation(origRotation);
+        }
 
-            return selecting >= 0;
+        return selecting >= 0;
     }
 
     @Override
@@ -812,7 +801,7 @@ public class RoomWithHUD extends AppScreen  {
                 }
                 gameObject.transform.setTranslation(pos);
 
-                System.out.println("x = " + pos.x + " y = " + pos.y + " z = " + pos.z);
+//                System.out.println("x = " + pos.x + " y = " + pos.y + " z = " + pos.z);
             } else {
                 handleFloorObjectDrag(gameObject, ray);
             }
@@ -879,6 +868,7 @@ public class RoomWithHUD extends AppScreen  {
                 BoundingBox boundingBox = new BoundingBox();
                 wall.calculateBoundingBox(boundingBox).mul(wall.transform);
 
+
                 Vector3 cornerA = new Vector3();
                 Vector3 cornerB = new Vector3();
                 Vector3 cornerC = new Vector3();
@@ -922,7 +912,7 @@ public class RoomWithHUD extends AppScreen  {
     }
 
     private void handleFloorObjectDrag(GameObject gameObject, Ray ray) {
-        float level = wallY + (gameObject.dimensions.y / 2);
+        float level = wallY + (gameObject.dimensions.y / 2f);
         final float distance = (level - ray.origin.y) / ray.direction.y;
 
         position.set(ray.direction).scl(distance).add(ray.origin);
