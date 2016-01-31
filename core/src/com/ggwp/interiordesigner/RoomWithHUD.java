@@ -687,12 +687,6 @@ public class RoomWithHUD extends AppScreen  {
 
     private void doneLoading () {
         loading = false;
-        if(!assets.isLoaded("furnitures/bed/3/3.obj")){
-            assets.load("furnitures/bed/3/3.obj", Model.class);
-        }
-
-        assets.finishLoadingAsset("furnitures/bed/3/3.obj");
-        addObject("furnitures/bed/3/3.obj",assets.get("furnitures/bed/3/3.obj", Model.class), GameObject.TYPE_FLOOR_OBJECT);
     }
 
     @Override
