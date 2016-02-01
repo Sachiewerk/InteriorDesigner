@@ -101,7 +101,28 @@ public class ToolUtils {
 
     private static final String SAVED_ROOM_DESIGN_DIRECTORY = "/savedrooms/";
     private static final String SAVED_FILE_DIRECTORY = "/rooms/";
+    private static final String EMPTY_ROOM_DESIGN_DIRECTORY = "/Rooms/Json/";
 
+    public static void saveEmptyRoomDataDesign(RoomDesignData data) {
+        try {
+            System.out.println("Saving room data design..");
+
+            FileHandle directory = Gdx.files.internal(EMPTY_ROOM_DESIGN_DIRECTORY);
+            createDirectoryIfNotExists(directory);
+
+            String nextFileName = getRoomNextFileName(directory);
+            System.out.println(nextFileName);
+
+            FileHandle newFile = Gdx.files.internal(EMPTY_ROOM_DESIGN_DIRECTORY + nextFileName);
+
+            System.out.println("Saving file..");
+            Gson gson = new Gson();
+            String json = gson.toJson(data);
+            newFile.writeString(json, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void saveRoomDataDesign(RoomDesignData data) {
         try {
             System.out.println("Saving room data design..");

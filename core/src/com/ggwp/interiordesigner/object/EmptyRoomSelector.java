@@ -103,7 +103,7 @@ public class EmptyRoomSelector extends Window {
                 if (selectedTemplate != null) {
                     stage.getActors().removeValue(instance, true);
                     Main.getInstance().getScreen().dispose();
-                    FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
+                    selectedTemplate.data.setBackgroundImage("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
                     RoomWithHUD roomWithHUD = new RoomWithHUD(null, selectedTemplate.data);
                     Main.getInstance().setScreen(roomWithHUD);
                 }
@@ -141,8 +141,8 @@ public class EmptyRoomSelector extends Window {
         if (dir.exists()) {
             for (FileHandle handle : dir.list()) {
                 String json = handle.readString();
-                RoomDesignData data = gson.fromJson(json, RoomDesignData.class);
-                roomDataList.add(data);
+                SaveFile data = gson.fromJson(json, SaveFile.class);
+                roomDataList.add(data.roomDesignData);
             }
         }
 

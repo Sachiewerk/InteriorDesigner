@@ -214,7 +214,7 @@ public class RoomSetupScreen extends AppScreen {
         RoomDesignData data = new RoomDesignData();
 
         System.out.println("Saving..");
-        data.setBackgroundImage(fileHandle.file().getAbsolutePath());
+        data.setBackgroundImage(fileHandle.name());
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         data.setVertices(room.getVertices());
@@ -222,7 +222,7 @@ public class RoomSetupScreen extends AppScreen {
         data.setLeftWallVal(room.getLeftWall().transform.getValues());
         data.setBackWallVal(room.getBackWall().transform.getValues());
         data.setRightWallVal(room.getRightWall().transform.getValues());
-        ToolUtils.saveRoomDataDesign(data);
+        ToolUtils.saveEmptyRoomDataDesign(data);
         saveCurrentDesign = false;
     }
 
@@ -264,6 +264,7 @@ public class RoomSetupScreen extends AppScreen {
                         ToolUtils.createMapFromList(tests));
                 Main.getInstance().setScreen(new RoomWithHUD(camera, room.toRoomDesignData(fileHandle)));
                 dispose();
+                //saveCurrentDesign = true;
             }
         });
 
