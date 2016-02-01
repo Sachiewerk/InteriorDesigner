@@ -42,6 +42,8 @@ import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.Room;
 import com.ggwp.interiordesigner.object.RoomDesignData;
+import com.ggwp.interiordesigner.object.SaveFile;
+import com.ggwp.interiordesigner.object.SaveFileLoader;
 import com.ggwp.utils.ToolUtils;
 
 import java.math.RoundingMode;
@@ -186,7 +188,13 @@ public class RoomSetupScreen extends AppScreen {
 
         stage.act();
         stage.draw();
+
+        if(saveCurrentDesign){
+            saveCurrentRoomDesign();
+        }
     }
+
+    private boolean saveCurrentDesign = false;
 
     private RoomDesignData getRoomDesignData(){
         RoomDesignData data = new RoomDesignData();
@@ -200,12 +208,15 @@ public class RoomSetupScreen extends AppScreen {
 
     private void saveCurrentRoomDesign(){
         RoomDesignData data = new RoomDesignData();
+
+        System.out.println("Saving..");
         data.setBackgroundImage(fileHandle.name());
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         data.setVertices(room.getVertices());
         data.setName(name);
         ToolUtils.saveRoomDataDesign(data);
+        saveCurrentDesign = false;
     }
 
     @Override
@@ -232,23 +243,15 @@ public class RoomSetupScreen extends AppScreen {
 
 
         ImageButton doneButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-
-        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
-
-        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         ImageButton backButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
 
         backButton.setBounds(5f, 10f, Gdx.graphics.getWidth()/7, Gdx.graphics.getHeight()/5);
-
-        doneButton.setBounds(Gdx.graphics.getWidth()-(Gdx.graphics.getWidth()/7)-5f, 10f, Gdx.graphics.getWidth()/7, Gdx.graphics.getHeight()/5);
+        doneButton.setBounds(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 7) - 5f, 10f, Gdx.graphics.getWidth() / 7, Gdx.graphics.getHeight() / 5);
 
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
-                RoomDesignData rdata = getRoomDesignData();
-
-                Main.getInstance().setScreen(new RoomWithHUD(camera, rdata));
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(), fileHandle));
                 dispose();
             }
         });

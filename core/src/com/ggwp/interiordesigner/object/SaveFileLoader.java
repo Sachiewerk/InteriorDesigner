@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -62,23 +60,23 @@ public class SaveFileLoader extends Window {
         this.setFillParent(true);
         this.setModal(true);
         this.align(Align.left);
-        initCategories();
+        loadSavedFiles();
     }
 
-    private void initCategories() {
+    private void loadSavedFiles() {
         Table layoutTable = new Table();
         layoutTable.setFillParent(true);
         layoutTable.defaults().left();
         layoutTable.columnDefaults(1).top().width(Gdx.graphics.getWidth());
 
-        ScrollPane furnituresScrollPane = new ScrollPane(createBedsContainer());
+        ScrollPane savedFilesScrollPane = new ScrollPane(createSavedFilesContainer());
 
-        Table furnituresContainer = new Table();
-        furnituresContainer.setFillParent(true);
-        furnituresContainer.left();
-        furnituresContainer.add(furnituresScrollPane);
+        Table savedFilesContainer = new Table();
+        savedFilesContainer.setFillParent(true);
+        savedFilesContainer.left();
+        savedFilesContainer.add(savedFilesScrollPane);
 
-        HorizontalGroup hg = new HorizontalGroup();
+        HorizontalGroup horizontalGroup = new HorizontalGroup();
 
         Table table = new Table();
 
@@ -86,113 +84,92 @@ public class SaveFileLoader extends Window {
         table.columnDefaults(2).fillX();
 
         ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-
-        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
-
-        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
-        //cancelButton.background(SkinManager.getDefaultCancelTextButtonStyle().up);
-        TextButton tb = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
+        ImageButton deleteButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
 
-        tb.padLeft(10f);
-        tb.getLabel().setAlignment(Align.left);
+        TextButton textButton = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
 
-        //table.setWidth(Gdx.graphics.getWidth());
-        table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
+        textButton.padLeft(10f);
+        textButton.getLabel().setAlignment(Align.left);
+
+        table.add(textButton).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 3);
         table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
-        //table.pad(10);
-        //table.background(SkinManager.getDefaultSkin().getDrawable("optionBackground"));
-        //table.setWidth(500);
+        table.add(deleteButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
 
-        okButton.addListener(
-                new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        if (selectedFile != null) {
+        okButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                loadSelectedSavedFile();
+            }
+        });
 
-                            stage.getActors().removeValue(instance, true);
-                            Main.getInstance().getScreen().dispose();
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.getActors().removeValue(instance, true);
+                ToolUtils.initInputProcessors(stage);
+            }
+        });
 
-                            Gson gson = new GsonBuilder().serializeNulls().create();
+        deleteButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Deleting..");
 
-                            System.out.println("reading..");
-                            String json = new String(selectedFile.data.readString());
-                            SaveFile data = gson.fromJson(json, SaveFile.class);
+                if(selectedFile != null){
+                    selectedFile.data.delete();
+                }
+            }
+        });
 
-                            //HashMap<String,Object> map= new HashMap<String,Object>();
-                            //List<Map<String,Object>> objs = (List<Map<String, Object>>) data.get("objects");
-                            List<SaveFile.Object> objs = data.objects;
-
-                            RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignDataData);
-                            Main.getInstance().setScreen(roomWithHUD);
-
-                            if (objs != null) {
-                                for (SaveFile.Object obj :
-                                        objs) {
-
-                                    if (obj.assetName != null) {
-                                        System.out.println("loading.." + obj.assetName);
-                                        roomWithHUD.addObject(obj);
-                                    }
-
-
-                                }
-                            }
-
-//                    data.setName(data.getBackgroundImage());
-                            // roomDataList.add(data);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-                        }
-                    }
-                });
-
-        cancelButton.addListener(
-                new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        stage.getActors().removeValue(instance, true);
-                        ToolUtils.initInputProcessors(stage);
-                    }
-                });
-
-        hg.addActor(table);
-        //hg.setFillParent(true);
-        //hg.setWidth(500);
-        layoutTable.add(hg);
+        horizontalGroup.addActor(table);
+        layoutTable.add(horizontalGroup);
         layoutTable.row();
-        layoutTable.add(furnituresContainer);
-        hg.toFront();
+        layoutTable.add(savedFilesContainer);
+        horizontalGroup.toFront();
         this.add(layoutTable);
     }
 
-    private Container createBedsContainer() {
-        Table main = new Table();
+    private void loadSelectedSavedFile() {
+        if (selectedFile != null) {
+            stage.getActors().removeValue(instance, true);
+            Main.getInstance().getScreen().dispose();
 
-        //main.background(SkinManager.getDefaultSkin().getDrawable("blackBackground"));
+            Gson gson = new GsonBuilder().serializeNulls().create();
+
+            String json = selectedFile.data.readString();
+            SaveFile data = gson.fromJson(json, SaveFile.class);
+
+            List<SaveFile.Object> objs = data.objects;
+
+            RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignData);
+            Main.getInstance().setScreen(roomWithHUD);
+
+            if (objs != null) {
+                for (SaveFile.Object obj : objs) {
+                    if (obj.assetName != null) {
+                        System.out.println("loading.." + obj.assetName);
+                        roomWithHUD.addObject(obj);
+                    }
+                }
+            }
+        }
+    }
+
+    private Container createSavedFilesContainer() {
+        Table main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(30f);
-        //main.setHeight(Gdx.graphics.getHeight());
-        //main.setFillParent(true);
         main.row();
 
-        List<FileHandle>  saveFileDataList = new ArrayList<FileHandle>();
+        List<FileHandle> saveFileDataList = new ArrayList<FileHandle>();
 
-        //Gson gson = new GsonBuilder().serializeNulls().create();
         FileHandle dir = Gdx.files.absolute(ToolUtils.getSaveFileDirAbsolutePath());
         if (dir.exists()) {
             for (FileHandle handle : dir.list()) {
-//                try {
-                    //String json = new String(handle.readString());
-                    //RoomDesignData data = gson.fromJson(json, RoomDesignData.class);
-//                    data.setName(data.getBackgroundImage());
-                     saveFileDataList.add(handle);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                saveFileDataList.add(handle);
             }
         }
 
@@ -202,47 +179,22 @@ public class SaveFileLoader extends Window {
             if (++i % 3 == 0)
                 main.row();
         }
-        while(i<9){
-            main.add(createEmptyData());
-            if (++i % 3 == 0)
-                main.row();
-        }
-
-
         return new Container(main);
     }
-
-    private Container createEmptyData() {
-        SaveFilePanel main = new SaveFilePanel(null);
-
-//        final String name = data.getName();
-
-
-//        templates.put(data.getName(), main);
-        return new Container(main);
-    }
-
 
     private Container createSaveFileData(final FileHandle data) {
         SaveFilePanel main = new SaveFilePanel(data);
 
-//        final String name = data.getName();
-
         main.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Selected:" + templates.get(data.name()));
-
                 if (selectedFile != null) {
                     selectedFile.setIsSelected(false);
                 }
-
                 selectedFile = templates.get(data.name());
                 templates.get(data.name()).setIsSelected(true);
             }
         });
-
-//        templates.put(data.getName(), main);
         templates.put(data.name(), main);
         return new Container(main);
     }
@@ -265,28 +217,24 @@ public class SaveFileLoader extends Window {
         public SaveFilePanel(FileHandle data) {
             super();
             this.data = data;
-            //this.setBackground((new Texture("Common/empty-thumb.png")));
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
             //FileHandle handle = Gdx.files.internal("Rooms/Images/" + data.getBackgroundImage());
             Image image;
-            if(data==null){
+            if (data == null) {
                 image = new Image((new Texture("Common/empty-thumb.png")));
-            }
-            else {
+            } else {
                 image = new Image((new Texture("Common/room.png")));
             }
 
             add(image).width(cardSize).height(cardSize / (w / h));
 
-
-            if(data!=null) {
+            if (data != null) {
                 row();
-                add(new Label(data.name(), SkinManager.getDefaultLabelStyle()));
+                add(new Label(data.name().replace(".dat", ""), SkinManager.getDefaultLabelStyle()));
             }
-//            add(new Label(data.getName(), SkinManager.getDefaultLabelStyle()));
         }
     }
 }

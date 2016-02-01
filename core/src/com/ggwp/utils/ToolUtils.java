@@ -27,31 +27,31 @@ import java.util.Map;
  */
 public class ToolUtils {
 
-    public static <T> T getParamValue(Object source,Class<T> cls,String paramName){
-        if(source!=null&&source instanceof Map){
-            Map map = (Map)source;
-            if(map.containsKey(paramName)) {
+    public static <T> T getParamValue(Object source, Class<T> cls, String paramName) {
+        if (source != null && source instanceof Map) {
+            Map map = (Map) source;
+            if (map.containsKey(paramName)) {
                 if (cls.isInstance(map.get(paramName))) return cls.cast(map.get(paramName));
             }
         }
         return null;
     }
 
-    public static  Map<String,Object> createMapFromList(Object[][] arrays){
-        HashMap<String,Object> obj = new HashMap<String, Object>();
+    public static Map<String, Object> createMapFromList(Object[][] arrays) {
+        HashMap<String, Object> obj = new HashMap<String, Object>();
 
-        for (Object[] array:arrays
-             ) {
-            obj.put((String)array[0],array[1]);
+        for (Object[] array : arrays
+                ) {
+            obj.put((String) array[0], array[1]);
         }
 
         return obj;
 
     }
 
-    public static FileHandle findFileByAbsolutePath(String absolutePath){
+    public static FileHandle findFileByAbsolutePath(String absolutePath) {
 
-          Object[][] tests = {{"title", "test error"},
+        Object[][] tests = {{"title", "test error"},
                 {"message", absolutePath}};
         Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                 ToolUtils.createMapFromList(tests));
@@ -63,13 +63,13 @@ public class ToolUtils {
             files[i++] = fh.file();
         }*/
 
-        if(tmplate==null)
+        if (tmplate == null)
             return null;
 
         return tmplate;
     }
 
-    public static FileHandle fetchLatestSnapshot(){
+    public static FileHandle fetchLatestSnapshot() {
         System.out.println(Main.screenTemplateSaveDirectory);
 
         FileHandle[] tmplates = Gdx.files.absolute(Main.screenTemplateSaveDirectory).list();
@@ -80,10 +80,10 @@ public class ToolUtils {
             files[i++] = fh.file();
         }*/
 
-        if(tmplates==null)
+        if (tmplates == null)
             return null;
 
-        if(tmplates.length==0){
+        if (tmplates.length == 0) {
             return null;
         }
         Arrays.sort(tmplates, new Comparator<FileHandle>() {
@@ -93,7 +93,7 @@ public class ToolUtils {
             }
         });
 
-        for (FileHandle fhx:tmplates) {
+        for (FileHandle fhx : tmplates) {
             System.out.println(fhx.file().getName());
         }
         return tmplates[0];
@@ -102,7 +102,7 @@ public class ToolUtils {
     private static final String SAVED_ROOM_DESIGN_DIRECTORY = "/savedrooms/";
     private static final String SAVED_FILE_DIRECTORY = "/rooms/";
 
-    public static void saveRoomDataDesign(RoomDesignData data){
+    public static void saveRoomDataDesign(RoomDesignData data) {
         try {
             System.out.println("Saving room data design..");
 
@@ -124,52 +124,48 @@ public class ToolUtils {
     }
 
 
-    public static String getSaveFileDirAbsolutePath(){
+    public static String getSaveFileDirAbsolutePath() {
         return Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY;
     }
 
-    public static void saveRoomSetup(String name,GameObject[] gameObjs,RoomDesignData roomDesignData){
+    public static void saveRoomSetup(String name, GameObject[] gameObjs, RoomDesignData roomDesignData) {
         try {
             System.out.println("Saving room setup..");
-
             FileHandle directory = Gdx.files.external(Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY);
             createDirectoryIfNotExists(directory);
 
-
-            FileHandle newFile = Gdx.files.absolute(directory +"/"+ name);
-
+            FileHandle newFile = Gdx.files.absolute(directory + "/" + name);
             System.out.println("Saving file..");
             Gson gson = new Gson();
 
             SaveFile saveFile = new SaveFile();
-            saveFile.roomDesignDataData = roomDesignData;
+            saveFile.roomDesignData = roomDesignData;
 
-            for (GameObject obj: gameObjs
-                 ) {
+            for (GameObject obj : gameObjs) {
                 saveFile.addObject(obj);
             }
 
             String json = gson.toJson(saveFile);
             newFile.writeString(json, false);
 
-            System.out.println("File saved to : "+newFile);
+            System.out.println("File saved to : " + newFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static String getRoomNextFileName(FileHandle directory){
+    private static String getRoomNextFileName(FileHandle directory) {
         System.out.println("Getting room next file name..");
         Integer max = 0;
 
-        for(FileHandle fileHandle : directory.list()){
+        for (FileHandle fileHandle : directory.list()) {
             try {
                 Integer id = Integer.parseInt(fileHandle.nameWithoutExtension());
 
-                if(id > max){
+                if (id > max) {
                     max = id;
                 }
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
         }
@@ -178,27 +174,26 @@ public class ToolUtils {
 
     private static void createDirectoryIfNotExists(FileHandle directory) throws IOException {
         System.out.println("Checking directory..");
-        if(!directory.exists()){
+        if (!directory.exists()) {
             System.out.println("Creating directory..");
             directory.file().mkdirs();
         }
     }
 
-    public static  void initInputProcessors(Stage stage){
+    public static void initInputProcessors(Stage stage) {
         InputMultiplexer im = (InputMultiplexer) Gdx.input.getInputProcessor();
         im.getProcessors().clear();
-        im.addProcessor((AppScreen)Main.getInstance().getScreen());
+        im.addProcessor((AppScreen) Main.getInstance().getScreen());
         im.addProcessor(stage);
     }
 
-    public static void removeScreenInputProcessor(Stage stage){
+    public static void removeScreenInputProcessor(Stage stage) {
         InputMultiplexer im;
         Object o = Gdx.input.getInputProcessor();
-        if(o instanceof  InputMultiplexer){
-            im= (InputMultiplexer)o;
-        }
-        else{
-            im= new InputMultiplexer(stage,(AppScreen)Main.getInstance().getScreen());
+        if (o instanceof InputMultiplexer) {
+            im = (InputMultiplexer) o;
+        } else {
+            im = new InputMultiplexer(stage, (AppScreen) Main.getInstance().getScreen());
             Gdx.input.setInputProcessor(im);
         }
 

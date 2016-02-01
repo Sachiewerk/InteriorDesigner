@@ -8,25 +8,19 @@ import java.util.List;
 
 public class SaveFile {
 
-    public class Object {
-        public String assetName;
-        public float[] translation;
-        public float[] scale;
-        public float[] rotation;
-        public float[] val;
-        public int type;
-    }
-
-    public RoomDesignData roomDesignDataData;
-
+    public RoomDesignData roomDesignData;
     public List<Object> objects = new ArrayList<Object>();
 
     public void addObject(GameObject gameObject) {
-        Object obj = new Object();
-        obj.assetName = gameObject.assetName;
-        if (gameObject.assetName == null) {
+        if(gameObject.assetName == null){
             return;
         }
+        objects.add(serialize(gameObject));
+    }
+
+    public SaveFile.Object serialize(GameObject gameObject){
+        Object obj = new Object();
+        obj.assetName = gameObject.assetName;
 
         Vector3 trans = new Vector3();
         trans = gameObject.transform.getTranslation(trans);
@@ -45,8 +39,16 @@ public class SaveFile {
 
         obj.type = gameObject.type;
         obj.val = gameObject.transform.val;
-        objects.add(obj);
+        return obj;
     }
 
+    public class Object {
+        public String assetName;
+        public float[] translation;
+        public float[] scale;
+        public float[] rotation;
+        public float[] val;
+        public int type;
+    }
 
 }
