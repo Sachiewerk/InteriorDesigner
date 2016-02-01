@@ -1065,7 +1065,7 @@ public class RoomWithHUD extends AppScreen {
         float verticalTileCount = 8;
 
         BoundingBox box = new BoundingBox();
-        backWall.calculateBoundingBox(box);
+        backWall.calculateBoundingBox(box).mul(backWall.transform);
 
         float tileHeight = box.getHeight() / verticalTileCount;
         float tileWidth = box.getWidth() / horizontalTileCount;

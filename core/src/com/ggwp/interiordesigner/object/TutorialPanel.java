@@ -19,6 +19,11 @@ import com.ggwp.interiordesigner.MenuScreen;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.utils.Tweener.ImageButtonAccessor;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
@@ -37,29 +42,37 @@ public class TutorialPanel extends AppScreen {
     private Image a, b;
     private int curPos = 0;
     private TextButton backButton;
-    private FileHandle[] slides = null;
+    private List<FileHandle> slides = null;
     private boolean doneAnimating = true;
-
 
     public TutorialPanel() {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        slides = Gdx.files.internal("Tutorial").list();
+        slides = Arrays.asList(Gdx.files.internal("Tutorial").list());
 
-        if (slides.length == 0) {
+        Collections.sort(slides, new Comparator<FileHandle>() {
+            @Override
+            public int compare(FileHandle fa, FileHandle fb) {
+                String nameA = fa.name().replace(".png", "");
+                String nameB = fb.name().replace(".png", "");
+                return Integer.valueOf(nameA).compareTo(Integer.valueOf(nameB));
+            }
+        });
+
+        if (slides.isEmpty()) {
             return;
         }
 
-        a = new Image(new SpriteDrawable(new Sprite(new Texture(slides[0]))));
+        a = new Image(new SpriteDrawable(new Sprite(new Texture(slides.get(0)))));
         a.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         stage.addActor(a);
-        if (slides.length == 1) {
+        if (slides.size() == 1) {
             return;
         }
 
-        b = new Image(new SpriteDrawable(new Sprite(new Texture(slides[1]))));
+        b = new Image(new SpriteDrawable(new Sprite(new Texture(slides.get(1)))));
         b.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         stage.addActor(b);
@@ -109,10 +122,10 @@ public class TutorialPanel extends AppScreen {
         if (doneAnimating) {
             if (Math.abs(velocityX) > Math.abs(velocityY)) {
                 if (velocityX < 0) {
-                    if (curPos >= slides.length - 1){
+                    if (curPos >= slides.size() - 1){
                         return;
                     }
-                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[++curPos]))));
+                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides.get(++curPos)))));
 
                     a.toFront();
                     backButton.toFront();
@@ -125,13 +138,13 @@ public class TutorialPanel extends AppScreen {
                             doneAnimating = true;
                         }
                     });
-                    doneAnimating=false;
+                    doneAnimating = false;
                 } else if (velocityX > 0) {
                     if (curPos <= 0){
                         return;
                     }
 
-                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides[--curPos]))));
+                    a.setDrawable(new SpriteDrawable(new Sprite(new Texture(slides.get(--curPos)))));
                     a.toFront();
                     backButton.toFront();
                     Tween.from(a, ImageButtonAccessor.POSITION_X, 1f)
