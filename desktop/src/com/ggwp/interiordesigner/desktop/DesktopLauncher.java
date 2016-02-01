@@ -15,13 +15,13 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	static DesktopLauncher launcher;
 
-	public static void main (String[] arg) {
+	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		double multiplier=1;
-		config.width = (int)Math.floor(1024*multiplier);
-		config.height = (int)(576*multiplier);
+		double multiplier = 1;
+		config.width = (int) Math.floor(1024 * multiplier);
+		config.height = (int) (576 * multiplier);
 		launcher = new DesktopLauncher();
-			new LwjglApplication(new Main( launcher), config);
+		new LwjglApplication(new Main(launcher), config);
 	}
 
 	public void toast(String text) {
