@@ -70,72 +70,63 @@ public class EmptyRoomSelector extends Window {
         layoutTable.defaults().left();
         layoutTable.columnDefaults(1).top().width(Gdx.graphics.getWidth());
 
-        ScrollPane furnituresScrollPane = new ScrollPane(createBedsContainer());
+        ScrollPane savedFilesScrollPane = new ScrollPane(createSavedFilesContainer());
 
-        Table furnituresContainer = new Table();
-        furnituresContainer.setFillParent(true);
-        furnituresContainer.left();
-        furnituresContainer.add(furnituresScrollPane);
+        Table saveFilesContainer = new Table();
+        saveFilesContainer.setFillParent(true);
+        saveFilesContainer.left();
+        saveFilesContainer.add(savedFilesScrollPane);
+        saveFilesContainer.padTop(Gdx.graphics.getHeight() / 10);
 
         HorizontalGroup hg = new HorizontalGroup();
 
         Table table = new Table();
-
         table.defaults().left();
         table.columnDefaults(0).width(Gdx.graphics.getWidth() - 200f);
 
-
-
         ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-
-        //okButton.background(SkinManager.getDefaultSubmitTextButtonStyle().up);
-
-        //new ImageButton("OK", SkinManager.getDefaultSubmitTextButtonStyle());
         ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        okButton.setBackground(SkinManager.getDefaultSkin().getDrawable("defaultFillerSkin"));
+        cancelButton.setBackground(SkinManager.getDefaultSkin().getDrawable("defaultFillerSkin"));
 
         TextButton tb = new TextButton("Select Empty Room", SkinManager.getDefaultFillerButtonStyle());
-
         tb.padLeft(10f);
         tb.getLabel().setAlignment(Align.left);
-        //tb.setColor(Color.WHITE);
 
         table.add(tb).width(Gdx.graphics.getWidth() - (Gdx.graphics.getWidth() / 17) * 2);
         table.add(okButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
         table.add(cancelButton).width(Gdx.graphics.getWidth() / 17).height(Gdx.graphics.getHeight() / 10);
 
-        okButton.addListener(
-                new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        if (selectedTemplate != null) {
-                            stage.getActors().removeValue(instance, true);
-                            Main.getInstance().getScreen().dispose();
+        okButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (selectedTemplate != null) {
+                    stage.getActors().removeValue(instance, true);
+                    Main.getInstance().getScreen().dispose();
+                    FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
+                    RoomWithHUD roomWithHUD = new RoomWithHUD(null, new Room(selectedTemplate.data).getWalls(), handle);
+                    Main.getInstance().setScreen(roomWithHUD);
+                }
+            }
+        });
 
-                            FileHandle handle = Gdx.files.internal("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
-                            RoomWithHUD roomWithHUD = new RoomWithHUD(null, new Room(selectedTemplate.data).getWalls(), handle);
-                            Main.getInstance().setScreen(roomWithHUD);
-                        }
-                    }
-                });
-
-        cancelButton.addListener(
-                new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        stage.getActors().removeValue(instance, true);
-                        ToolUtils.initInputProcessors(stage);
-                    }
-                });
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.getActors().removeValue(instance, true);
+                ToolUtils.initInputProcessors(stage);
+            }
+        });
 
         hg.addActor(table);
         layoutTable.add(hg);
         layoutTable.row();
-        layoutTable.add(furnituresContainer);
+        layoutTable.add(saveFilesContainer);
         hg.toFront();
         this.add(layoutTable);
     }
 
-    private Container createBedsContainer() {
+    private Container createSavedFilesContainer() {
         Table main = new Table();
 
         main.setFillParent(true);
@@ -149,14 +140,9 @@ public class EmptyRoomSelector extends Window {
         FileHandle dir = Gdx.files.internal("Rooms/Json/");
         if (dir.exists()) {
             for (FileHandle handle : dir.list()) {
-//                try {
-                    String json = new String(handle.readString());
-                    RoomDesignData data = gson.fromJson(json, RoomDesignData.class);
-//                    data.setName(data.getBackgroundImage());
-                    roomDataList.add(data);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                String json = handle.readString();
+                RoomDesignData data = gson.fromJson(json, RoomDesignData.class);
+                roomDataList.add(data);
             }
         }
 
@@ -171,25 +157,18 @@ public class EmptyRoomSelector extends Window {
 
     private Container createRoomDesignData(RoomDesignData data) {
         RoomDesignPanel main = new RoomDesignPanel(data);
-
-//        final String name = data.getName();
         final String name = data.getBackgroundImage();
 
         main.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Selected:" + templates.get(name));
-
                 if (selectedTemplate != null){
                     selectedTemplate.setIsSelected(false);
                 }
-
                 selectedTemplate = templates.get(name);
                 templates.get(name).setIsSelected(true);
             }
         });
-
-//        templates.put(data.getName(), main);
         templates.put(data.getBackgroundImage(), main);
         return new Container(main);
     }
@@ -217,14 +196,13 @@ public class EmptyRoomSelector extends Window {
             float h = Gdx.graphics.getHeight();
             float cardSize = ((Gdx.graphics.getWidth()) / (3f)) - 30f;
 
-            FileHandle handle = Gdx.files.internal( Main.DEFAULT_EMPTY_ROOM_DIR+ data.getBackgroundImage().toLowerCase());
+            FileHandle handle = Gdx.files.internal(Main.DEFAULT_EMPTY_ROOM_DIR + data.getBackgroundImage().toLowerCase());
             Image image = new Image((new Texture(handle)));
 
             add(image).width(cardSize).height(cardSize / (w / h));
 
             row();
             add(new Label(data.getBackgroundImage(), SkinManager.getDefaultLabelStyle()));
-//            add(new Label(data.getName(), SkinManager.getDefaultLabelStyle()));
         }
     }
 }

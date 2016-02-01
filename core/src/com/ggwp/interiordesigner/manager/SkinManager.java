@@ -55,8 +55,6 @@ public class SkinManager {
         submitPixmap.setColor(Color.rgba8888(Color.GREEN.r, Color.GREEN.g, Color.GREEN.b, .5f));
         submitPixmap.fill();
 
-
-
         Pixmap clearPixmap = new Pixmap(buttonWidth, buttonHeight, Pixmap.Format.RGBA8888);
         clearPixmap.setColor(Color.CLEAR);
         clearPixmap.fill();
@@ -66,15 +64,12 @@ public class SkinManager {
         optionPixmap.fill();
 
         Pixmap fillerPixmap = new Pixmap(100, buttonHeight, Pixmap.Format.RGBA8888);
-        //fillerPixmap.setColor(Color.rgba8888(1f, 1f, 1f, 0.5f));
-        Color col = Color.valueOf("#3498db");
-        fillerPixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.5f));
+        fillerPixmap.setColor(Color.argb8888(0f, 0f, 0f, 0f));
         fillerPixmap.fill();
 
         Pixmap blackPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         blackPixmap.setColor(Color.valueOf("#34495e"));
         blackPixmap.fill();
-
 
         defaultSkin.add("blackBackground", new Texture(blackPixmap));
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
@@ -105,16 +100,12 @@ public class SkinManager {
         TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
         defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultFillerSkin");
         defaultTextButtonStyle.font = defaultSkin.getFont("defaultFont1");
-        defaultTextButtonStyle.fontColor = Color.WHITE;
         return defaultTextButtonStyle;
     }
 
     public static TextButton.TextButtonStyle getDefaultSubmitTextButtonStyle(){
         TextButton.TextButtonStyle defaultTextButtonStyle = getDefaultTextButtonStyle();
         defaultTextButtonStyle.up = defaultSkin.getDrawable("defaultSubmitButton");
-
-
-
         return defaultTextButtonStyle;
     }
 
@@ -122,7 +113,6 @@ public class SkinManager {
         TextButton.TextButtonStyle defaultTextButtonStyle = new TextButton.TextButtonStyle();
         defaultTextButtonStyle.font = defaultSkin.getFont("defaultFont");
         defaultTextButtonStyle.fontColor = Color.BLACK;
-
         return defaultTextButtonStyle;
     }
 

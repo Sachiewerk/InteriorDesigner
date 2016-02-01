@@ -75,6 +75,7 @@ public class SaveFileLoader extends Window {
         savedFilesContainer.setFillParent(true);
         savedFilesContainer.left();
         savedFilesContainer.add(savedFilesScrollPane);
+        savedFilesContainer.padTop(Gdx.graphics.getHeight() / 10);
 
         HorizontalGroup horizontalGroup = new HorizontalGroup();
 
