@@ -8,6 +8,8 @@ public class RoomDesignData {
     private float[] vertices;
     private String backgroundImage;
 
+    private float[] leftWallVal,backWallVal,rightWallVal;
+
     public RoomDesignData(){
 
     }
@@ -56,4 +58,27 @@ public class RoomDesignData {
         this.name = name;
     }
 
+    public float[] getRightWallVal() {
+        return rightWallVal;
+    }
+
+    public void setRightWallVal(float[] rightWallVal) {
+        this.rightWallVal = rightWallVal;
+    }
+
+    public float[] getBackWallVal() {
+        return backWallVal;
+    }
+
+    public void setBackWallVal(float[] backWallVal) {
+        this.backWallVal = backWallVal;
+    }
+
+    public float[] getLeftWallVal() {
+        return leftWallVal;
+    }
+
+    public void setLeftWallVal(float[] leftWallVal) {
+        this.leftWallVal = leftWallVal;
+    }
 }

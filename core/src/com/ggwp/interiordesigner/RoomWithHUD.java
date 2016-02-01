@@ -30,6 +30,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
@@ -42,6 +43,7 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -214,7 +216,7 @@ public class RoomWithHUD extends AppScreen {
     public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
         init(camera, backgroundSource, walls);
     }
-
+//DebugDrawer debugDrawer;
     private void init(PerspectiveCamera camera, FileHandle backgroundSource, Array<Wall> walls) {
         Bullet.init();
         this.camera = camera;
@@ -240,9 +242,9 @@ public class RoomWithHUD extends AppScreen {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-//        debugDrawer = new DebugDrawer();
-//        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-//        collisionWorld.setDebugDrawer(debugDrawer);
+        /*debugDrawer = new DebugDrawer();
+        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+        collisionWorld.setDebugDrawer(debugDrawer);*/
 
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
@@ -268,7 +270,12 @@ public class RoomWithHUD extends AppScreen {
         designData = roomDesignData;
         FileHandle backgroundSource;
 
-        if (roomDesignData.getBackgroundImage().contains(Main.DEFAULT_EMPTY_ROOM_DIR)) {
+        if (roomDesignData.getBackgroundImage().startsWith("C")) {
+            backgroundSource = Gdx.files.absolute(roomDesignData.getBackgroundImage());
+        }
+
+
+        else if (roomDesignData.getBackgroundImage().contains(Main.DEFAULT_EMPTY_ROOM_DIR)) {
             backgroundSource = Gdx.files.internal(roomDesignData.getBackgroundImage());
         } else if (roomDesignData.getBackgroundImage().contains("/")) {
             backgroundSource = Gdx.files.absolute(roomDesignData.getBackgroundImage());
@@ -715,9 +722,9 @@ public class RoomWithHUD extends AppScreen {
             spriteBatch.end();
         }
 
-//        debugDrawer.begin(camera);
-//        collisionWorld.debugDrawWorld();
-//        debugDrawer.end();
+        /*debugDrawer.begin(camera);
+        collisionWorld.debugDrawWorld();
+        debugDrawer.end();*/
 
         modelBatch.begin(camera);
 

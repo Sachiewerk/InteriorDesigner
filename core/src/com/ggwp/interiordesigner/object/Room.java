@@ -1,6 +1,7 @@
 package com.ggwp.interiordesigner.object;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,6 +17,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.ggwp.interfaces.AndroidOnlyInterface;
+import com.ggwp.interiordesigner.Main;
+import com.ggwp.utils.ToolUtils;
 
 public class Room {
 
@@ -89,6 +93,42 @@ public class Room {
         createLeftWall();
         createRightWall();
         createBackWall();
+
+        if(data!=null) {
+            if (data.getLeftWallVal() != null) {
+                leftWall.transform.set(data.getLeftWallVal());
+            }
+            if (data.getRightWallVal() != null) {
+                System.out.println(data.getRightWallVal());
+                rightWall.transform.set(data.getRightWallVal());
+            }
+            if (data.getBackWallVal() != null) {
+                backWall.transform.set(data.getBackWallVal());
+            }
+        }
+
+    }
+
+    public RoomDesignData toRoomDesignData(FileHandle fileHandle){
+        RoomDesignData rdata = new RoomDesignData();
+        System.out.println("Saving..");
+
+
+
+        String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
+        rdata.setBackgroundImage(fileHandle.file().getAbsolutePath());
+        rdata.setName(name);
+        rdata.setLeftWallVal(leftWall.transform.getValues());
+        rdata.setBackWallVal(backWall.transform.getValues());
+        rdata.setRightWallVal(rightWall.transform.getValues());
+        rdata.setVertices(data.getVertices());
+
+        Object[][] tests = {{"title", "path"},
+                {"message", rdata.getBackgroundImage()}};
+        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                ToolUtils.createMapFromList(tests));
+
+        return rdata;
     }
 
     private void createBackWall() {
@@ -118,7 +158,6 @@ public class Room {
                 sideWallMaterial, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
         );
         rightWall = new Wall(rightWallModel, Wall.RIGHT);
-
         if(defaultInstance){
             rightWall.transform
                 .translate(DEFAULT_DIMENSION, DEFAULT_DIMENSION / 2, 0)

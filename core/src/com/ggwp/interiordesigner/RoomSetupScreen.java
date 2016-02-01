@@ -37,6 +37,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.ggwp.interfaces.AndroidOnlyInterface;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.GameObject;
@@ -203,6 +204,9 @@ public class RoomSetupScreen extends AppScreen {
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         data.setVertices(room.getVertices());
         data.setName(name);
+        data.setLeftWallVal(room.getLeftWall().transform.getValues());
+        data.setBackWallVal(room.getBackWall().transform.getValues());
+        data.setRightWallVal(room.getRightWall().transform.getValues());
         return data;
     }
 
@@ -210,11 +214,14 @@ public class RoomSetupScreen extends AppScreen {
         RoomDesignData data = new RoomDesignData();
 
         System.out.println("Saving..");
-        data.setBackgroundImage(fileHandle.name());
+        data.setBackgroundImage(fileHandle.file().getAbsolutePath());
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         data.setVertices(room.getVertices());
         data.setName(name);
+        data.setLeftWallVal(room.getLeftWall().transform.getValues());
+        data.setBackWallVal(room.getBackWall().transform.getValues());
+        data.setRightWallVal(room.getRightWall().transform.getValues());
         ToolUtils.saveRoomDataDesign(data);
         saveCurrentDesign = false;
     }
@@ -251,7 +258,11 @@ public class RoomSetupScreen extends AppScreen {
         doneButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new RoomWithHUD(camera, room.getWalls(), fileHandle));
+                Object[][] tests = {{"title", "Button Clicked"},
+                        {"message", "File Handle"+fileHandle}};
+                Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
+                        ToolUtils.createMapFromList(tests));
+                Main.getInstance().setScreen(new RoomWithHUD(camera, room.toRoomDesignData(fileHandle)));
                 dispose();
             }
         });
