@@ -289,7 +289,6 @@ public class Catalog extends Window {
         categories.addActor(createCategoryContainer("Lamps", "furnitures/categories/lamp.png", defaultTextButtonStyle, lampClickListener));
         categories.addActor(createCategoryContainer("Cabinets", "furnitures/categories/dresser.png", defaultTextButtonStyle, dresserClickListener));
         categories.addActor(createCategoryContainer("Seatings", "furnitures/categories/sofa.png", defaultTextButtonStyle, sofaClickListener));
-        categories.addActor(createCategoryContainer("Book Shelves", "furnitures/categories/book.png", defaultTextButtonStyle, bookShelfClickListener));
         categories.addActor(createCategoryContainer("Mirrors", "furnitures/categories/mirror.png", defaultTextButtonStyle, mirrorClickListener));
         categories.addActor(createCategoryContainer("Dining Set", "furnitures/categories/dining.png", defaultTextButtonStyle, diningClickListener));
         categories.addActor(createCategoryContainer("Wall Clock", "furnitures/categories/wallclock.png", defaultTextButtonStyle, wallClockClickListener));
@@ -555,13 +554,18 @@ public class Catalog extends Window {
         main.add(new Label("Cabinets", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("Solid Wood(medium)", "furnitures/cabinets/1/1.jpg", createListener("furnitures/cabinets/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Solid Wood(large)", "furnitures/cabinets/2/2.jpg", createListener("furnitures/cabinets/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Solid Wood(small)", "furnitures/cabinets/3/3.jpg", createListener("furnitures/cabinets/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Solid Wood 5x3x1.7", "furnitures/cabinets/1/1.jpg", createListener("furnitures/cabinets/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Solid Wood 5x6x1.7", "furnitures/cabinets/2/2.jpg", createListener("furnitures/cabinets/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Solid Wood 2.5x3x1.7", "furnitures/cabinets/3/3.jpg", createListener("furnitures/cabinets/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("Cafelle Wood", "furnitures/cabinets/4/4.jpg", createListener("furnitures/cabinets/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Corner Dresser", "furnitures/cabinets/5/5.jpg", createListener("furnitures/cabinets/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Base Open", "furnitures/cabinets/6/6.jpg", createListener("furnitures/cabinets/6/6.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Cafelle Wood 6x3.5x1.5", "furnitures/cabinets/4/4.jpg", createListener("furnitures/cabinets/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Corner Dresser 5.3x7.5x4.3", "furnitures/cabinets/5/5.jpg", createListener("furnitures/cabinets/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Base Open 6x4.6x3", "furnitures/cabinets/6/6.jpg", createListener("furnitures/cabinets/6/6.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Book Shelf 4.7x5.5x1.6", "furnitures/cabinets/7/7.jpg", createListener("furnitures/cabinets/7/7.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Book Shelf 6.9x9.8x1.8", "furnitures/cabinets/8/8.jpg", createListener("furnitures/cabinets/8/8.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Book Shelf 14.5x5x1.3", "furnitures/cabinets/9/9.jpg", createListener("furnitures/cabinets/9/9.obj", GameObject.TYPE_WALL_OBJECT)));
+
         return new Container(main);
     }
 
