@@ -454,6 +454,7 @@ public class Catalog extends Window {
         main.row();
 
         main.add(createFurnitureCard("Wall fan 21\"", "furnitures/electricfan/1/1.jpg", createListener("furnitures/electricfan/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Aircon 3.3x1.1x9\"", "furnitures/electricfan/2/2.jpg", createListener("furnitures/electricfan/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
 
         return new Container(main);
     }
