@@ -2,7 +2,7 @@
 # Material Count: 3
 
 newmtl GM_818D_C_lge_lge
-Ns 96.078431
+Ns 92.156863
 Ka 0.000000 0.000000 0.000000
 Kd 0.466667 0.470588 0.490196
 Ks 0.330000 0.330000 0.330000
@@ -13,7 +13,7 @@ illum 2
 map_Kd tex\GM_818D_C_lge_lge.jpg
 
 newmtl LG_refrigerator_clean_face_shad
-Ns 96.078431
+Ns 92.156863
 Ka 0.000000 0.000000 0.000000
 Kd 0.458824 0.466667 0.486275
 Ks 0.330000 0.330000 0.330000
@@ -22,9 +22,8 @@ Ni 1.000000
 d 1.000000
 illum 2
 
-
 newmtl LG_refrigerator_clean_face_shad_NONE
-Ns 96.078431
+Ns 92.156863
 Ka 0.000000 0.000000 0.000000
 Kd 0.458824 0.466667 0.486275
 Ks 0.330000 0.330000 0.330000
