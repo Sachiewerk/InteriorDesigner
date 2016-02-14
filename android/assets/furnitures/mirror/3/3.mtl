@@ -2,7 +2,7 @@
 # Material Count: 2
 
 newmtl Wood_Cherry_Original
-Ns 96.078431
+Ns 92.156863
 Ka 0.000000 0.000000 0.000000
 Kd 0.596078 0.337255 0.164706
 Ks 0.330000 0.330000 0.330000
@@ -13,7 +13,7 @@ illum 2
 map_Kd tex\Wood_Cherry_Original.jpg
 
 newmtl _5
-Ns 96.078431
+Ns 92.156863
 Ka 0.000000 0.000000 0.000000
 Kd 0.890196 0.890196 0.886275
 Ks 0.330000 0.330000 0.330000

@@ -2,7 +2,7 @@
 # Material Count: 3
 
 newmtl Color_002.001
-Ns 96.078431
+Ns 94.117647
 Ka 0.000000 0.000000 0.000000
 Kd 0.776471 0.776471 0.776471
 Ks 0.330000 0.330000 0.330000
@@ -12,7 +12,7 @@ d 1.000000
 illum 2
 
 newmtl Color_007.001
-Ns 96.078431
+Ns 94.117647
 Ka 0.000000 0.000000 0.000000
 Kd 0.227451 0.227451 0.227451
 Ks 0.330000 0.330000 0.330000
@@ -22,7 +22,7 @@ d 1.000000
 illum 2
 
 newmtl Metal_Corrogated_Shiny.001
-Ns 96.078431
+Ns 94.117647
 Ka 0.000000 0.000000 0.000000
 Kd 0.756863 0.756863 0.756863
 Ks 0.330000 0.330000 0.330000
@@ -30,4 +30,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\Users\Raymond\Desktop\Sofa+1\Metal_Corrogated_Shiny.jpg
+map_Kd tex\Metal_Corrogated_Shiny.jpg

@@ -533,15 +533,15 @@ public class Catalog extends Window {
         main.add(new Label("Seatings", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        main.add(createFurnitureCard("Long Black", "furnitures/sofa/1/1.jpg", createListener("furnitures/sofa/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Charcoal", "furnitures/sofa/2/2.jpg", createListener("furnitures/sofa/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Tufted couch", "furnitures/sofa/3/3.jpg", createListener("furnitures/sofa/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Long Black 9.7x3.2x3.2", "furnitures/sofa/1/1.jpg", createListener("furnitures/sofa/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Charcoal 7.8x3.2x4.6", "furnitures/sofa/2/2.jpg", createListener("furnitures/sofa/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Tufted couch 11.5x4.5x4.5", "furnitures/sofa/3/3.jpg", createListener("furnitures/sofa/3/3.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("Soft Seat Lounge Reception Chair", "furnitures/sofa/4/4.jpg", createListener("furnitures/sofa/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Walnut Sofa Set", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Single Walnut Sofa", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Soft Seat Lounge Reception Chair 3x2.5x2.5", "furnitures/sofa/4/4.jpg", createListener("furnitures/sofa/4/4.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Walnut Sofa Set 12x4x9", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/5/5.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Single Walnut Sofa 5.6x4x4.6", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/6/6.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("Walnut Sofa", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/7/7.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Walnut Sofa 10.8x45x4.6", "furnitures/sofa/5/5.jpg", createListener("furnitures/sofa/7/7.obj", GameObject.TYPE_FLOOR_OBJECT)));
 
         return new Container(main);
     }
@@ -595,11 +595,11 @@ public class Catalog extends Window {
         main.row();
 
 
-        main.add(createFurnitureCard("Ribbon Mirror", "furnitures/mirror/1/1.jpg", createListener("furnitures/mirror/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
-        main.add(createFurnitureCard("Romantic White ", "furnitures/mirror/2/2.jpg", createListener("furnitures/mirror/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Wooden Frame(Portrait)", "furnitures/mirror/3/3.jpg", createListener("furnitures/mirror/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Ribbon Mirror 3x3x.5", "furnitures/mirror/1/1.jpg", createListener("furnitures/mirror/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Romantic White 2.3x7x1.8", "furnitures/mirror/2/2.jpg", createListener("furnitures/mirror/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Wooden Frame 2x4x0.5", "furnitures/mirror/3/3.jpg", createListener("furnitures/mirror/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
         main.row();
-        main.add(createFurnitureCard("Wooden Frame(Landscape)", "furnitures/mirror/4/4.jpg", createListener("furnitures/mirror/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Wooden Frame 4x2x0.5", "furnitures/mirror/4/4.jpg", createListener("furnitures/mirror/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
         return new Container(main);
     }
 
