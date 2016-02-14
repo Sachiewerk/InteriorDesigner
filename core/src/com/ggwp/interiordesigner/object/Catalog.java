@@ -368,6 +368,7 @@ public class Catalog extends Window {
         main.add(createFurnitureCard("The Kissing Custom 11x7.5 ", "furnitures/frames/3/3.jpg", createListener("furnitures/frames/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
         main.row();
         main.add(createFurnitureCard("Cyndi", "furnitures/frames/4/4.jpg", createListener("furnitures/frames/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Cyndi 2 3x4x1\"", "furnitures/frames/5/5.jpg", createListener("furnitures/frames/5/5.obj", GameObject.TYPE_WALL_OBJECT)));
 
         return new Container(main);
     }
