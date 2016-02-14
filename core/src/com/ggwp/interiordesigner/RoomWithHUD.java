@@ -69,6 +69,7 @@ import com.ggwp.interiordesigner.object.Wall;
 import com.ggwp.utils.ToolUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -187,6 +188,8 @@ public class RoomWithHUD extends AppScreen {
     private Color selectedColor;
     private Wall backWall;
     private Array<GameObject> paintableTiles = new Array<GameObject>();
+
+    private HashMap<GameObject,SaveFile.TilePaint> paintedTiles;
 
     private void initEnvironment() {
         environment = new Environment();
@@ -518,7 +521,7 @@ public class RoomWithHUD extends AppScreen {
                 for (GameObject g : instances) {
                     gobjs[i++] = g;
                 }
-                ToolUtils.saveRoomSetup(text + ".dat", gobjs, designData);
+                ToolUtils.saveRoomSetup(text + ".dat", gobjs, designData,paintedTiles.values());
 
                 Object[][] tests = {{"title", "Message"},
                         {"message", "File Saved."}};
@@ -1071,6 +1074,8 @@ public class RoomWithHUD extends AppScreen {
         float horizontalTileCount = 8;
         float verticalTileCount = 8;
 
+        paintedTiles = new HashMap<GameObject,SaveFile.TilePaint>();
+
         BoundingBox box = new BoundingBox();
         backWall.calculateBoundingBox(box).mul(backWall.transform);
 
@@ -1104,6 +1109,11 @@ public class RoomWithHUD extends AppScreen {
         }
     }
 
+    public int paintSelectedTile(SaveFile.TilePaint tpaint) {
+        selectedColor = Color.valueOf(tpaint.color);
+        return paintSelectedTile(tpaint.screenX,tpaint.screenY);
+    }
+
     public int paintSelectedTile(int screenX, int screenY) {
         Ray ray = camera.getPickRay(screenX, screenY);
         int result = -1;
@@ -1120,7 +1130,12 @@ public class RoomWithHUD extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
+                SaveFile.TilePaint tpaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+
+                paintedTiles.put(instance,tpaint);
             }
+
+
         }
 
         if (result < 0) {
@@ -1134,9 +1149,14 @@ public class RoomWithHUD extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
+                SaveFile.TilePaint tpaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+
+                paintedTiles.put(wall,tpaint);
             }
 
         }
+
+        //System.out.println("Painted Tile Size:"+paintedTiles.size());
         return result;
     }
 

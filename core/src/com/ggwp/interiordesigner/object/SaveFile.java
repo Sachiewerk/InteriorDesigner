@@ -10,6 +10,7 @@ public class SaveFile {
 
     public RoomDesignData roomDesignData;
     public List<Object> objects = new ArrayList<Object>();
+    public List<TilePaint> paintTiles = new ArrayList<TilePaint>();
 
     public void addObject(GameObject gameObject) {
         if(gameObject.assetName == null){
@@ -20,7 +21,8 @@ public class SaveFile {
 
     public SaveFile.Object serialize(GameObject gameObject){
         Object obj = new Object();
-        obj.assetName = gameObject.assetName;
+        if(gameObject.assetName!=null)
+            obj.assetName = gameObject.assetName;
 
         Vector3 trans = new Vector3();
         trans = gameObject.transform.getTranslation(trans);
@@ -50,5 +52,22 @@ public class SaveFile {
         public float[] val;
         public int type;
     }
+
+    public static final class TilePaint {
+        public String color;
+        public int screenX,screenY;
+
+        public TilePaint(String color,int screenX,int screenY){
+            this.color = color;
+            this.screenX = screenX;
+            this.screenY = screenY;
+        }
+
+        @Override
+        public String toString() {
+            return "Color:"+color+":"+screenX+":"+screenY;
+        }
+    }
+
 
 }
