@@ -144,6 +144,8 @@ public class SaveFileLoader extends Window {
 
             List<SaveFile.Object> objs = data.objects;
 
+            List<SaveFile.TilePaint> pTiles = data.paintTiles;
+
             RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignData);
             Main.getInstance().setScreen(roomWithHUD);
 
@@ -153,6 +155,13 @@ public class SaveFileLoader extends Window {
                         System.out.println("loading.." + obj.assetName);
                         roomWithHUD.addObject(obj);
                     }
+                }
+            }
+
+            if (pTiles != null) {
+                for (SaveFile.TilePaint obj : pTiles) {
+                        System.out.println("loading tile paint.." + obj.toString());
+                        roomWithHUD.paintSelectedTile(obj);
                 }
             }
         }

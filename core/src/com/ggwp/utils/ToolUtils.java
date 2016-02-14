@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -149,8 +150,9 @@ public class ToolUtils {
         return Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY;
     }
 
-    public static void saveRoomSetup(String name, GameObject[] gameObjs, RoomDesignData roomDesignData) {
+    public static void saveRoomSetup(String name, GameObject[] gameObjs, RoomDesignData roomDesignData, Collection<SaveFile.TilePaint> tilePaints) {
         try {
+            System.out.println(tilePaints);
             System.out.println("Saving room setup..");
             FileHandle directory = Gdx.files.external(Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY);
             createDirectoryIfNotExists(directory);
@@ -161,6 +163,7 @@ public class ToolUtils {
 
             SaveFile saveFile = new SaveFile();
             saveFile.roomDesignData = roomDesignData;
+            saveFile.paintTiles = new ArrayList(tilePaints);
 
             for (GameObject obj : gameObjs) {
                 saveFile.addObject(obj);
