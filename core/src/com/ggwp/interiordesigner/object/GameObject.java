@@ -1,9 +1,5 @@
 package com.ggwp.interiordesigner.object;
 
-/**
- * Created by Raymond on 1/23/2016.
- */
-
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
@@ -26,7 +22,6 @@ public class GameObject extends ModelInstance implements  Disposable{
     public boolean collided;
     public int type;
     public String assetName;
-//    public boolean newlyAdded = true;
 
     public GameObject(Model model,int type){
         this(model,null,type);
@@ -34,7 +29,7 @@ public class GameObject extends ModelInstance implements  Disposable{
 
     public GameObject(Model model, btCollisionShape shape,int type,String assetName){
         this(model,shape,type);
-        this.assetName =assetName;
+        this.assetName = assetName;
     }
 
     public GameObject(Model model, btCollisionShape shape,int type){
@@ -46,45 +41,9 @@ public class GameObject extends ModelInstance implements  Disposable{
         }
     }
 
-    public Map getSaveData(){
-        HashMap<String,Object> data = new HashMap<String, Object>();
-
-        Vector3 out = new Vector3();
-        if(assetName!=null)
-            data.put("assetname",assetName);
-
-        data.put("position", transform.val);
-        data.put("type",type);
-
-        System.out.println(out.x+":"+out.y+":"+out.z);
-        return data;
-    }
-
     @Override
     public void dispose(){
         body.dispose();
     }
-
-//    static class Constructor implements Disposable {
-//        public final Model model;
-//        public final btCollisionShape shape;
-//        public fi
-//
-//        public Constructor(Model model, btCollisionShape shape) {
-//            this.model = model;
-//            this.shape = shape;
-//        }
-//
-//        public GameObject construct() {
-//            return new GameObject(model, shape);
-//        }
-//
-//        @Override
-//        public void dispose() {
-//            shape.dispose();
-//        }
-//    }
-
-
 
 }

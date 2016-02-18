@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
+import com.ggwp.interfaces.RequestResultListener;
 import com.ggwp.interiordesigner.Main;
 
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import java.util.Map;
 public class DesktopLauncher implements AndroidOnlyInterface{
 
 	static DesktopLauncher launcher;
+	private List<RequestResultListener> listeners = new ArrayList<RequestResultListener>();
 
 	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -29,7 +30,7 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 	}
 
 	public void notification(String title, String text) {
-		Gdx.app.log("Desktop",text);
+		Gdx.app.log("Desktop", text);
 	}
 
 	public String takeSnapShot(String saveDirectory) {
@@ -38,16 +39,13 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 
 	public String getScreenTemplateDir() {
 		return getProjectDirectory()+"cam-snapshots/";
-
 	}
-
 
 	@Override
 	public void requestOnDevice(RequestType rType, Map<String,Object> params) {
-
 		switch (rType){
 			case GET_SCREEN_TEMPLATE_DIR:
-				for (RequestResultListner r: listeners) {
+				for (RequestResultListener r: listeners) {
 					if(r.getRequestType()==rType){
 						r.OnRequestDone(getScreenTemplateDir());
 					}
@@ -68,26 +66,19 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 				takeSnapShot(saveDirectory);
 				break;
 			case LOG:
-				String title2 = params.get("title").toString();
 				String msg2 = params.get("message").toString();
-
 				System.out.println(msg2);
 				break;
 		}
-
-
 	}
 
-	private List<RequestResultListner> listeners = new ArrayList<RequestResultListner>();
-
-
 	@Override
-	public void addResultListener(RequestResultListner resultListner) {
+	public void addResultListener(RequestResultListener resultListner) {
 		listeners.add(resultListner);
 	}
 
 	@Override
-	public void removeResultListener(RequestResultListner resultListner) {
+	public void removeResultListener(RequestResultListener resultListner) {
 		listeners.remove(resultListner);
 	}
 
@@ -95,4 +86,5 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 	public String getProjectDirectory() {
 		return System.getProperty("user.home")+"/Pictures/interiordesign/";
 	}
+
 }

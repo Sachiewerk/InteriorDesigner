@@ -1,9 +1,8 @@
 package com.ggwp.interiordesigner;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
+import com.ggwp.interfaces.RequestResultListener;
 
 public class Main extends Game {
 
@@ -21,7 +20,7 @@ public class Main extends Game {
 
 		aoi = pAoi;
 
-		aoi.addResultListener(new RequestResultListner() {
+		aoi.addResultListener(new RequestResultListener() {
 			@Override
 			public void OnRequestDone(Object result) {
 				if(result!=null && result instanceof String){

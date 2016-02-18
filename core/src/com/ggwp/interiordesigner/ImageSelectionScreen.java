@@ -10,13 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
+import com.ggwp.interfaces.RequestResultListener;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.utils.ToolUtils;
@@ -36,7 +35,7 @@ public class ImageSelectionScreen extends AppScreen{
         Gdx.input.setInputProcessor(stage);
         flagImageUpdate = true;
 
-        Main.aoi.addResultListener(new RequestResultListner() {
+        Main.aoi.addResultListener(new RequestResultListener() {
             @Override
             public void OnRequestDone(Object result) {
                 String result1 = ToolUtils.getParamValue(result, String.class, "result");
@@ -61,7 +60,7 @@ public class ImageSelectionScreen extends AppScreen{
         });
 
 
-        Main.aoi.addResultListener(new RequestResultListner() {
+        Main.aoi.addResultListener(new RequestResultListener() {
             @Override
             public void OnRequestDone(Object result) {
                 String result1 = ToolUtils.getParamValue(result, String.class, "imagepath");
@@ -80,7 +79,6 @@ public class ImageSelectionScreen extends AppScreen{
         Label l = new Label("Failed to load image file.. ", SkinManager.getDialogLabelStyle());
         l.setFontScale(1.5f);
         l.getStyle().fontColor = Color.WHITE;
-        //l.setColor(Color.WHITE);
 
         l.setBounds((Gdx.graphics.getWidth() / 2) - 200f, (Gdx.graphics.getHeight() / 2) + 50f, 100f, 50f);
         backButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
@@ -97,11 +95,6 @@ public class ImageSelectionScreen extends AppScreen{
 
         stage.addActor(l);
         stage.addActor(backButton);
-    }
-
-    @Override
-    public boolean OnBackPressed() {
-        return false;
     }
 
     @Override

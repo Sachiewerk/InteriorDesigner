@@ -22,7 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.ggwp.interiordesigner.Main;
-import com.ggwp.interiordesigner.RoomWithHUD;
+import com.ggwp.interiordesigner.FurnitureSetupScreen;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.utils.ToolUtils;
 import com.google.gson.Gson;
@@ -104,8 +104,8 @@ public class EmptyRoomSelector extends Window {
                     stage.getActors().removeValue(instance, true);
                     Main.getInstance().getScreen().dispose();
                     selectedTemplate.data.setBackgroundImage("Rooms/Images/" + selectedTemplate.data.getBackgroundImage());
-                    RoomWithHUD roomWithHUD = new RoomWithHUD(null, selectedTemplate.data);
-                    Main.getInstance().setScreen(roomWithHUD);
+                    FurnitureSetupScreen furnitureSetupScreen = new FurnitureSetupScreen(null, selectedTemplate.data);
+                    Main.getInstance().setScreen(furnitureSetupScreen);
                 }
             }
         });

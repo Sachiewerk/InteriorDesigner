@@ -16,7 +16,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.ggwp.interfaces.AndroidOnlyInterface;
-import com.ggwp.interfaces.RequestResultListner;
+import com.ggwp.interfaces.RequestResultListener;
 import com.ggwp.interiordesigner.object.AppScreen;
 
 import java.io.File;
@@ -31,28 +31,17 @@ import java.util.Map;
 public class AndroidLauncher extends AndroidApplication implements AndroidOnlyInterface{
 
 	final AndroidLauncher context = this;
-	static final int REQUEST_IMAGE_CAPTURE = 1;
+
+	private List<RequestResultListener> listeners = new ArrayList<RequestResultListener>();
+	private AppScreen activeScreen = null;
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		/*config.useGLSurfaceView20API18 = false;
-		config.r = 8;
-		config.g = 8;
-		config.b = 8;
-		config.a = 8;*/
-
 		initialize(new Main(this), config);
-
-		/*if (graphics.getView() instanceof SurfaceView) {
-			SurfaceView glView = (SurfaceView) graphics.getView();
-			// force alpha channel - I'm not sure we need this as the GL surface is already using alpha channel
-			glView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-		}*/
 	}
 
-	String mCurrentPhotoPath;
 	private File createImageFile() throws IOException {
 		// Create an image file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -65,10 +54,6 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		}
 
 		File image = new File(storageDir,imageFileName);
-
-		// Save a file: path for use with ACTION_VIEW intents
-		//mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-		//toast(mCurrentPhotoPath);
 		return image;
 	}
 
@@ -84,13 +69,8 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 	}
 
 	public void notification(String title, String text) {
-		/*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-			startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-		}*/
-	}
 
-	static final int REQUEST_TAKE_PHOTO = 1;
+	}
 
 	public String takeSnapShot(String saveDirectory) {
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -121,7 +101,6 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		startActivityForResult(
 				Intent.createChooser(intent, "Select File"),
 				RequestType.GET_IMAGE_FROM_GALLERY.getRequestCode());
-
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -142,62 +121,43 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 
 	@Override
 	public void onBackPressed() {
-		//super.onBackPressed();
-		//toast("HIHIHI");
-
 		if(activeScreen!=null){
 //			activeScreen.back();
 		}
-
-
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == RequestType.IMAGE_CAPTURE.getRequestCode()) {
-
-			String result = (resultCode == RESULT_OK)?"OK":"FAIL";
-			Log.e("TEST",result);
-			//Uri uri = data.getData();
-			//File myFile = new File(uri.getPath());
-			//String path = myFile.getAbsolutePath();
-			//String result = (resultCode == RESULT_OK)?"OK":"FAIL";
-			for (RequestResultListner r: listeners) {
-				if(r.getRequestType()==RequestType.IMAGE_CAPTURE){
-					HashMap<String,Object> paramValues = new HashMap<>();
-					//paramValues.put("path",path);
-					paramValues.put("result",result);
+			String result = (resultCode == RESULT_OK) ? "OK" : "FAIL";
+			for (RequestResultListener r: listeners) {
+				if (r.getRequestType() == RequestType.IMAGE_CAPTURE) {
+					HashMap<String, Object> paramValues = new HashMap<>();
+					paramValues.put("result", result);
 					r.OnRequestDone(paramValues);
 				}
 			}
-
-		}
-		else if(requestCode == RequestType.GET_IMAGE_FROM_GALLERY.getRequestCode()){
+		} else if(requestCode == RequestType.GET_IMAGE_FROM_GALLERY.getRequestCode()){
 			if(data==null)
 				return;
             Uri selectedImageUri = data.getData();
 
-			for (RequestResultListner r: listeners) {
-				if(r.getRequestType()==RequestType.GET_IMAGE_FROM_GALLERY){
-					HashMap<String,Object> paramValues = new HashMap<>();
-					//paramValues.put("path",path);
+			for (RequestResultListener r: listeners) {
+				if (r.getRequestType() == RequestType.GET_IMAGE_FROM_GALLERY) {
+					HashMap<String, Object> paramValues = new HashMap<>();
 					paramValues.put("imagepath", getRealPathFromURI(selectedImageUri));
 					r.OnRequestDone(paramValues);
 				}
 			}
-
-
-
 		}
 	}
 
 
 	@Override
 	public void requestOnDevice(RequestType rType, Map<String,Object> params) {
-
 		switch (rType){
 			case GET_SCREEN_TEMPLATE_DIR:
-				for (RequestResultListner r: listeners) {
+				for (RequestResultListener r: listeners) {
 					if(r.getRequestType()==rType){
 						r.OnRequestDone(getScreenTemplateDir());
 					}
@@ -231,26 +191,17 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 
 				break;
 		}
-
-
 	}
 
-
-	private List<RequestResultListner> listeners = new ArrayList<RequestResultListner>();
-	private AppScreen activeScreen = null;
-
-
-
 	@Override
-	public void addResultListener(RequestResultListner resultListner) {
+	public void addResultListener(RequestResultListener resultListner) {
 		listeners.add(resultListner);
 	}
 
 	@Override
-	public void removeResultListener(RequestResultListner resultListner) {
+	public void removeResultListener(RequestResultListener resultListner) {
 		listeners.remove(resultListner);
 	}
-
 
 	@Override
 	public String getProjectDirectory() {
@@ -262,6 +213,5 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		Gdx.graphics.requestRendering();
 		super.onPause();
 	}
-
 
 }

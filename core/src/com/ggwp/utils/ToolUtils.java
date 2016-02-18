@@ -22,10 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Created by Dell on 1/22/2016.
- */
 public class ToolUtils {
 
     public static <T> T getParamValue(Object source, Class<T> cls, String paramName) {
@@ -56,48 +52,36 @@ public class ToolUtils {
                 {"message", absolutePath}};
         Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                 ToolUtils.createMapFromList(tests));
-        FileHandle tmplate = Gdx.files.absolute(absolutePath);
-        /*File[] files = new File[tmplates.length];
-        int i = 0;
-        for (FileHandle fh:tmplates) {
-            System.out.println(fh.file().getName());
-            files[i++] = fh.file();
-        }*/
+        FileHandle template = Gdx.files.absolute(absolutePath);
 
-        if (tmplate == null)
+        if (template == null)
             return null;
 
-        return tmplate;
+        return template;
     }
 
     public static FileHandle fetchLatestSnapshot() {
         System.out.println(Main.screenTemplateSaveDirectory);
 
-        FileHandle[] tmplates = Gdx.files.absolute(Main.screenTemplateSaveDirectory).list();
-        /*File[] files = new File[tmplates.length];
-        int i = 0;
-        for (FileHandle fh:tmplates) {
-            System.out.println(fh.file().getName());
-            files[i++] = fh.file();
-        }*/
+        FileHandle[] templates = Gdx.files.absolute(Main.screenTemplateSaveDirectory).list();
 
-        if (tmplates == null)
+        if (templates == null)
             return null;
 
-        if (tmplates.length == 0) {
+        if (templates.length == 0) {
             return null;
         }
-        Arrays.sort(tmplates, new Comparator<FileHandle>() {
+        Arrays.sort(templates, new Comparator<FileHandle>() {
             public int compare(FileHandle f1, FileHandle f2) {
                 // sort latest first
                 return Long.compare(f2.lastModified(), f1.lastModified());
             }
         });
 
-        for (FileHandle fhx : tmplates) {
+        for (FileHandle fhx : templates) {
             System.out.println(fhx.file().getName());
         }
-        return tmplates[0];
+        return templates[0];
     }
 
     private static final String SAVED_ROOM_DESIGN_DIRECTORY = "/savedrooms/";
@@ -124,27 +108,6 @@ public class ToolUtils {
             e.printStackTrace();
         }
     }
-    public static void saveRoomDataDesign(RoomDesignData data) {
-        try {
-            System.out.println("Saving room data design..");
-
-            FileHandle directory = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY);
-            createDirectoryIfNotExists(directory);
-
-            String nextFileName = getRoomNextFileName(directory);
-            System.out.println(nextFileName);
-
-            FileHandle newFile = Gdx.files.external(SAVED_ROOM_DESIGN_DIRECTORY + nextFileName);
-
-            System.out.println("Saving file..");
-            Gson gson = new Gson();
-            String json = gson.toJson(data);
-            newFile.writeString(json, false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     public static String getSaveFileDirAbsolutePath() {
         return Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY;

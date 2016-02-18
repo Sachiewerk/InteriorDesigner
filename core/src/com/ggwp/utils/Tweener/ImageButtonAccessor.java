@@ -5,20 +5,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import aurelienribon.tweenengine.TweenAccessor;
 import aurelienribon.tweenengine.TweenManager;
 
-/**
- * Created by Dell on 1/24/2016.
- */
 public class ImageButtonAccessor implements TweenAccessor<Image> {
-
-    // The following lines define the different possible tween types.
-    // It's up to you to define what you need :-)
 
     public static final int POSITION_X = 1;
     public static final int POSITION_Y = 2;
     public static final int POSITION_XY = 3;
-
-    TweenManager manager;
-    // TweenAccessor implementation
 
     @Override
     public int getValues(Image target, int tweenType, float[] returnValues) {

@@ -72,10 +72,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by Raymond on 1/19/2016.
- */
-public class RoomWithHUD extends AppScreen {
+public class FurnitureSetupScreen extends AppScreen {
 
     final static class TransformTool {
         static final int MOVE = 0;
@@ -216,7 +213,7 @@ public class RoomWithHUD extends AppScreen {
         im.addProcessor(stage);
     }
 
-    public RoomWithHUD(PerspectiveCamera camera, Array<Wall> walls,FileHandle backgroundSource){
+    public FurnitureSetupScreen(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
         init(camera, backgroundSource, walls);
     }
 //DebugDrawer debugDrawer;
@@ -269,7 +266,7 @@ public class RoomWithHUD extends AppScreen {
         setupPaintableTiles();
     }
 
-    public RoomWithHUD(PerspectiveCamera camera, RoomDesignData roomDesignData) {
+    public FurnitureSetupScreen(PerspectiveCamera camera, RoomDesignData roomDesignData) {
         designData = roomDesignData;
         FileHandle backgroundSource;
 
@@ -285,14 +282,6 @@ public class RoomWithHUD extends AppScreen {
         } else {
             backgroundSource = Gdx.files.internal(Main.DEFAULT_EMPTY_ROOM_DIR + roomDesignData.getBackgroundImage());
         }
-
-//        Array<Wall> walls = new Array<Wall>();
-//        Material material = new Material(ColorAttribute.createDiffuse(Color.ORANGE));
-//        paintBlendingAttribute.opacity = 0.5f;
-//        material.set(paintBlendingAttribute);
-//        walls.add(createWall(roomDesignData.getLeftWall(), 0, material));
-//        walls.add(createWall(roomDesignData.getBackWall(), 1, material));
-//        walls.add(createWall(roomDesignData.getRightWall(), 2, material));
 
         init(camera, backgroundSource, new Room(roomDesignData).getWalls());
     }
@@ -323,38 +312,16 @@ public class RoomWithHUD extends AppScreen {
 
     List<FileHandle> filePath = new ArrayList<FileHandle>();
 
-    private void fileList(FileHandle dir) {
-        //Get list of all files and folders in directory
-        FileHandle[] files = Gdx.files.internal(dir.path()).list();
-        Object[][] tests = {{"title", dir.file().getName() + ":" + dir.path()},
-                {"message", files.length}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));
-        //For all files and folders in directory
-        for (int i = 0; i < files.length; i++) {
-            //Check if directory
-            if (files[i].isDirectory())
-                //Recursively call file list function on the new directory
-                fileList(files[i]);
-            else {
-                //If not directory, print the file path
-                if (files[i].file().getAbsolutePath().toLowerCase().endsWith(".obj")) {
-                    System.out.println(files[i].file().getAbsolutePath());
-                    filePath.add(files[i]);
-                }
-
-            }
-        }
-    }
-
     public static btConvexHullShape createConvexHullShape(final Model model, boolean optimize) {
         final Mesh mesh = model.meshes.get(0);
         final btConvexHullShape shape = new btConvexHullShape(mesh.getVerticesBuffer(), mesh.getNumVertices(), mesh.getVertexSize());
         if (!optimize) return shape;
+
         // now optimize the shape
         final btShapeHull hull = new btShapeHull(shape);
         hull.buildHull(shape.getMargin());
         final btConvexHullShape result = new btConvexHullShape(hull);
+
         // delete the temporary shape
         shape.dispose();
         hull.dispose();
@@ -584,23 +551,7 @@ public class RoomWithHUD extends AppScreen {
 
         assets.finishLoadingAsset(obj.assetName);
         Model model = assets.get(obj.assetName, Model.class);
-        System.out.println("done loading asset.." + obj.assetName);
-        addObject(obj.assetName, model, obj.type, obj.translation, obj.scale, obj.rotation, obj.val);
-    }
-
-    public Wall createWall(SaveFile.Object object, int location, Material material){
-        Model model = builder.createRect(0, 0, 0, 100, 0, 0, 100, 100, 0, 0, 100, 0, 1, 1, 1,
-                material, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-
-        Wall wall = new Wall(model, location);
-        wall.transform.set(object.val);
-//        wall.transform.translate(object.translation[0], object.translation[1], object.translation[2])
-        //;
-//        wall.transform
-//                .rotate(object.rotation[0], object.rotation[1], object.rotation[2], object.rotation[3]);
-//                .scl(object.scale[0], object.scale[1], object.scale[2]);
-
-        return wall;
+        addObject(obj.assetName, model, obj.type, obj.val);
     }
 
     public void addWall(Wall wall){
@@ -637,8 +588,6 @@ public class RoomWithHUD extends AppScreen {
         instances.add(wall);
         collisionWorld.addCollisionObject(wall.body, WALL_FLAG, FLOOR_OBJECT_FLAG);
 
-        System.out.println("Adding Wall.. " + wall.location);
-
         instances.add(wall);
 
         if (wall.isSide() == false) {
@@ -647,12 +596,10 @@ public class RoomWithHUD extends AppScreen {
     }
 
     public void addObject(String assetName, Model model, int type) {
-        addObject(assetName, model, type, null, null, null, null);
+        addObject(assetName, model, type, null);
     }
 
-    public void addObject(String assetName, Model model, int type, float[] translation,
-                          float[] scale,
-                          float[] rotation, float[] val) {
+    public void addObject(String assetName, Model model, int type, float[] val) {
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
 
@@ -662,6 +609,7 @@ public class RoomWithHUD extends AppScreen {
         dimension.x -= (dimension.x / 2f);
         dimension.y -= (dimension.y / 2f);
         dimension.z -= (dimension.z / 2f);
+
         GameObject object = new GameObject(model, new btBoxShape(dimension), type, assetName);
 
         if (type == GameObject.TYPE_WALL_OBJECT) {
@@ -669,8 +617,6 @@ public class RoomWithHUD extends AppScreen {
         } else {
             object.transform.translate(camera.position.x, wallY + (bounds.getHeight() / 2f), dimension.z + 1);
         }
-
-        System.out.println(dimension.y + (dimension.y * 2));
 
         if (val != null) {
             object.transform.set(val);
@@ -787,7 +733,8 @@ public class RoomWithHUD extends AppScreen {
 
                 Vector3 pos = new Vector3();
                 gameObject.transform.getTranslation(pos);
-                Wall selectedWall = null;
+                Wall selectedWall;
+
                 if (selectedWallIndex >= 0 && instances.get(selectedWallIndex) != null) {
                     selectedWall = (Wall) instances.get(selectedWallIndex);
 
@@ -820,24 +767,7 @@ public class RoomWithHUD extends AppScreen {
         if (gameObject != null && gameObject.type != GameObject.TYPE_WALL && collidedInstances != null) {
             if (collidedInstances.contains(gameObject, true)) {
                 moveToPreviousLocation(gameObject);
-            } else {
-
             }
-
-//            if(gameObject.collided) {
-//                if(tranformTool == TransformTool.MOVE){
-//                    gameObject.transform.setTranslation(origPosition);
-//                    gameObject.collided = false;
-//                }else{
-//                    gameObject.transform.setToTranslation(origPosition);
-//                    gameObject.transform.rotate(origRotation.x, origRotation.y, origRotation.z, origRotation.w);
-//                    gameObject.collided = false;
-//                }
-//            }else{
-//                if(gameObject.newlyAdded){
-//                    gameObject.newlyAdded = false;
-//                }
-//            }
             gameObject.body.setWorldTransform(gameObject.transform);
         }
     }
@@ -942,24 +872,11 @@ public class RoomWithHUD extends AppScreen {
         if (screenY <= toolsPanelYBounds) {
             return super.touchUp(screenX, screenY, pointer, button);
         }
-       /* Object[][] tests = {{"title", "Message"},
-                {"message", "Touch up!"+instances.size}};
-        Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                ToolUtils.createMapFromList(tests));*/
-        if (selected >= 0) {
 
-            /*Object[][] tests2 = {{"title", "Message"},
-                    {"message", "collision checked!"+instances.size}};
-            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
-                    ToolUtils.createMapFromList(tests2));*/
+        if (selected >= 0) {
             checkColission(instances.get(selected));
         }
         return super.touchUp(screenX, screenY, pointer, button);
-    }
-
-    private void setSelected(int value) {
-        if (selected == value) return;
-        selected = value;
     }
 
     public int getSelectedObject(int screenX, int screenY) {
@@ -1130,12 +1047,9 @@ public class RoomWithHUD extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
-                SaveFile.TilePaint tpaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
-
-                paintedTiles.put(instance,tpaint);
+                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+                paintedTiles.put(instance, tilePaint);
             }
-
-
         }
 
         if (result < 0) {
@@ -1149,14 +1063,10 @@ public class RoomWithHUD extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
-                SaveFile.TilePaint tpaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
-
-                paintedTiles.put(wall,tpaint);
+                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+                paintedTiles.put(wall, tilePaint);
             }
-
         }
-
-        //System.out.println("Painted Tile Size:"+paintedTiles.size());
         return result;
     }
 

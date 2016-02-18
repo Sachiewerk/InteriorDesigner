@@ -22,7 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.ggwp.interiordesigner.Main;
-import com.ggwp.interiordesigner.RoomWithHUD;
+import com.ggwp.interiordesigner.FurnitureSetupScreen;
 import com.ggwp.interiordesigner.manager.SkinManager;
 import com.ggwp.utils.ToolUtils;
 import com.google.gson.Gson;
@@ -146,14 +146,14 @@ public class SaveFileLoader extends Window {
 
             List<SaveFile.TilePaint> pTiles = data.paintTiles;
 
-            RoomWithHUD roomWithHUD = new RoomWithHUD(null, data.roomDesignData);
-            Main.getInstance().setScreen(roomWithHUD);
+            FurnitureSetupScreen furnitureSetupScreen = new FurnitureSetupScreen(null, data.roomDesignData);
+            Main.getInstance().setScreen(furnitureSetupScreen);
 
             if (objs != null) {
                 for (SaveFile.Object obj : objs) {
                     if (obj.assetName != null) {
                         System.out.println("loading.." + obj.assetName);
-                        roomWithHUD.addObject(obj);
+                        furnitureSetupScreen.addObject(obj);
                     }
                 }
             }
@@ -161,7 +161,7 @@ public class SaveFileLoader extends Window {
             if (pTiles != null) {
                 for (SaveFile.TilePaint obj : pTiles) {
                         System.out.println("loading tile paint.." + obj.toString());
-                        roomWithHUD.paintSelectedTile(obj);
+                        furnitureSetupScreen.paintSelectedTile(obj);
                 }
             }
         }

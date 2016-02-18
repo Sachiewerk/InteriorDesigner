@@ -6,14 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-/**
- * Created by bytexe on 1/31/2016.
- */
 public class SplashScreen extends Activity {
 
     private static int SPLASH_TIME_OUT = 3000;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

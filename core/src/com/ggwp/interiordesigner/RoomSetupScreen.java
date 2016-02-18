@@ -43,8 +43,6 @@ import com.ggwp.interiordesigner.object.AppScreen;
 import com.ggwp.interiordesigner.object.GameObject;
 import com.ggwp.interiordesigner.object.Room;
 import com.ggwp.interiordesigner.object.RoomDesignData;
-import com.ggwp.interiordesigner.object.SaveFile;
-import com.ggwp.interiordesigner.object.SaveFileLoader;
 import com.ggwp.utils.ToolUtils;
 
 import java.math.RoundingMode;
@@ -125,7 +123,6 @@ public class RoomSetupScreen extends AppScreen {
                     for (Material material : box.model.materials) {
                         material.set(blendingAttribute);
                     }
-//                    System.out.println("Double Tapped. Setup Mode: " + computationBoxSetup);
                 }
             }
         });
@@ -197,19 +194,6 @@ public class RoomSetupScreen extends AppScreen {
 
     private boolean saveCurrentDesign = false;
 
-    private RoomDesignData getRoomDesignData(){
-        RoomDesignData data = new RoomDesignData();
-        data.setBackgroundImage(fileHandle.file().getAbsolutePath());
-
-        String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
-        data.setVertices(room.getVertices());
-        data.setName(name);
-        data.setLeftWallVal(room.getLeftWall().transform.getValues());
-        data.setBackWallVal(room.getBackWall().transform.getValues());
-        data.setRightWallVal(room.getRightWall().transform.getValues());
-        return data;
-    }
-
     private void saveCurrentRoomDesign(){
         RoomDesignData data = new RoomDesignData();
 
@@ -262,9 +246,8 @@ public class RoomSetupScreen extends AppScreen {
                         {"message", "File Handle"+fileHandle}};
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                         ToolUtils.createMapFromList(tests));
-                Main.getInstance().setScreen(new RoomWithHUD(camera, room.toRoomDesignData(fileHandle)));
+                Main.getInstance().setScreen(new FurnitureSetupScreen(camera, room.toRoomDesignData(fileHandle)));
                 dispose();
-                //saveCurrentDesign = true;
             }
         });
 
@@ -328,13 +311,11 @@ public class RoomSetupScreen extends AppScreen {
         box.calculateBoundingBox(bb).mul(box.transform);
         boxPosition.add(box.center);
         Boolean intersected = Intersector.intersectRayBounds(ray, bb, null);
-//        System.out.println("Intersected: " + intersected);
         return intersected;
     }
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-//        System.out.println("Dragging..");
         if(computationBoxSetup){
             handleComputationBoxAction(screenX, screenY);
         } else {
@@ -346,10 +327,8 @@ public class RoomSetupScreen extends AppScreen {
 
     private void handleComputationBoxAction(int screenX, int screenY) {
         if(computationBoxDrag){
-//            System.out.println("Dragging mini box..");
             onComputationBoxDrag(screenX, screenY);
         } else {
-//            System.out.println("Resizing mini box..");
             onComputationBoxResize(screenX, screenY);
             computeAreas();
         }
@@ -378,9 +357,9 @@ public class RoomSetupScreen extends AppScreen {
         boolean nearLeft = (Gdx.graphics.getWidth() / 2) > screenX;
 
         if((nearTop && dragUp) || (nearLeft && dragLeft)){
-            box.transform.scale(1.05f, 1.05f, 1.05f);
+            box.transform.scale(1.035f, 1.035f, 1.035f);
         } else {
-            box.transform.scale(0.95f, 0.95f, 0.95f);
+            box.transform.scale(0.965f, 0.965f, 0.965f);
         }
 
         previousDragX = screenX;
@@ -444,6 +423,7 @@ public class RoomSetupScreen extends AppScreen {
 //                rightCornerA.x, rightCornerA.z, leftCornerB.x, leftCornerB.z});
 //
 //        label += "Floor Area: " + format.format(floor.area()) + " ft.\n";
+
         label += "Floor Area: " + format.format(width * 3.432) + " ft.\n";
         computationLabel.setText(label);
     }

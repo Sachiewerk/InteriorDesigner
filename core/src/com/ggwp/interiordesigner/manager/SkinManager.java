@@ -12,9 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.ggwp.interiordesigner.Main;
 
-/**
- * Created by Raymond on 1/22/2016.
- */
 public class SkinManager {
 
     private static final Skin defaultSkin;

@@ -25,7 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.ggwp.interiordesigner.RoomWithHUD;
+import com.ggwp.interiordesigner.FurnitureSetupScreen;
 import com.ggwp.interiordesigner.manager.SkinManager;
 
 
@@ -330,7 +330,7 @@ public class Catalog extends Window {
 
                 assets.finishLoadingAsset(modelName);
                 Model model = assets.get(modelName, Model.class);
-                ((RoomWithHUD) appScreen).addObject(modelName,model, gameObjectType);
+                ((FurnitureSetupScreen) appScreen).addObject(modelName,model, gameObjectType);
                 stage.getActors().removeValue(instance, true);
                 initInputProcessors();
             }
