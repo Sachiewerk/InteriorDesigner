@@ -199,11 +199,6 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 	}
 
 	@Override
-	public void removeResultListener(RequestResultListener resultListner) {
-		listeners.remove(resultListner);
-	}
-
-	@Override
 	public String getProjectDirectory() {
 		return Environment.getExternalStorageDirectory()+"/interiordesigner/";
 	}

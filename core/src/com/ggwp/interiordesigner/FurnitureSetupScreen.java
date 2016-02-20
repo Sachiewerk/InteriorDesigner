@@ -19,7 +19,6 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -30,7 +29,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
@@ -43,7 +41,6 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -148,7 +145,7 @@ public class FurnitureSetupScreen extends AppScreen {
     private Quaternion origRotation = new Quaternion();
 
     private int selected = -1, selecting = -1;
-    private int tranformTool = 0;
+    private int transformTool = 0;
 
     private btCollisionConfiguration collisionConfig;
     private btDispatcher dispatcher;
@@ -158,11 +155,9 @@ public class FurnitureSetupScreen extends AppScreen {
 
     final static short WALL_FLAG = 1 << 8;
     final static short FLOOR_OBJECT_FLAG = 1 << 9;
-    final static short WALL_OBJECT_FLAG = 1 << 10;
     final static short ALL_FLAG = -1;
 
     private float wallY = 0f;
-    private float wallZ = 0f;
     private float backWallHeight = 0f;
 
     private Vector3 pointAtWall = new Vector3();
@@ -175,10 +170,8 @@ public class FurnitureSetupScreen extends AppScreen {
     private boolean back = false;
     private float toolsPanelYBounds;
 
-    //To limit left and right moving of floor object
     private float minPosX;
     private float maxPosX;
-//    private DebugDrawer debugDrawer;
 
     private ModelBuilder builder = new ModelBuilder();
     private BlendingAttribute paintBlendingAttribute = new BlendingAttribute();
@@ -213,10 +206,6 @@ public class FurnitureSetupScreen extends AppScreen {
         im.addProcessor(stage);
     }
 
-    public FurnitureSetupScreen(PerspectiveCamera camera, Array<Wall> walls, FileHandle backgroundSource){
-        init(camera, backgroundSource, walls);
-    }
-//DebugDrawer debugDrawer;
     private void init(PerspectiveCamera camera, FileHandle backgroundSource, Array<Wall> walls) {
         Bullet.init();
         this.camera = camera;
@@ -241,10 +230,6 @@ public class FurnitureSetupScreen extends AppScreen {
         broadphase = new btDbvtBroadphase();
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
-
-        /*debugDrawer = new DebugDrawer();
-        debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-        collisionWorld.setDebugDrawer(debugDrawer);*/
 
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
@@ -397,7 +382,7 @@ public class FurnitureSetupScreen extends AppScreen {
                         {"message", "Move Button Clicked"}};
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                         ToolUtils.createMapFromList(tests));
-                tranformTool = TransformTool.MOVE;
+                transformTool = TransformTool.MOVE;
             }
         });
 
@@ -408,7 +393,7 @@ public class FurnitureSetupScreen extends AppScreen {
                         {"message", "Rotate Button Clicked"}};
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                         ToolUtils.createMapFromList(tests));
-                tranformTool = TransformTool.ROTATE;
+                transformTool = TransformTool.ROTATE;
             }
         });
 
@@ -422,7 +407,7 @@ public class FurnitureSetupScreen extends AppScreen {
         paintButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                tranformTool = TransformTool.PAINT;
+                transformTool = TransformTool.PAINT;
             }
         });
 
@@ -569,11 +554,7 @@ public class FurnitureSetupScreen extends AppScreen {
             maxPosX = pos.x;
         }
 
-        if (wall.isSide()) {
-            if (pos.z != 0) {
-                wallZ = pos.z;
-            }
-        } else {
+        if (!wall.isSide()) {
             backWallHeight = wall.dimensions.y;
         }
 
@@ -640,7 +621,7 @@ public class FurnitureSetupScreen extends AppScreen {
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
 
-        tranformTool = TransformTool.MOVE;
+        transformTool = TransformTool.MOVE;
     }
 
 
@@ -696,7 +677,7 @@ public class FurnitureSetupScreen extends AppScreen {
             return super.touchDown(screenX, screenY, pointer, button);
         }
 
-        if (tranformTool == TransformTool.PAINT) {
+        if (transformTool == TransformTool.PAINT) {
             paintSelectedTile(screenX, screenY);
         } else {
             selecting = getSelectedObject(screenX, screenY);
@@ -715,7 +696,7 @@ public class FurnitureSetupScreen extends AppScreen {
             return super.touchDragged(screenX, screenY, pointer);
         }
 
-        if (tranformTool == TransformTool.PAINT) {
+        if (transformTool == TransformTool.PAINT) {
             paintSelectedTile(screenX, screenY);
             return super.touchDragged(screenX, screenY, pointer);
         }
@@ -775,7 +756,7 @@ public class FurnitureSetupScreen extends AppScreen {
     private void moveToPreviousLocation(GameObject gameObject) {
         if (gameObject != null) {
             if (gameObject.collided) {
-                if (tranformTool == TransformTool.MOVE) {
+                if (transformTool == TransformTool.MOVE) {
                     gameObject.transform.setTranslation(origPosition);
                     gameObject.collided = false;
                 } else {
@@ -836,7 +817,7 @@ public class FurnitureSetupScreen extends AppScreen {
     }
 
     private void handleWallObjectDrag(GameObject gameObject, Ray ray) {
-        if (tranformTool == TransformTool.MOVE) {
+        if (transformTool == TransformTool.MOVE) {
             gameObject.transform.set(pointAtWall, wallQuaternion);
         }
     }
@@ -847,7 +828,7 @@ public class FurnitureSetupScreen extends AppScreen {
 
         position.set(ray.direction).scl(distance).add(ray.origin);
 
-        if (tranformTool == TransformTool.MOVE) {
+        if (transformTool == TransformTool.MOVE) {
             if (((position.z - (gameObject.dimensions.z / 2))) < 1) {
                 position.z = gameObject.dimensions.z;
             }

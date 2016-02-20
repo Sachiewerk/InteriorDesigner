@@ -78,11 +78,6 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 	}
 
 	@Override
-	public void removeResultListener(RequestResultListener resultListner) {
-		listeners.remove(resultListner);
-	}
-
-	@Override
 	public String getProjectDirectory() {
 		return System.getProperty("user.home")+"/Pictures/interiordesign/";
 	}

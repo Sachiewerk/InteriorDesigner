@@ -356,14 +356,23 @@ public class RoomSetupScreen extends AppScreen {
         boolean nearTop = (Gdx.graphics.getHeight() / 2) > screenY;
         boolean nearLeft = (Gdx.graphics.getWidth() / 2) > screenX;
 
+
         if((nearTop && dragUp) || (nearLeft && dragLeft)){
             box.transform.scale(1.035f, 1.035f, 1.035f);
         } else {
-            box.transform.scale(0.965f, 0.965f, 0.965f);
+            if(!isBelowMinimumSize()){
+                box.transform.scale(0.965f, 0.965f, 0.965f);
+            }
         }
 
         previousDragX = screenX;
         previousDragY = screenY;
+    }
+
+    private boolean isBelowMinimumSize(){
+        BoundingBox currentComputationBoundingBox = new BoundingBox();
+        box.calculateBoundingBox(currentComputationBoundingBox).mul(box.transform);
+        return currentComputationBoundingBox.getHeight() <= 2f;
     }
 
     private void computeAreas(){

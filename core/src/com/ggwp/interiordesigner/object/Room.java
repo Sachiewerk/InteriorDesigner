@@ -94,26 +94,22 @@ public class Room {
         createRightWall();
         createBackWall();
 
-        if(data!=null) {
+        if (data != null) {
             if (data.getLeftWallVal() != null) {
                 leftWall.transform.set(data.getLeftWallVal());
             }
             if (data.getRightWallVal() != null) {
-                System.out.println(data.getRightWallVal());
                 rightWall.transform.set(data.getRightWallVal());
             }
             if (data.getBackWallVal() != null) {
                 backWall.transform.set(data.getBackWallVal());
             }
         }
-
     }
 
     public RoomDesignData toRoomDesignData(FileHandle fileHandle){
         RoomDesignData rdata = new RoomDesignData();
         System.out.println("Saving..");
-
-
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         rdata.setBackgroundImage(fileHandle.file().getAbsolutePath());
@@ -189,62 +185,50 @@ public class Room {
     }
 
     private void onBackWallTopPartUpDrag(){
-//        System.out.println("b wall top part up");
         scaleWallsY(1);
     }
 
     private void onBackWallTopPartDownDrag(){
-//        System.out.println("b wall top part down");
         scaleWallsY(-1);
     }
 
     private void onBackWallBottomPartUpDrag(){
-//        System.out.println("b wall bot part up");
-        scaleAndMoveWallsY(1);
-    }
-
-    private void onBackWallBottomPartDownDrag(){
-//        System.out.println("b wall bot part down");
         scaleAndMoveWallsY(-1);
     }
 
-    private void onBackWallLeftPartLeftDrag(){
-//        System.out.println("b wall left part left");
-        scaleAndMoveWallsX(-1);
+    private void onBackWallBottomPartDownDrag(){
+        scaleAndMoveWallsY(1);
     }
 
-    private void onBackWallLeftPartRightDrag(){
-//        System.out.println("b wall left part right");
+    private void onBackWallLeftPartLeftDrag(){
         scaleAndMoveWallsX(1);
     }
 
+    private void onBackWallLeftPartRightDrag(){
+        scaleAndMoveWallsX(-1);
+    }
+
     private void onBackWallRightPartLeftDrag(){
-//        System.out.println("b wall right part left");
         scaleWallsX(-1);
     }
 
     private void onBackWallRightPartRightDrag(){
-//        System.out.println("b wall right part right");
         scaleWallsX(1);
     }
 
     private void onLeftWallUpDrag(){
-//        System.out.println("left wall up");
         leftWallDrag(SCALE_AMOUNT);
     }
 
     private void onLeftWallDownDrag(){
-//        System.out.println("left wall down");
         leftWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallUpDrag(){
-//        System.out.println("right wall up");
         rightWallDrag(-SCALE_AMOUNT);
     }
 
     private void onRightWallDownDrag() {
-//        System.out.println("right wall down");
         rightWallDrag(SCALE_AMOUNT);
     }
 
@@ -300,7 +284,7 @@ public class Room {
         rightWall.transform.getTranslation(vectorHolder);
         rightWall.transform.getRotation(quaternionHolder, true);
 
-        if(bounds.getWidth() > MINIMUM_DIMENSION){
+        if(multiplier > 0 || bounds.getWidth() > MINIMUM_DIMENSION){
             float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
             backWall.transform.scale(scalePercentage, 1f, 1f);
 
@@ -313,7 +297,7 @@ public class Room {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        if(bounds.getHeight() > MINIMUM_DIMENSION){
+        if(multiplier > 0 || bounds.getHeight() > MINIMUM_DIMENSION){
             float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * multiplier);
 
             for(Wall wall : getWalls()){
@@ -330,11 +314,11 @@ public class Room {
         leftWall.transform.getTranslation(vectorHolder);
         leftWall.transform.getRotation(quaternionHolder, true);
 
-        if(bounds.getWidth() > MINIMUM_DIMENSION){
-            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * -(multiplier));
-            backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * multiplier, 0f, 0f);
+        if(multiplier > 0 || bounds.getWidth() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getWidth()) * multiplier);
+            backWall.transform.scale(scalePercentage, 1f, 1f).trn(SCALE_AMOUNT * -(multiplier), 0f, 0f);
 
-            vectorHolder.x = vectorHolder.x + (SCALE_AMOUNT * multiplier);
+            vectorHolder.x = vectorHolder.x + (SCALE_AMOUNT * -(multiplier));
             leftWall.transform.set(vectorHolder, quaternionHolder, scaleHolder);
         }
     }
@@ -343,10 +327,10 @@ public class Room {
         BoundingBox bounds = new BoundingBox();
         backWall.calculateBoundingBox(bounds).mul(backWall.transform);
 
-        if(bounds.getHeight() > MINIMUM_DIMENSION){
-            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * -(multiplier));
+        if(multiplier > 0 || bounds.getHeight() > MINIMUM_DIMENSION){
+            float scalePercentage = 1f + ((SCALE_AMOUNT / bounds.getHeight()) * multiplier);
             for(Wall wall : getWalls()){
-                wall.transform.scale(1, scalePercentage, 1).trn(0, SCALE_AMOUNT * multiplier, 0);
+                wall.transform.scale(1, scalePercentage, 1).trn(0, SCALE_AMOUNT * -(multiplier), 0);
             }
         }
     }
@@ -435,7 +419,6 @@ public class Room {
             position.add(wall.center);
             float dist2 = ray.origin.dst2(position);
             if (distance >= 0f && dist2 > distance) continue;
-
 
             if (Intersector.intersectRayBounds(ray, bb, null)) {
                 sideSelected = wall.isSide();
