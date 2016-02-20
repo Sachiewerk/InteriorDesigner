@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd tex\GM_818D_C_lge_lge.jpg
+map_Kd GM_818D_C_lge_lge.jpg
 
 newmtl LG_refrigerator_clean_face_shad
 Ns 92.156863

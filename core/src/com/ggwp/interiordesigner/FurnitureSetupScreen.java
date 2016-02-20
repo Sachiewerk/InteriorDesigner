@@ -29,6 +29,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
@@ -41,6 +42,7 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -205,7 +207,7 @@ public class FurnitureSetupScreen extends AppScreen {
         im.getProcessors().clear();
         im.addProcessor(stage);
     }
-
+    DebugDrawer debugDrawer;
     private void init(PerspectiveCamera camera, FileHandle backgroundSource, Array<Wall> walls) {
         Bullet.init();
         this.camera = camera;
@@ -231,6 +233,9 @@ public class FurnitureSetupScreen extends AppScreen {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
+debugDrawer = new DebugDrawer();
+        debugDrawer.setDebugMode(btIDebugDraw   .DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+        collisionWorld.setDebugDrawer(debugDrawer);
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
 
@@ -621,6 +626,7 @@ public class FurnitureSetupScreen extends AppScreen {
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
 
+        object.transform.scale(10,10,10);
         transformTool = TransformTool.MOVE;
     }
 
@@ -652,9 +658,9 @@ public class FurnitureSetupScreen extends AppScreen {
             spriteBatch.end();
         }
 
-        /*debugDrawer.begin(camera);
+        debugDrawer.begin(camera);
         collisionWorld.debugDrawWorld();
-        debugDrawer.end();*/
+        debugDrawer.end();
 
         modelBatch.begin(camera);
 

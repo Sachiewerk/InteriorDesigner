@@ -383,6 +383,8 @@ public class Catalog extends Window {
 
 
         main.add(createFurnitureCard("LG Refrigerator 2.8x6.5x4", "furnitures/refrigerator/1/1.jpg", createListener("furnitures/refrigerator/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Refrigerator Duplex SMEG N210714", "furnitures/refrigerator/2/2.jpg", createListener("furnitures/refrigerator/2/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Refrigerator Samsung RSA1STWP N161115", "furnitures/refrigerator/3/3.jpg", createListener("furnitures/refrigerator/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
@@ -396,6 +398,7 @@ public class Catalog extends Window {
 
         main.add(createFurnitureCard("TV with audio 48\"", "furnitures/tv/1/1.jpg", createListener("furnitures/tv/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("Samsung Smart LED 4K TV 42\"", "furnitures/tv/2/2.jpg", createListener("furnitures/tv/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("TV 16:9\"", "furnitures/tv/3/3.png", createListener("furnitures/tv/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
 
         return new Container(main);
     }
@@ -409,6 +412,8 @@ public class Catalog extends Window {
         main.row();
 
         main.add(createFurnitureCard("LG WD-80302NUP 2.6x3.6x2", "furnitures/washingmachine/1/1.jpg", createListener("furnitures/washingmachine/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Dishwasher (white)", "furnitures/washingmachine/2/2.png", createListener("furnitures/washingmachine/2/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Dishwasher (black)", "furnitures/washingmachine/3/3.png", createListener("furnitures/washingmachine/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
         return new Container(main);
     }
 
@@ -456,6 +461,10 @@ public class Catalog extends Window {
 
         main.add(createFurnitureCard("Wall fan 21\"", "furnitures/electricfan/1/1.jpg", createListener("furnitures/electricfan/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
         main.add(createFurnitureCard("Aircon 3.3x1.1x9\"", "furnitures/electricfan/2/2.jpg", createListener("furnitures/electricfan/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Fan Foil Aircon\"", "furnitures/electricfan/3/3.png", createListener("furnitures/electricfan/3/model.g3db", GameObject.TYPE_WALL_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Air-conditioner Daikin 2 N020412\"", "furnitures/electricfan/4/4.jpg", createListener("furnitures/electricfan/4/model.g3db", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("Table Fan\"", "furnitures/electricfan/5/5.png", createListener("furnitures/electricfan/5/model.g3db", GameObject.TYPE_WALL_OBJECT)));
 
         return new Container(main);
     }
@@ -468,13 +477,13 @@ public class Catalog extends Window {
         main.add(new Label("Ovens", SkinManager.getDefaultLabelStyle())).colspan(3);
         main.row();
 
-        for(int i = 1; i <= 9; i++){
-            main.add(createFurnitureCard("Oven " + i, "furnitures/oven/" + i + ".png", null));
+        main.add(createFurnitureCard("Oven\"", "furnitures/oven/1/1.png", createListener("furnitures/oven/1/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Double Oven\"", "furnitures/oven/2/2.png", createListener("furnitures/oven/2/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Oven (Black)\"", "furnitures/oven/3/3.png", createListener("furnitures/oven/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.row();
+        main.add(createFurnitureCard("Small Oven\"", "furnitures/oven/4/4.png", createListener("furnitures/oven/4/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        //main.add(createFurnitureCard("Table Fan\"", "furnitures/electricfan/5/5.png", createListener("furnitures/electricfan/5/model.g3db", GameObject.TYPE_WALL_OBJECT)));
 
-            if(i % 3 == 0){
-                main.row();
-            }
-        }
         return new Container(main);
     }
 
@@ -489,7 +498,7 @@ public class Catalog extends Window {
 
         main.add(createFurnitureCard("Grand Hotel 21\"", "furnitures/wallclock/1/1.jpg", createListener("furnitures/wallclock/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
         main.add(createFurnitureCard("Plain 29\"", "furnitures/wallclock/2/2.jpg", createListener("furnitures/wallclock/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
-
+        main.add(createFurnitureCard("cuckoo clock\"", "furnitures/wallclock/3/3.png", createListener("furnitures/wallclock/3/model.g3db", GameObject.TYPE_WALL_OBJECT)));
         return new Container(main);
     }
 
@@ -597,11 +606,12 @@ public class Catalog extends Window {
         main.row();
 
 
-        main.add(createFurnitureCard("Ribbon Mirror 3x3x0.5''", "furnitures/mirror/1/1.jpg", createListener("furnitures/mirror/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
+        //main.add(createFurnitureCard("Ribbon Mirror 3x3x0.5''", "furnitures/mirror/1/1.jpg", createListener("furnitures/mirror/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
         main.add(createFurnitureCard("Romantic White 2.3x7x1.8", "furnitures/mirror/2/2.jpg", createListener("furnitures/mirror/2/2.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("Wooden Frame 2x4x0.5''", "furnitures/mirror/3/3.jpg", createListener("furnitures/mirror/3/3.obj", GameObject.TYPE_WALL_OBJECT)));
-        main.row();
+
         main.add(createFurnitureCard("Wooden Frame 4x2x0.5''", "furnitures/mirror/4/4.jpg", createListener("furnitures/mirror/4/4.obj", GameObject.TYPE_WALL_OBJECT)));
+        //main.row();
         return new Container(main);
     }
 

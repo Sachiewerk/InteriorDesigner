@@ -20,7 +20,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd tex\Oak.jpg
+map_Kd Oak.jpg
 
 newmtl _5
 Ns 94.117647
@@ -41,4 +41,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd tex\quilt.jpg
+map_Kd quilt.jpg
