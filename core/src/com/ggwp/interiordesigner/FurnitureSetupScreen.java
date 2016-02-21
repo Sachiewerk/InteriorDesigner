@@ -97,7 +97,6 @@ public class FurnitureSetupScreen extends AppScreen {
                 setWallMaterial((Wall) obj1);
             }
 
-
             if (!collidedInstances.contains(obj0, true)) {
                 collidedInstances.add(obj0);
             }
@@ -262,10 +261,7 @@ debugDrawer = new DebugDrawer();
 
         if (roomDesignData.getBackgroundImage().startsWith("C")) {
             backgroundSource = Gdx.files.absolute(roomDesignData.getBackgroundImage());
-        }
-
-
-        else if (roomDesignData.getBackgroundImage().contains(Main.DEFAULT_EMPTY_ROOM_DIR)) {
+        } else if (roomDesignData.getBackgroundImage().contains(Main.DEFAULT_EMPTY_ROOM_DIR)) {
             backgroundSource = Gdx.files.internal(roomDesignData.getBackgroundImage());
         } else if (roomDesignData.getBackgroundImage().contains("/")) {
             backgroundSource = Gdx.files.absolute(roomDesignData.getBackgroundImage());
@@ -585,6 +581,8 @@ debugDrawer = new DebugDrawer();
         addObject(assetName, model, type, null);
     }
 
+    float scaleFactor = 3f;
+
     public void addObject(String assetName, Model model, int type, float[] val) {
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
@@ -592,9 +590,12 @@ debugDrawer = new DebugDrawer();
         Vector3 dimension = new Vector3();
         bounds.getDimensions(dimension);
 
-        dimension.x -= (dimension.x / 2f);
-        dimension.y -= (dimension.y / 2f);
-        dimension.z -= (dimension.z / 2f);
+        //Scale collision shape
+        dimension.scl(scaleFactor, scaleFactor, scaleFactor);
+
+        dimension.x = dimension.x / 2f;
+        dimension.y = dimension.y / 2f;
+        dimension.z = dimension.z / 2f;
 
         GameObject object = new GameObject(model, new btBoxShape(dimension), type, assetName);
 
@@ -608,16 +609,23 @@ debugDrawer = new DebugDrawer();
             object.transform.set(val);
         }
 
+        //Scale for actual size
+//        object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
+
         BoundingBox bb = new BoundingBox();
         object.calculateBoundingBox(bb);
 
         bb.getCenter(object.center);
         bb.getDimensions(object.dimensions);
 
+        //Scale for selection
+//        object.dimensions.scl(scaleFactor, scaleFactor, scaleFactor);
+
         object.collided = false;
         object.body.setWorldTransform(object.transform);
         object.body.setUserValue(instances.size);
         object.body.setCollisionFlags(object.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+
         instances.add(object);
 
         if (type == GameObject.TYPE_WALL_OBJECT) {
@@ -626,7 +634,6 @@ debugDrawer = new DebugDrawer();
             collisionWorld.addCollisionObject(object.body, FLOOR_OBJECT_FLAG, ALL_FLAG);
         }
 
-        object.transform.scale(10,10,10);
         transformTool = TransformTool.MOVE;
     }
 
@@ -687,6 +694,9 @@ debugDrawer = new DebugDrawer();
             paintSelectedTile(screenX, screenY);
         } else {
             selecting = getSelectedObject(screenX, screenY);
+
+            System.out.println("Selecting: " + selecting);
+
             selected = selecting;
             if (selecting >= 0) {
                 instances.get(selecting).transform.getTranslation(origPosition);
@@ -750,7 +760,7 @@ debugDrawer = new DebugDrawer();
         return true;
     }
 
-    private void checkColission(GameObject gameObject) {
+    private void checkCollision(GameObject gameObject) {
         if (gameObject != null && gameObject.type != GameObject.TYPE_WALL && collidedInstances != null) {
             if (collidedInstances.contains(gameObject, true)) {
                 moveToPreviousLocation(gameObject);
@@ -861,7 +871,7 @@ debugDrawer = new DebugDrawer();
         }
 
         if (selected >= 0) {
-            checkColission(instances.get(selected));
+            checkCollision(instances.get(selected));
         }
         return super.touchUp(screenX, screenY, pointer, button);
     }
@@ -869,21 +879,18 @@ debugDrawer = new DebugDrawer();
     public int getSelectedObject(int screenX, int screenY) {
         Ray ray = camera.getPickRay(screenX, screenY);
         int result = -1;
-        float distance = -1;
+        float previousDistanceHolder = -1;
+
         for (int i = 0; i < instances.size; ++i) {
             final GameObject instance = instances.get(i);
 
             if (instance.type != GameObject.TYPE_WALL) {
-                float dist2 = -1f;
                 instance.transform.getTranslation(position).add(instance.center);
                 if (Intersector.intersectRayBoundsFast(ray, position, instance.dimensions)) {
-                    final float len = ray.direction.dot(position.x - ray.origin.x, position.y - ray.origin.y, position.z - ray.origin.z);
-                    dist2 = position.dst2(ray.origin.x + ray.direction.x * len, ray.origin.y + ray.direction.y * len, ray.origin.z + ray.direction.z * len);
-                }
-
-                if (dist2 >= 0 && (distance < 0f || dist2 < distance)) {
-                    result = i;
-                    distance = dist2;
+                    if(previousDistanceHolder < 0 || previousDistanceHolder < instance.dimensions.z){
+                        result = i;
+                        previousDistanceHolder = instance.dimensions.z;
+                    }
                 }
             }
         }

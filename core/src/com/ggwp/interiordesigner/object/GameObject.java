@@ -28,14 +28,14 @@ public class GameObject extends ModelInstance implements  Disposable{
     }
 
     public GameObject(Model model, btCollisionShape shape,int type,String assetName){
-        this(model,shape,type);
+        this(model, shape, type);
         this.assetName = assetName;
     }
 
-    public GameObject(Model model, btCollisionShape shape,int type){
+    public GameObject(Model model, btCollisionShape shape, int type) {
         super(model);
         this.type = type;
-        if(shape != null) {
+        if (shape != null) {
             body = new btCollisionObject();
             body.setCollisionShape(shape);
         }
