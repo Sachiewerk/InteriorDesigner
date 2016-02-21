@@ -402,6 +402,7 @@ public class FurnitureSetupScreen extends AppScreen {
         paletteButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                removeScreenInputProcessor();
                 stage.addActor(overlay);
             }
         });
@@ -962,6 +963,7 @@ public class FurnitureSetupScreen extends AppScreen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     selectedColor = color;
+                    ToolUtils.initInputProcessors(stage);
                     overlay.remove();
                 }
             });
