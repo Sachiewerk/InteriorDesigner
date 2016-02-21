@@ -615,7 +615,8 @@ public class FurnitureSetupScreen extends AppScreen {
         //object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
 
         for(int i= 0 ;i< object.nodes.size;i++){
-            object.nodes.get(i).scale.set(scaleFactor, scaleFactor, scaleFactor);
+            Vector3 v3 = object.nodes.get(i).scale;
+            object.nodes.get(i).scale.set(v3.x*scaleFactor, v3.y*scaleFactor, v3.z*scaleFactor);
         }
         object.calculateTransforms();
 
