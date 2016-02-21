@@ -40,7 +40,7 @@ public class SaveFileLoader extends Window {
     private SaveFileLoader instance;
 
     private SaveFilePanel selectedFile;
-    private Map<String, SaveFilePanel> templates;
+    private Map<String, SaveFilePanel> templates = new HashMap<String, SaveFilePanel>();
 
     public static SaveFileLoader construct(Stage stage) {
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -85,7 +85,7 @@ public class SaveFileLoader extends Window {
         table.columnDefaults(2).fillX();
 
         ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-        final ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
         ImageButton deleteButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
 
         TextButton textButton = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
@@ -168,12 +168,8 @@ public class SaveFileLoader extends Window {
         }
     }
 
-    private Table main;
-
-    private void reloadSavedFilesContainer(){
-        templates = new HashMap<String, SaveFilePanel>();
-
-        main = new Table();
+    private Container createSavedFilesContainer() {
+        Table main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(30f);
@@ -194,10 +190,6 @@ public class SaveFileLoader extends Window {
             if (++i % 3 == 0)
                 main.row();
         }
-    }
-
-    private Container createSavedFilesContainer() {
-        reloadSavedFilesContainer();
         return new Container(main);
     }
 
@@ -214,7 +206,14 @@ public class SaveFileLoader extends Window {
                 templates.get(data.name()).setIsSelected(true);
             }
         });
+
         templates.put(data.name(), main);
+
+        if(selectedFile == null){
+            selectedFile = templates.get(data.name());
+            selectedFile.setIsSelected(true);
+        }
+
         return new Container(main);
     }
 
