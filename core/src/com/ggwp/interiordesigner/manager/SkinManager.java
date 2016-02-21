@@ -121,6 +121,14 @@ public class SkinManager {
         return style;
     }
 
+    public static Label.LabelStyle createLabelStyle(Color col){
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = defaultSkin.getFont("defaultFont");
+        style.fontColor = col;
+
+        return style;
+    }
+
     public static Label.LabelStyle getDialogLabelStyle(){
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = defaultSkin.getFont("defaultFont1");
@@ -128,6 +136,15 @@ public class SkinManager {
 
         return style;
     }
+
+    public static Label.LabelStyle getDefaultCatalogHeaderLabelStyle(){
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = defaultSkin.getFont("defaultFont");
+        style.fontColor = Color.DARK_GRAY;
+
+        return style;
+    }
+
 
 
 
