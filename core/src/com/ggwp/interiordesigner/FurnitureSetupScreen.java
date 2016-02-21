@@ -233,7 +233,7 @@ public class FurnitureSetupScreen extends AppScreen {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-debugDrawer = new DebugDrawer();
+        debugDrawer = new DebugDrawer();
         debugDrawer.setDebugMode(btIDebugDraw   .DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
         collisionWorld.setDebugDrawer(debugDrawer);
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -582,7 +582,7 @@ debugDrawer = new DebugDrawer();
         addObject(assetName, model, type, null);
     }
 
-    float scaleFactor = 3f;
+    float scaleFactor = 10f;
 
     public void addObject(String assetName, Model model, int type, float[] val) {
         BoundingBox bounds = new BoundingBox();
@@ -592,7 +592,7 @@ debugDrawer = new DebugDrawer();
         bounds.getDimensions(dimension);
 
         //Scale collision shape
-       // dimension.scl(scaleFactor, scaleFactor, scaleFactor);
+        dimension.scl(scaleFactor, scaleFactor, scaleFactor);
 
         dimension.x = dimension.x / 2f;
         dimension.y = dimension.y / 2f;
@@ -614,8 +614,7 @@ debugDrawer = new DebugDrawer();
         //object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
 
         for(int i= 0 ;i< object.nodes.size;i++){
-            Vector3 v3 = object.nodes.get(i).scale;
-            object.nodes.get(i).scale.set(v3.x*scaleFactor, v3.y*scaleFactor, v3.z*scaleFactor);
+            object.nodes.get(i).scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
         object.calculateTransforms();
 

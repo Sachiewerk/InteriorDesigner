@@ -40,7 +40,7 @@ public class SaveFileLoader extends Window {
     private SaveFileLoader instance;
 
     private SaveFilePanel selectedFile;
-    private Map<String, SaveFilePanel> templates = new HashMap<String, SaveFilePanel>();
+    private Map<String, SaveFilePanel> templates;
 
     public static SaveFileLoader construct(Stage stage) {
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -85,7 +85,7 @@ public class SaveFileLoader extends Window {
         table.columnDefaults(2).fillX();
 
         ImageButton okButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
-        ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+        final ImageButton cancelButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
         ImageButton deleteButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/remove.png"))));
 
         TextButton textButton = new TextButton("Select Save File", SkinManager.getDefaultFillerButtonStyle());
@@ -116,10 +116,11 @@ public class SaveFileLoader extends Window {
         deleteButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Deleting..");
-
                 if(selectedFile != null){
+                    templates.remove(selectedFile.getName());
                     selectedFile.data.delete();
+                    stage.getActors().removeValue(instance, true);
+                    ToolUtils.initInputProcessors(stage);
                 }
             }
         });
@@ -167,8 +168,12 @@ public class SaveFileLoader extends Window {
         }
     }
 
-    private Container createSavedFilesContainer() {
-        Table main = new Table();
+    private Table main;
+
+    private void reloadSavedFilesContainer(){
+        templates = new HashMap<String, SaveFilePanel>();
+
+        main = new Table();
         main.setFillParent(true);
         main.defaults().left().pad(20f).padRight(0);
         main.columnDefaults(2).padRight(30f);
@@ -189,6 +194,10 @@ public class SaveFileLoader extends Window {
             if (++i % 3 == 0)
                 main.row();
         }
+    }
+
+    private Container createSavedFilesContainer() {
+        reloadSavedFilesContainer();
         return new Container(main);
     }
 

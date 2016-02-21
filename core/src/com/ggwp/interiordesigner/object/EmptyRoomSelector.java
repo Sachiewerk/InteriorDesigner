@@ -42,7 +42,6 @@ public class EmptyRoomSelector extends Window {
     private RoomDesignPanel selectedTemplate;
     private Map<String, RoomDesignPanel> templates = new HashMap<String, RoomDesignPanel>();
 
-
     public static EmptyRoomSelector construct(Stage stage) {
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixmap.setColor(Color.WHITE);

@@ -183,9 +183,8 @@ public class MenuScreen extends AppScreen {
             @Override
             public void clicked(InputEvent il, float x, float y) {
                 FileHandle fileHandle = Gdx.files.internal("Rooms/Images/room9.jpg");
-
-               // Main.getInstance().setScreen(new RoomSetupScreen(fileHandle, false));
-                openDeviceGallery();
+                Main.getInstance().setScreen(new RoomSetupScreen(fileHandle, false));
+//                openDeviceGallery();
             }
         };
         ((ImageButton) fromGalleryBtn.getUserObject()).addListener(fromGalleryListener);
@@ -262,16 +261,17 @@ public class MenuScreen extends AppScreen {
             }
         });
 
-        catalogBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent il, float x, float y) {
-                final SaveFileLoader c = SaveFileLoader.construct(stage);
-                ToolUtils.removeScreenInputProcessor(stage);
+        if(hasSavedFile()){
+            catalogBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent il, float x, float y) {
+                    final SaveFileLoader c = SaveFileLoader.construct(stage);
+                    ToolUtils.removeScreenInputProcessor(stage);
 
-
-                stage.addActor(c);
-            }
-        });
+                    stage.addActor(c);
+                }
+            });
+        }
 
         helpBtn.addListener(new ClickListener() {
             @Override
@@ -279,6 +279,11 @@ public class MenuScreen extends AppScreen {
                 Main.getInstance().setScreen(new TutorialPanel());
             }
         });
+    }
+
+    private boolean hasSavedFile(){
+        FileHandle dir = Gdx.files.absolute(ToolUtils.getSaveFileDirAbsolutePath());
+        return dir.exists() && dir.list().length > 0;
     }
 
     private TextButton.TextButtonStyle createButtonStyle(Color color) {
