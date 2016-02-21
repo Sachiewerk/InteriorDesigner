@@ -233,9 +233,9 @@ public class FurnitureSetupScreen extends AppScreen {
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
 
-        debugDrawer = new DebugDrawer();
+        /*debugDrawer = new DebugDrawer();
         debugDrawer.setDebugMode(btIDebugDraw   .DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-        collisionWorld.setDebugDrawer(debugDrawer);
+        collisionWorld.setDebugDrawer(debugDrawer);*/
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
 
@@ -673,9 +673,9 @@ public class FurnitureSetupScreen extends AppScreen {
             spriteBatch.end();
         }
 
-        debugDrawer.begin(camera);
+/*        debugDrawer.begin(camera);
         collisionWorld.debugDrawWorld();
-        debugDrawer.end();
+        debugDrawer.end();*/
 
         modelBatch.begin(camera);
 
