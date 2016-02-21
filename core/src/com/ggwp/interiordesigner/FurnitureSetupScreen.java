@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Quaternion;
@@ -581,7 +582,7 @@ debugDrawer = new DebugDrawer();
         addObject(assetName, model, type, null);
     }
 
-    float scaleFactor = 3f;
+    float scaleFactor = 10f;
 
     public void addObject(String assetName, Model model, int type, float[] val) {
         BoundingBox bounds = new BoundingBox();
@@ -610,7 +611,12 @@ debugDrawer = new DebugDrawer();
         }
 
         //Scale for actual size
-//        object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
+        //object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
+
+        for(int i= 0 ;i< object.nodes.size;i++){
+            object.nodes.get(i).scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+        object.calculateTransforms();
 
         BoundingBox bb = new BoundingBox();
         object.calculateBoundingBox(bb);
@@ -619,7 +625,7 @@ debugDrawer = new DebugDrawer();
         bb.getDimensions(object.dimensions);
 
         //Scale for selection
-//        object.dimensions.scl(scaleFactor, scaleFactor, scaleFactor);
+        //object.dimensions.scl(scaleFactor, scaleFactor, scaleFactor);
 
         object.collided = false;
         object.body.setWorldTransform(object.transform);
