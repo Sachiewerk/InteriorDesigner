@@ -498,7 +498,7 @@ public class Catalog extends Window {
 
         main.add(createFurnitureCard("Grand Hotel 21 @ 0.961x0.517x0.107\"", "furnitures/wallclock/1/1.jpg", createListener("furnitures/wallclock/1/1.obj", GameObject.TYPE_WALL_OBJECT)));
         main.add(createFurnitureCard("Plain 29 @ 2.411x2.407x1.311\"", "furnitures/wallclock/2/2.jpg", createListener("furnitures/wallclock/2/2.obj", GameObject.TYPE_WALL_OBJECT)));
-        main.add(createFurnitureCard("cuckoo clock @ 8.481x1.274x8.481\"", "furnitures/wallclock/3/3.png", createListener("furnitures/wallclock/3/model.g3db", GameObject.TYPE_WALL_OBJECT)));
+        main.add(createFurnitureCard("cuckoo clock @ 4.212x7.59x4.212\"", "furnitures/wallclock/3/3.png", createListener("furnitures/wallclock/3/model.g3db", GameObject.TYPE_WALL_OBJECT)));
         return new Container(main);
     }
 
