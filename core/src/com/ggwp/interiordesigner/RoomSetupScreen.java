@@ -22,6 +22,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -79,6 +81,12 @@ public class RoomSetupScreen extends AppScreen {
     private float previousDragX = 0f;
     private float previousDragY = 0f;
 
+    private float ftHeight = -1f;
+    private float ftWidth = -1f;
+    private float ftDepth = -1f;
+
+    private float _m = 3.432f;
+
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
         this.fileHandle = fileHandle;
 
@@ -105,7 +113,7 @@ public class RoomSetupScreen extends AppScreen {
         background = new Texture(fileHandle);
         initOptions();
         setupAutoComputationBox();
-        setAutoComputationLabels();
+        setupAutoComputationLabels();
 
         stage.addListener(new ClickListener() {
             @Override
@@ -152,7 +160,7 @@ public class RoomSetupScreen extends AppScreen {
         instances.add(this.box);
     }
 
-    private void setAutoComputationLabels(){
+    private void setupAutoComputationLabels(){
         Table table = new Table();
         stage.addActor(table);
         table.setBounds(10, Gdx.graphics.getHeight() - 110, 200f, 100f);
@@ -166,6 +174,8 @@ public class RoomSetupScreen extends AppScreen {
 
     @Override
     public void render(float delta) {
+        ftDepth = _m;
+
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -183,6 +193,12 @@ public class RoomSetupScreen extends AppScreen {
 
         modelBatch.render(instances, environment);
         modelBatch.end();
+
+        String label = "Back Wall Height: " + format.format(ftHeight) + " ft.\n";
+        label += "Back Wall Width: " + format.format(ftWidth) + " ft.\n";
+        label += "Back Wall Area: " + format.format(ftWidth * ftHeight) + " ft.\n\n";
+        label += "Floor Area: " + format.format(ftWidth * ftDepth) + " ft.\n";
+        computationLabel.setText(label);
 
         stage.act();
         stage.draw();
@@ -246,7 +262,7 @@ public class RoomSetupScreen extends AppScreen {
                         {"message", "File Handle"+fileHandle}};
                 Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                         ToolUtils.createMapFromList(tests));
-                Main.getInstance().setScreen(new FurnitureSetupScreen(camera, room.toRoomDesignData(fileHandle)));
+                Main.getInstance().setScreen(new FurnitureSetupScreen(camera, room.toRoomDesignData(fileHandle, ftWidth, ftHeight, ftDepth)));
                 dispose();
             }
         });
@@ -383,58 +399,57 @@ public class RoomSetupScreen extends AppScreen {
         box.calculateBoundingBox(computationBoundingBox).mul(box.transform);
 
         float inchSizeOnScreen = computationBoundingBox.getHeight() / 8;
-        float height = (wallBoundingBox.getHeight() / inchSizeOnScreen) / 12;
-        float width = (wallBoundingBox.getWidth() / inchSizeOnScreen) / 12;
+        ftHeight = (wallBoundingBox.getHeight() / inchSizeOnScreen) / 12;
+        ftWidth = (wallBoundingBox.getWidth() / inchSizeOnScreen) / 12;
 
-        String label = "Back Wall Height: " + format.format(height) + " ft.\n";
-        label += "Back Wall Width: " + format.format(width) + " ft.\n";
-        label += "Back Wall Area: " + format.format(width * height) + " ft.\n\n";
+        Polygon floor = null;
 
-//        Ray bottomLeftCorner = camera.getPickRay(0, 0);
-//        Ray bottomRightCorner = camera.getPickRay(0, Gdx.graphics.getWidth());
-//
-//        Vector3 bottomLeftVector = new Vector3();
-//        Vector3 bottomRightVector = new Vector3();
-//
-//        final float bottomLeftDistance = -bottomLeftCorner.origin.y / bottomLeftCorner.direction.y;
-//        bottomLeftVector.set(bottomLeftCorner.direction).scl(bottomLeftDistance).add(bottomLeftCorner.origin);
-//
-//        final float bottomRightDistance = -bottomRightCorner.origin.y / bottomRightCorner.direction.y;
-//        bottomRightVector.set(bottomRightCorner.direction).scl(bottomRightDistance).add(bottomRightCorner.origin);
-//
-//        Vector3 leftCornerA = new Vector3();
-//        Vector3 leftCornerB = new Vector3();
-//
-//        Vector3 rightCornerA = new Vector3();
-//        Vector3 rightCornerB = new Vector3();
-//
-//        BoundingBox leftWallBoundingBox = new BoundingBox();
-//        BoundingBox rightWallBoundingBox = new BoundingBox();
-//
-//        room.getLeftWall().calculateBoundingBox(leftWallBoundingBox).mul(room.getLeftWall().transform);
-//        room.getRightWall().calculateBoundingBox(rightWallBoundingBox).mul(room.getRightWall().transform);
-//
-//        leftWallBoundingBox.getCorner001(leftCornerA);
-//        leftWallBoundingBox.getCorner100(leftCornerB);
-//
-//        rightWallBoundingBox.getCorner000(rightCornerA);
-//        rightWallBoundingBox.getCorner101(rightCornerB);
-//
-//        Vector2 leftIntersection = new Vector2();
-//        Intersector.intersectLines(leftCornerA.x, leftCornerA.z, leftCornerB.x, leftCornerB.z,
-//                -1000, bottomLeftVector.z, 1000, bottomRightVector.z, leftIntersection);
-//
-//        Vector2 rightIntersection = new Vector2();
-//        Intersector.intersectLines(rightCornerA.x, rightCornerA.z, rightCornerB.x, rightCornerB.z,
-//                -1000, bottomLeftVector.z, 1000, bottomRightVector.z, rightIntersection);
-//
-//        Polygon floor = new Polygon(new float[]{leftIntersection.x, leftIntersection.y, rightIntersection.x, rightIntersection.y,
-//                rightCornerA.x, rightCornerA.z, leftCornerB.x, leftCornerB.z});
-//
-//        label += "Floor Area: " + format.format(floor.area()) + " ft.\n";
+        if(_m < 0){
+            Ray bottomLeftCorner = camera.getPickRay(0, 0);
+            Ray bottomRightCorner = camera.getPickRay(0, Gdx.graphics.getWidth());
 
-        label += "Floor Area: " + format.format(width * 3.432) + " ft.\n";
-        computationLabel.setText(label);
+            Vector3 bottomLeftVector = new Vector3();
+            Vector3 bottomRightVector = new Vector3();
+
+            final float bottomLeftDistance = -bottomLeftCorner.origin.y / bottomLeftCorner.direction.y;
+            bottomLeftVector.set(bottomLeftCorner.direction).scl(bottomLeftDistance).add(bottomLeftCorner.origin);
+
+            final float bottomRightDistance = -bottomRightCorner.origin.y / bottomRightCorner.direction.y;
+            bottomRightVector.set(bottomRightCorner.direction).scl(bottomRightDistance).add(bottomRightCorner.origin);
+
+            Vector3 leftCornerA = new Vector3();
+            Vector3 leftCornerB = new Vector3();
+
+            Vector3 rightCornerA = new Vector3();
+            Vector3 rightCornerB = new Vector3();
+
+            BoundingBox leftWallBoundingBox = new BoundingBox();
+            BoundingBox rightWallBoundingBox = new BoundingBox();
+
+            room.getLeftWall().calculateBoundingBox(leftWallBoundingBox).mul(room.getLeftWall().transform);
+            room.getRightWall().calculateBoundingBox(rightWallBoundingBox).mul(room.getRightWall().transform);
+
+            leftWallBoundingBox.getCorner001(leftCornerA);
+            leftWallBoundingBox.getCorner100(leftCornerB);
+
+            rightWallBoundingBox.getCorner000(rightCornerA);
+            rightWallBoundingBox.getCorner101(rightCornerB);
+
+            Vector2 leftIntersection = new Vector2();
+            Intersector.intersectLines(leftCornerA.x, leftCornerA.z, leftCornerB.x, leftCornerB.z,
+                    -1000, bottomLeftVector.z, 1000, bottomRightVector.z, leftIntersection);
+
+            Vector2 rightIntersection = new Vector2();
+            Intersector.intersectLines(rightCornerA.x, rightCornerA.z, rightCornerB.x, rightCornerB.z,
+                    -1000, bottomLeftVector.z, 1000, bottomRightVector.z, rightIntersection);
+
+            floor = new Polygon(new float[]{leftIntersection.x, leftIntersection.y, rightIntersection.x, rightIntersection.y,
+                    rightCornerA.x, rightCornerA.z, leftCornerB.x, leftCornerB.z});
+        }
+
+        if(floor != null){
+            ftDepth = floor.area() / ftWidth;
+        }
     }
 
     @Override

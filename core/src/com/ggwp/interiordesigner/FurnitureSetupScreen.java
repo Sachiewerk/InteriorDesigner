@@ -183,6 +183,9 @@ public class FurnitureSetupScreen extends AppScreen {
 
     private HashMap<GameObject,SaveFile.TilePaint> paintedTiles;
 
+    private float roomScaleFactor = -1f;
+    private float modelDiscrepancyFactor = 3.3f;
+
     private void initEnvironment() {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -207,7 +210,7 @@ public class FurnitureSetupScreen extends AppScreen {
         im.getProcessors().clear();
         im.addProcessor(stage);
     }
-    DebugDrawer debugDrawer;
+
     private void init(PerspectiveCamera camera, FileHandle backgroundSource, Array<Wall> walls) {
         Bullet.init();
         this.camera = camera;
@@ -236,6 +239,7 @@ public class FurnitureSetupScreen extends AppScreen {
         /*debugDrawer = new DebugDrawer();
         debugDrawer.setDebugMode(btIDebugDraw   .DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
         collisionWorld.setDebugDrawer(debugDrawer);*/
+
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
 
@@ -545,8 +549,8 @@ public class FurnitureSetupScreen extends AppScreen {
     public void addWall(Wall wall){
         BoundingBox boundingBox = new BoundingBox();
         wall.calculateBoundingBox(boundingBox).mul(wall.transform);
-        Vector3 pos = new Vector3();
 
+        Vector3 pos = new Vector3();
         boundingBox.getCorner001(pos);
         wallY = pos.y;
 
@@ -557,8 +561,12 @@ public class FurnitureSetupScreen extends AppScreen {
             maxPosX = pos.x;
         }
 
+        boundingBox.getDimensions(wall.dimensions);
+
         if (!wall.isSide()) {
             backWallHeight = wall.dimensions.y;
+            System.out.println("Wall Width: " + wall.dimensions.x);
+            System.out.println("Wall Height: " + wall.dimensions.y);
         }
 
         removeWallTexture(wall);
@@ -583,8 +591,6 @@ public class FurnitureSetupScreen extends AppScreen {
         addObject(assetName, model, type, null);
     }
 
-    float scaleFactor = 10f;
-
     public void addObject(String assetName, Model model, int type, float[] val) {
         BoundingBox bounds = new BoundingBox();
         model.calculateBoundingBox(bounds);
@@ -592,8 +598,13 @@ public class FurnitureSetupScreen extends AppScreen {
         Vector3 dimension = new Vector3();
         bounds.getDimensions(dimension);
 
-        //Scale collision shape
-        dimension.scl(scaleFactor, scaleFactor, scaleFactor);
+        if(roomScaleFactor < 0){
+            roomScaleFactor = backWallHeight / designData.getFtHeight();
+            roomScaleFactor = roomScaleFactor * modelDiscrepancyFactor;
+        }
+
+        //Scale collision box
+        dimension.scl(roomScaleFactor, roomScaleFactor, roomScaleFactor);
 
         dimension.x = dimension.x / 2f;
         dimension.y = dimension.y / 2f;
@@ -612,11 +623,9 @@ public class FurnitureSetupScreen extends AppScreen {
         }
 
         //Scale for actual size
-        //object.transform.scale(scaleFactor, scaleFactor, scaleFactor);
-
-        for(int i= 0 ;i< object.nodes.size;i++){
-            Vector3 v3 = object.nodes.get(i).scale;
-            object.nodes.get(i).scale.set(v3.x*scaleFactor, v3.y*scaleFactor, v3.z*scaleFactor);
+        for (int i = 0; i < object.nodes.size; i++) {
+            Vector3 nodeScale = object.nodes.get(i).scale;
+            object.nodes.get(i).scale.set(nodeScale.x * roomScaleFactor, nodeScale.y * roomScaleFactor, nodeScale.z * roomScaleFactor);
         }
         object.calculateTransforms();
 

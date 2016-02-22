@@ -107,24 +107,28 @@ public class Room {
         }
     }
 
-    public RoomDesignData toRoomDesignData(FileHandle fileHandle){
-        RoomDesignData rdata = new RoomDesignData();
+    public RoomDesignData toRoomDesignData(FileHandle fileHandle, float ftWidth, float ftHeight, float ftDepth){
+        RoomDesignData data = new RoomDesignData();
         System.out.println("Saving..");
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
-        rdata.setBackgroundImage(fileHandle.file().getAbsolutePath());
-        rdata.setName(name);
-        rdata.setLeftWallVal(leftWall.transform.getValues());
-        rdata.setBackWallVal(backWall.transform.getValues());
-        rdata.setRightWallVal(rightWall.transform.getValues());
-        rdata.setVertices(data.getVertices());
+        data.setBackgroundImage(fileHandle.file().getAbsolutePath());
+        data.setName(name);
+        data.setLeftWallVal(leftWall.transform.getValues());
+        data.setBackWallVal(backWall.transform.getValues());
+        data.setRightWallVal(rightWall.transform.getValues());
+        data.setVertices(this.data.getVertices());
+
+        data.setFtWidth(ftWidth);
+        data.setFtHeight(ftHeight);
+        data.setFtDepth(ftDepth);
 
         Object[][] tests = {{"title", "path"},
-                {"message", rdata.getBackgroundImage()}};
+                {"message", data.getBackgroundImage()}};
         Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.LOG,
                 ToolUtils.createMapFromList(tests));
 
-        return rdata;
+        return data;
     }
 
     private void createBackWall() {

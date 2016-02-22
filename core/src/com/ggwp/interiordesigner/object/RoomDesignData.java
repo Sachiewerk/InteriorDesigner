@@ -8,15 +8,14 @@ public class RoomDesignData {
     private float[] vertices;
     private String backgroundImage;
 
-    private float[] leftWallVal,backWallVal,rightWallVal;
+    private float ftHeight;
+    private float ftWidth;
+    private float ftDepth;
+
+    private float[] leftWallVal, backWallVal, rightWallVal;
 
     public RoomDesignData(){
 
-    }
-
-    public RoomDesignData(String name, String backgroundImage){
-        this.backgroundImage = backgroundImage;
-        this.name = name;
     }
 
     public static RoomDesignData getDefaultInstance(){
@@ -81,4 +80,29 @@ public class RoomDesignData {
     public void setLeftWallVal(float[] leftWallVal) {
         this.leftWallVal = leftWallVal;
     }
+
+    public float getFtWidth() {
+        return ftWidth;
+    }
+
+    public void setFtWidth(float ftWidth) {
+        this.ftWidth = ftWidth;
+    }
+
+    public float getFtHeight() {
+        return ftHeight;
+    }
+
+    public void setFtHeight(float ftHeight) {
+        this.ftHeight = ftHeight;
+    }
+
+    public float getFtDepth() {
+        return ftDepth;
+    }
+
+    public void setFtDepth(float ftDepth) {
+        this.ftDepth = ftDepth;
+    }
+
 }
