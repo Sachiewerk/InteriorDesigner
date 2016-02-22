@@ -339,9 +339,10 @@ public class Catalog extends Window {
 
 
         main.add(createFurnitureCard("LG Refrigerator @ 2.8 x 6.5 x 4", "furnitures/refrigerator/1/1.jpg", createListener("furnitures/refrigerator/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
-        main.add(createFurnitureCard("Duplex SMEG N210714 @ 3.8 x 10 x 5.5", "furnitures/refrigerator/2/2.jpg", createListener("furnitures/refrigerator/2/untitled.obj", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("Duplex White @ 3.8 x 10 x 5.5", "furnitures/refrigerator/4/4.png", createListener("furnitures/refrigerator/4/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("Samsung RSA1STWP N161115 @ 3 x 11 x 3.5", "furnitures/refrigerator/3/3.jpg", createListener("furnitures/refrigerator/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
+        main.add(createFurnitureCard("Duplex SMEG N210714 @ 3.8 x 10 x 5.5", "furnitures/refrigerator/2/2.jpg", createListener("furnitures/refrigerator/2/untitled.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("", "Common/hud.png", null));
         return new Container(main);
     }
@@ -356,7 +357,7 @@ public class Catalog extends Window {
 
         main.add(createFurnitureCard("TV with audio 48 @ 3.235 x 1.95 x 5.63\"", "furnitures/tv/1/1.jpg", createListener("furnitures/tv/1/1.obj", GameObject.TYPE_FLOOR_OBJECT)));
         main.add(createFurnitureCard("Samsung Smart LED 4K TV 42 @ 3.13 x 1.91 x 0.1\"", "furnitures/tv/2/2.jpg", createListener("furnitures/tv/2/model.g3db", GameObject.TYPE_WALL_OBJECT)));
-        main.add(createFurnitureCard("TV 16:9 @ 4.34 x 4.395 x 2.17\"", "furnitures/tv/3/3.png", createListener("furnitures/tv/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
+        main.add(createFurnitureCard("TV 16:9 @ 1 x 1 x 1\"", "furnitures/tv/3/3.png", createListener("furnitures/tv/3/model.g3db", GameObject.TYPE_FLOOR_OBJECT)));
         main.row();
         main.add(createFurnitureCard("", "Common/hud.png", null));
         return new Container(main);

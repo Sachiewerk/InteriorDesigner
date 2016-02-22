@@ -601,6 +601,7 @@ public class FurnitureSetupScreen extends AppScreen {
         if(roomScaleFactor < 0){
             roomScaleFactor = backWallHeight / designData.getFtHeight();
             roomScaleFactor = roomScaleFactor * modelDiscrepancyFactor;
+            System.out.println("Scale Factor: "+roomScaleFactor);
         }
 
         //Scale collision box
