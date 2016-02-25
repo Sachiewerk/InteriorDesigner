@@ -168,6 +168,24 @@ public class SaveFileLoader extends Window {
         }
     }
 
+    public static boolean hasSavedFiles(){
+        List<FileHandle> saveFileDataList = new ArrayList<FileHandle>();
+
+        FileHandle dir = Gdx.files.absolute(ToolUtils.getSaveFileDirAbsolutePath());
+        if (dir.exists()) {
+            for (FileHandle handle : dir.list()) {
+                saveFileDataList.add(handle);
+            }
+        }
+        if(dir==null)
+            return false;
+
+        if(dir.length()==0)
+            return false;
+
+        return true;
+    }
+
     private Container createSavedFilesContainer() {
         Table main = new Table();
         main.setFillParent(true);

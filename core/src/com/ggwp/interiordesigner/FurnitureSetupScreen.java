@@ -46,7 +46,9 @@ import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -181,10 +183,15 @@ public class FurnitureSetupScreen extends AppScreen {
     private Wall backWall;
     private Array<GameObject> paintableTiles = new Array<GameObject>();
 
+    //private Image
+
     private HashMap<GameObject,SaveFile.TilePaint> paintedTiles;
 
     private float roomScaleFactor = -1f;
     private float modelDiscrepancyFactor = 3.3f;
+
+    private boolean showLabels=  false;
+    private Table labels;
 
     private void initEnvironment() {
         environment = new Environment();
@@ -323,7 +330,10 @@ public class FurnitureSetupScreen extends AppScreen {
         instances.removeAll(objects, true);
     }
 
+    Image selectedAction ;
     private void initHUD() {
+
+        final AppScreen thisAppscreen = this;
         Pixmap whitePixmap = new Pixmap(1, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
         Color col = Color.WHITE;
         whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
@@ -333,11 +343,24 @@ public class FurnitureSetupScreen extends AppScreen {
         tools.setBackground(new SpriteDrawable(new Sprite(new Texture(whitePixmap))));
         tools.setBounds(0, (Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 10)), Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 10);
 
+        labels = new Table();
+        labels.setBackground(new SpriteDrawable(new Sprite(new Texture("Common/labels.png"))));
+        labels.setBounds(0, (Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 10) * 2 - (Gdx.graphics.getHeight() / 10)), Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 10 + (Gdx.graphics.getHeight() / 10));
+
+        selectedAction = new Image(new Sprite(new Texture("Common/selected.png")));
+        selectedAction.setBounds(-100f, -100f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
+//        labels.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                labels.remove();
+//                System.out.println("test");
+//            }
+//        });
+
         toolsPanelYBounds = (Gdx.graphics.getHeight() / 10);
         tools.defaults().width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
         tools.columnDefaults(2).width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
         tools.columnDefaults(3).width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
-
         ImageButton addButton = createAndAddImageButtonTool(0, "Common/add.png", tools);
         ImageButton removeButton = createAndAddImageButtonTool(1, "Common/remove.png", tools);
         ImageButton moveButton = createAndAddImageButtonTool(2, "Common/move.png", tools);
@@ -347,6 +370,7 @@ public class FurnitureSetupScreen extends AppScreen {
         ImageButton paletteButton = createAndAddImageButtonTool(6, "Common/palette.png", tools);
         ImageButton saveButton = createAndAddImageButtonTool(7, "Common/save.png", tools);
         ImageButton cancelButton = createAndAddImageButtonTool(8, "Common/cancel.png", tools);
+        ImageButton helpButton = createAndAddImageButtonTool(9, "Common/help.png", tools);
 
         final Catalog catalog = Catalog.construct(stage, assets, instances, (InputMultiplexer) Gdx.input.getInputProcessor(), this);
 
@@ -447,8 +471,72 @@ public class FurnitureSetupScreen extends AppScreen {
         cancelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getInstance().setScreen(new MenuScreen());
-                dispose();
+
+                removeScreenInputProcessor();
+                Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                Color col = Color.valueOf("#3498db");
+                whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
+                whitePixmap.fill();
+                Texture texture = new Texture(whitePixmap);
+                whitePixmap.dispose();
+
+                final Dialog confirmDialog = new Dialog("", new Window.WindowStyle(new BitmapFont(), Color.WHITE, new SpriteDrawable(new Sprite(texture))));
+                confirmDialog.setModal(true);
+                confirmDialog.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+
+                ImageButton btnYes = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/submitbtn.png"))));
+                ImageButton btnNo = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/cancelbtn.png"))));
+
+
+                btnYes.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        Main.getInstance().setScreen(new MenuScreen());
+                        dispose();
+                        /*Main.getInstance().setScreen(new MenuScreen());
+                        dispose();*/
+                    }
+                });
+
+                btnNo.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        InputMultiplexer inputMultiplexer = (InputMultiplexer) Gdx.input.getInputProcessor();
+                        inputMultiplexer.getProcessors().clear();
+                        inputMultiplexer.addProcessor(thisAppscreen);
+                        inputMultiplexer.addProcessor(stage);
+                        confirmDialog.hide();
+                    }
+                });
+
+                Label label = new Label("Cancel room setup? ", SkinManager.getDialogLabelStyle());
+                label.setFontScale(2);
+
+                Table group = new Table();
+                group.pad(Gdx.graphics.getHeight() / 30);
+                group.add(label);
+                group.add(btnYes).height(Gdx.graphics.getHeight() / 10)
+                        .width(Gdx.graphics.getWidth() / 17);
+                group.add(btnNo).height(Gdx.graphics.getHeight() / 10)
+                        .width(Gdx.graphics.getWidth() / 17);
+                confirmDialog.add(group);
+
+                confirmDialog.show(stage);
+
+
+
+            }
+        });
+
+        helpButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+
+                stage.addActor(labels);
+
+
+                showLabels=true;
+
             }
         });
 
@@ -457,6 +545,8 @@ public class FurnitureSetupScreen extends AppScreen {
     }
 
     private void onSaveButtonClicked() {
+        final AppScreen thisAppscreen = this;
+        removeScreenInputProcessor();
         Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         Color col = Color.valueOf("#3498db");
         whitePixmap.setColor(Color.argb8888(col.r, col.g, col.b, 0.7f));
@@ -489,6 +579,10 @@ public class FurnitureSetupScreen extends AppScreen {
 
                 back = true;
                 confirmDialog.hide();
+                InputMultiplexer inputMultiplexer = (InputMultiplexer) Gdx.input.getInputProcessor();
+                inputMultiplexer.getProcessors().clear();
+                inputMultiplexer.addProcessor(thisAppscreen);
+                inputMultiplexer.addProcessor(stage);
             }
 
             @Override
@@ -510,6 +604,10 @@ public class FurnitureSetupScreen extends AppScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 confirmDialog.hide();
+                InputMultiplexer inputMultiplexer = (InputMultiplexer) Gdx.input.getInputProcessor();
+                inputMultiplexer.getProcessors().clear();
+                inputMultiplexer.addProcessor(thisAppscreen);
+                inputMultiplexer.addProcessor(stage);
             }
         });
 
@@ -528,10 +626,32 @@ public class FurnitureSetupScreen extends AppScreen {
         confirmDialog.show(stage);
     }
 
-    private ImageButton createAndAddImageButtonTool(Integer index, String icon, Table tools) {
-        ImageButton imageButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture(icon))));
+    private ImageButton createAndAddImageButtonTool(Integer index, String icon, final Table tools) {
+        final ImageButton imageButton = new ImageButton(new SpriteDrawable(new Sprite(new Texture(icon))));
+
         float xPoint = index * (Gdx.graphics.getWidth() / 10);
         imageButton.setBounds(xPoint, 0f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
+        imageButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+
+                if (selectedAction.getParent() == null) {
+                    tools.addActor(selectedAction);
+                    selectedAction.toBack();
+                }
+
+                //hide labels if Help action is not selected
+                if (imageButton.getX() != selectedAction.getX()) {
+                    if (labels.getParent() != null)
+                        labels.remove();
+                }
+
+
+                selectedAction.setPosition(imageButton.getX(), imageButton.getY());
+
+
+            }
+        });
         tools.addActor(imageButton);
         return imageButton;
     }
@@ -659,6 +779,9 @@ public class FurnitureSetupScreen extends AppScreen {
     private void doneLoading() {
         loading = false;
     }
+
+
+
 
     @Override
     public void render(float delta) {
@@ -961,23 +1084,39 @@ public class FurnitureSetupScreen extends AppScreen {
                 "#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#34495e",
                 "#16a085", "#27ae60", "#2980b9", "#8e44ad", "#2c3e50",
                 "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#95a5a6",
-                "#f39c12", "#d35400", "#c0392b", "#bdc3c7", "#7f8c8d"
+                "#f39c12", "#d35400", "#c0392b", "#bdc3c7", ""
         };
 
         float width = Gdx.graphics.getWidth() / 10;
         float height = Gdx.graphics.getHeight() / 8;
 
         for (int i = 0; i < hexes.length; i++) {
-            final Color color = Color.valueOf(hexes[i]);
-            TextButton button = new TextButton("", createButtonStyle(color));
-            button.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    selectedColor = color;
-                    ToolUtils.initInputProcessors(stage);
-                    overlay.remove();
-                }
-            });
+            Button button;
+
+            if(hexes[i].equals("")){
+                button = new ImageButton(new SpriteDrawable(new Sprite(new Texture("Common/clearcolor.png"))));
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        selectedColor = null;
+                        ToolUtils.initInputProcessors(stage);
+                        overlay.remove();
+                    }
+                });
+            }
+            else {
+                final Color color = Color.valueOf(hexes[i]);
+                button = new TextButton("", createButtonStyle(color));
+                button.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        selectedColor = color;
+                        ToolUtils.initInputProcessors(stage);
+                        overlay.remove();
+                    }
+                });
+            }
+
 
             table.add(button).align(Align.center).width(width).height(height).pad(10f);
 
@@ -1040,7 +1179,15 @@ public class FurnitureSetupScreen extends AppScreen {
     }
 
     public int paintSelectedTile(SaveFile.TilePaint tpaint) {
-        selectedColor = Color.valueOf(tpaint.color);
+
+        String tpaintColor = tpaint.color.trim();
+        if(tpaintColor.equals("")||tpaintColor==null){
+            selectedColor = null;
+        }
+        else{
+            selectedColor = Color.valueOf(tpaintColor);
+        }
+
         return paintSelectedTile(tpaint.screenX,tpaint.screenY);
     }
 
@@ -1060,7 +1207,8 @@ public class FurnitureSetupScreen extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
-                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+
+                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint((selectedColor!=null)?selectedColor.toString():"",screenX,screenY);
                 paintedTiles.put(instance, tilePaint);
             }
         }
@@ -1076,7 +1224,7 @@ public class FurnitureSetupScreen extends AppScreen {
                     paintBlendingAttribute.opacity = 0.6f;
                     material.set(paintBlendingAttribute);
                 }
-                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint(selectedColor.toString(),screenX,screenY);
+                SaveFile.TilePaint tilePaint = new SaveFile.TilePaint((selectedColor!=null)?selectedColor.toString():"",screenX,screenY);
                 paintedTiles.put(wall, tilePaint);
             }
         }

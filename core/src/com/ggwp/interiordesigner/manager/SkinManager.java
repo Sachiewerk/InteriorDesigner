@@ -26,6 +26,7 @@ public class SkinManager {
         whitePixmap.setColor(Color.rgba8888(1f, 1f, 1f, .5f));
         whitePixmap.fill();
 
+
         FileHandle fontFile = Gdx.files.internal("data/arial.ttf");
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -68,8 +69,18 @@ public class SkinManager {
         blackPixmap.setColor(Color.valueOf("#34495e"));
         blackPixmap.fill();
 
+        Pixmap greenPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        greenPixmap.setColor(Color.rgba8888(Color.GREEN.r, Color.GREEN.g, Color.GREEN.b, 0.5f));
+        greenPixmap.fill();
+
+        Pixmap redPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        redPixmap .setColor(Color.rgba8888(Color.RED.r, Color.RED.g, Color.RED.b,0.5f));
+        redPixmap .fill();
+
         defaultSkin.add("blackBackground", new Texture(blackPixmap));
         defaultSkin.add("defaultButton", new Texture(whitePixmap));
+        defaultSkin.add("greenButton", new Texture(greenPixmap));
+        defaultSkin.add("redButton", new Texture(redPixmap));
         defaultSkin.add("defaultCancelButton", new Texture(cancelPixmap));
         defaultSkin.add("defaultSubmitButton", new Texture(submitPixmap));
         defaultSkin.add("defaultFillerSkin", new Texture(fillerPixmap));

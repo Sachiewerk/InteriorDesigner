@@ -101,6 +101,8 @@ public class MenuScreen extends AppScreen {
         optionPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.7f));
         optionPixmap.fill();
         skin.add("optionBackground", new Texture(optionPixmap));
+        optionPixmap.setColor(Color.rgba8888(0f, 0f, 0f, 0.3f));
+        skin.add("disabledOptionBackground", new Texture(optionPixmap));
 
         Window.WindowStyle style = new Window.WindowStyle();
         style.titleFont = skin.getFont("defaultFont");
@@ -273,6 +275,11 @@ public class MenuScreen extends AppScreen {
                 }
             });
         }
+        else{
+            Color color = Color.GRAY;
+            color.a = 0.2f;
+            catalogBtn.setStyle(createDisabledButtonStyle(color));
+        }
 
         helpBtn.addListener(new ClickListener() {
             @Override
@@ -290,6 +297,14 @@ public class MenuScreen extends AppScreen {
     private TextButton.TextButtonStyle createButtonStyle(Color color) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = skin.getDrawable("optionBackground");
+        textButtonStyle.font = skin.getFont("defaultTitleFont");
+        textButtonStyle.fontColor = color;
+        return textButtonStyle;
+    }
+
+    private TextButton.TextButtonStyle createDisabledButtonStyle(Color color) {
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("disabledOptionBackground");
         textButtonStyle.font = skin.getFont("defaultTitleFont");
         textButtonStyle.fontColor = color;
         return textButtonStyle;
