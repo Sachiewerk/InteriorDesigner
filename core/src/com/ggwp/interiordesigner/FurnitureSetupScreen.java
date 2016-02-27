@@ -876,21 +876,25 @@ public class FurnitureSetupScreen extends AppScreen {
                 if (selectedWallIndex >= 0 && instances.get(selectedWallIndex) != null) {
                     selectedWall = (Wall) instances.get(selectedWallIndex);
 
+                    //5f is for paint covering the frame.
                     float halfz = (gameObject.dimensions.z / 2);
                     if (selectedWall.location == Wall.BACK) {
                         pos.z += halfz;
                     } else if (selectedWall.location == Wall.LEFT) {
-                        pos.x += halfz;
+                        pos.x += halfz + 5f;
                     } else {
-                        pos.x -= halfz;
+                        pos.x -= halfz + 5f;
                     }
                 }
 
-                if (wallY > (pos.y - (gameObject.dimensions.y / 2))) {
-                    pos.y = wallY + (gameObject.dimensions.y / 2);
-                }
-                if (backWallHeight < (pos.y + (gameObject.dimensions.y / 2))) {
-                    pos.y = wallY - (gameObject.dimensions.y / 2);
+                float bottom = wallY;
+                float top = bottom + backWallHeight;
+                float halfHeight = gameObject.dimensions.y / 2;
+
+                if(pointAtWall.y > (top - halfHeight)){
+                    pos.y = top - halfHeight;
+                } else if (pointAtWall.y < bottom + halfHeight){
+                    pos.y = bottom + halfHeight;
                 }
                 gameObject.transform.setTranslation(pos);
             } else {

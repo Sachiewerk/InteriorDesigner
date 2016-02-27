@@ -29,6 +29,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +146,13 @@ public class EmptyRoomSelector extends Window {
                 roomDataList.add(data.roomDesignData);
             }
         }
+
+        Collections.sort(roomDataList, new Comparator<RoomDesignData>() {
+            @Override
+            public int compare(RoomDesignData dataA, RoomDesignData dataB) {
+                return dataA.getName().compareTo(dataB.getName());
+            }
+        });
 
         int i = 0;
         for (RoomDesignData data : roomDataList) {
