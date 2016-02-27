@@ -183,15 +183,15 @@ public class FurnitureSetupScreen extends AppScreen {
     private Wall backWall;
     private Array<GameObject> paintableTiles = new Array<GameObject>();
 
-    //private Image
-
     private HashMap<GameObject,SaveFile.TilePaint> paintedTiles;
 
     private float roomScaleFactor = -1f;
     private float modelDiscrepancyFactor = 3.3f;
 
-    private boolean showLabels=  false;
+    private boolean showLabels = false;
     private Table labels;
+
+    private int invalidFurnitureErrorCount = 0;
 
     private void initEnvironment() {
         environment = new Environment();
@@ -349,13 +349,6 @@ public class FurnitureSetupScreen extends AppScreen {
 
         selectedAction = new Image(new Sprite(new Texture("Common/selected.png")));
         selectedAction.setBounds(-100f, -100f, Gdx.graphics.getWidth() / 10, Gdx.graphics.getHeight() / 10);
-//        labels.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                labels.remove();
-//                System.out.println("test");
-//            }
-//        });
 
         toolsPanelYBounds = (Gdx.graphics.getHeight() / 10);
         tools.defaults().width(Gdx.graphics.getWidth() / 10).height(Gdx.graphics.getHeight() / 10);
@@ -721,9 +714,8 @@ public class FurnitureSetupScreen extends AppScreen {
         if(roomScaleFactor < 0){
             roomScaleFactor = backWallHeight / designData.getFtHeight();
             roomScaleFactor = roomScaleFactor * modelDiscrepancyFactor;
-            System.out.println("Scale Factor: "+roomScaleFactor);
+            System.out.println("Scale Factor: " + roomScaleFactor);
         }
-
         //Scale collision box
         dimension.scl(roomScaleFactor, roomScaleFactor, roomScaleFactor);
 
@@ -756,8 +748,17 @@ public class FurnitureSetupScreen extends AppScreen {
         bb.getCenter(object.center);
         bb.getDimensions(object.dimensions);
 
-        //Scale for selection
-        //object.dimensions.scl(scaleFactor, scaleFactor, scaleFactor);
+        if(backWallHeight < bb.getHeight()){
+            invalidFurnitureErrorCount++;
+
+            String message = "Furniture is taller than the room. Please select another furniture.";
+            message = invalidFurnitureErrorCount >= 3 ? message + " It's likely you didn't setup walls and computation box properly." : message;
+
+            Object[][] params = {{"title", message}, {"message", message}};
+            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.SHOW_MESSAGE, ToolUtils.createMapFromList(params));
+
+            return;
+        }
 
         object.collided = false;
         object.body.setWorldTransform(object.transform);
@@ -775,13 +776,9 @@ public class FurnitureSetupScreen extends AppScreen {
         transformTool = TransformTool.MOVE;
     }
 
-
     private void doneLoading() {
         loading = false;
     }
-
-
-
 
     @Override
     public void render(float delta) {

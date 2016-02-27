@@ -184,7 +184,9 @@ public class MenuScreen extends AppScreen {
         ClickListener fromGalleryListener = new ClickListener() {
             @Override
             public void clicked(InputEvent il, float x, float y) {
-                openDeviceGallery();
+                FileHandle fileHandle = Gdx.files.internal("Rooms/Images/room9.jpg");
+                Main.getInstance().setScreen(new RoomSetupScreen(fileHandle, false));
+//                openDeviceGallery();
             }
         };
         ((ImageButton) fromGalleryBtn.getUserObject()).addListener(fromGalleryListener);

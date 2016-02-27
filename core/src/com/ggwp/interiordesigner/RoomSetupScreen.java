@@ -85,6 +85,7 @@ public class RoomSetupScreen extends AppScreen {
     private float ftWidth = -1f;
     private float ftDepth = -1f;
 
+    private boolean prompted = false;
     private float _m = 3.432f;
 
     public RoomSetupScreen(FileHandle fileHandle, Boolean fromCamera) {
@@ -175,6 +176,14 @@ public class RoomSetupScreen extends AppScreen {
     @Override
     public void render(float delta) {
         ftDepth = _m;
+
+        if(!prompted){
+            String message = "Please map the black box to any 8x8 object. " +
+                    "Furniture sizes will not be accurate if you don't do this step properly.";
+            Object[][] params = {{"title", message}, {"message", message}};
+            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.SHOW_MESSAGE, ToolUtils.createMapFromList(params));
+            prompted = true;
+        }
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
