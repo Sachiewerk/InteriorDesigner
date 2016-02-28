@@ -62,10 +62,9 @@ public class AndroidLauncher extends AndroidApplication implements AndroidOnlyIn
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 			}
 		});
-
 	}
 
 	public void notification(String title, String text) {

@@ -178,10 +178,16 @@ public class RoomSetupScreen extends AppScreen {
         ftDepth = _m;
 
         if(!prompted){
-            String message = "Please map the black box to any 8x8 object. " +
+            String badSetupWarning = "Please map the black box to any 8x8 object. " +
                     "Furniture sizes will not be accurate if you don't do this step properly.";
-            Object[][] params = {{"title", message}, {"message", message}};
-            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.SHOW_MESSAGE, ToolUtils.createMapFromList(params));
+            Object[][] badSetupParams = {{"title", badSetupWarning}, {"message", badSetupWarning}};
+            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.SHOW_MESSAGE, ToolUtils.createMapFromList(badSetupParams));
+
+            String doubleTapMessage = "Double tap on any part of the screen to switch between wall setup" +
+                    " and computation box setup. If you're having trouble, please see tutorial for more information.";
+            Object[][] doubleTapParams = {{"title", doubleTapMessage}, {"message", doubleTapMessage}};
+            Main.aoi.requestOnDevice(AndroidOnlyInterface.RequestType.SHOW_MESSAGE, ToolUtils.createMapFromList(doubleTapParams));
+
             prompted = true;
         }
 

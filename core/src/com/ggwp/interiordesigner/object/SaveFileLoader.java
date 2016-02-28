@@ -153,7 +153,6 @@ public class SaveFileLoader extends Window {
             if (objs != null) {
                 for (SaveFile.Object obj : objs) {
                     if (obj.assetName != null) {
-                        System.out.println("loading.." + obj.assetName);
                         furnitureSetupScreen.addObject(obj);
                     }
                 }
@@ -161,29 +160,10 @@ public class SaveFileLoader extends Window {
 
             if (pTiles != null) {
                 for (SaveFile.TilePaint obj : pTiles) {
-                        System.out.println("loading tile paint.." + obj.toString());
                         furnitureSetupScreen.paintSelectedTile(obj);
                 }
             }
         }
-    }
-
-    public static boolean hasSavedFiles(){
-        List<FileHandle> saveFileDataList = new ArrayList<FileHandle>();
-
-        FileHandle dir = Gdx.files.absolute(ToolUtils.getSaveFileDirAbsolutePath());
-        if (dir.exists()) {
-            for (FileHandle handle : dir.list()) {
-                saveFileDataList.add(handle);
-            }
-        }
-        if(dir==null)
-            return false;
-
-        if(dir.length()==0)
-            return false;
-
-        return true;
     }
 
     private Container createSavedFilesContainer() {

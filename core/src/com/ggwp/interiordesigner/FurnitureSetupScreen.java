@@ -22,7 +22,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Quaternion;
@@ -30,7 +29,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
@@ -43,7 +41,6 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.collision.btShapeHull;
-import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -85,20 +82,11 @@ public class FurnitureSetupScreen extends AppScreen {
     class MyContactListener extends ContactListener {
         @Override
         public boolean onContactAdded(int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-
             GameObject obj0 = instances.get(userValue0);
             GameObject obj1 = instances.get(userValue1);
 
             instances.get(userValue0).collided = true;
             instances.get(userValue1).collided = true;
-
-            if (obj0.type == GameObject.TYPE_WALL) {
-                setWallMaterial((Wall) obj0);
-            }
-
-            if (obj1.type == GameObject.TYPE_WALL) {
-                setWallMaterial((Wall) obj1);
-            }
 
             if (!collidedInstances.contains(obj0, true)) {
                 collidedInstances.add(obj0);
@@ -106,8 +94,6 @@ public class FurnitureSetupScreen extends AppScreen {
             if (!collidedInstances.contains(obj1, true)) {
                 collidedInstances.add(obj1);
             }
-
-            System.out.println("contact");
             return true;
         }
 
@@ -116,18 +102,8 @@ public class FurnitureSetupScreen extends AppScreen {
             GameObject obj0 = instances.get(userValue0);
             GameObject obj1 = instances.get(userValue1);
 
-            if (obj0.type == GameObject.TYPE_WALL) {
-                removeWallTexture((Wall) obj0);
-            }
-
-            if (obj1.type == GameObject.TYPE_WALL) {
-                removeWallTexture((Wall) obj1);
-            }
-
             collidedInstances.removeValue(obj0, false);
             collidedInstances.removeValue(obj1, false);
-
-            System.out.println("ended");
         }
     }
 
@@ -188,10 +164,12 @@ public class FurnitureSetupScreen extends AppScreen {
     private float roomScaleFactor = -1f;
     private float modelDiscrepancyFactor = 3.3f;
 
-    private boolean showLabels = false;
     private Table labels;
+    private boolean showLabels = false;
+    private float labelDisplayDuration = -1f;
 
     private int invalidFurnitureErrorCount = 0;
+    private Table overlay;
 
     private void initEnvironment() {
         environment = new Environment();
@@ -242,10 +220,6 @@ public class FurnitureSetupScreen extends AppScreen {
         broadphase = new btDbvtBroadphase();
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
         contactListener = new MyContactListener();
-
-        /*debugDrawer = new DebugDrawer();
-        debugDrawer.setDebugMode(btIDebugDraw   .DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-        collisionWorld.setDebugDrawer(debugDrawer);*/
 
         wallBlendingAttrib = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         wallBlendingAttrib.opacity = 0f;
@@ -486,8 +460,6 @@ public class FurnitureSetupScreen extends AppScreen {
                     public void clicked(InputEvent event, float x, float y) {
                         Main.getInstance().setScreen(new MenuScreen());
                         dispose();
-                        /*Main.getInstance().setScreen(new MenuScreen());
-                        dispose();*/
                     }
                 });
 
@@ -515,21 +487,15 @@ public class FurnitureSetupScreen extends AppScreen {
                 confirmDialog.add(group);
 
                 confirmDialog.show(stage);
-
-
-
             }
         });
 
         helpButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
                 stage.addActor(labels);
-
-
-                showLabels=true;
-
+                showLabels = true;
+                labelDisplayDuration = 0f;
             }
         });
 
@@ -588,8 +554,6 @@ public class FurnitureSetupScreen extends AppScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.input.getTextInput(te, "File Name", "Room", "");
-                        /*Main.getInstance().setScreen(new MenuScreen());
-                        dispose();*/
             }
         });
 
@@ -633,16 +597,13 @@ public class FurnitureSetupScreen extends AppScreen {
                     selectedAction.toBack();
                 }
 
-                //hide labels if Help action is not selected
                 if (imageButton.getX() != selectedAction.getX()) {
-                    if (labels.getParent() != null)
+                    if (labels.getParent() != null){
                         labels.remove();
+                        showLabels = false;
+                    }
                 }
-
-
                 selectedAction.setPosition(imageButton.getX(), imageButton.getY());
-
-
             }
         });
         tools.addActor(imageButton);
@@ -678,8 +639,6 @@ public class FurnitureSetupScreen extends AppScreen {
 
         if (!wall.isSide()) {
             backWallHeight = wall.dimensions.y;
-            System.out.println("Wall Width: " + wall.dimensions.x);
-            System.out.println("Wall Height: " + wall.dimensions.y);
         }
 
         removeWallTexture(wall);
@@ -695,7 +654,7 @@ public class FurnitureSetupScreen extends AppScreen {
 
         instances.add(wall);
 
-        if (wall.isSide() == false) {
+        if (!wall.isSide()) {
             backWall = wall;
         }
     }
@@ -714,8 +673,8 @@ public class FurnitureSetupScreen extends AppScreen {
         if(roomScaleFactor < 0){
             roomScaleFactor = backWallHeight / designData.getFtHeight();
             roomScaleFactor = roomScaleFactor * modelDiscrepancyFactor;
-            System.out.println("Scale Factor: " + roomScaleFactor);
         }
+
         //Scale collision box
         dimension.scl(roomScaleFactor, roomScaleFactor, roomScaleFactor);
 
@@ -784,7 +743,6 @@ public class FurnitureSetupScreen extends AppScreen {
     public void render(float delta) {
         if (back) {
             Main.getInstance().setScreen(new MenuScreen());
-            //dispose();
             back = false;
         }
 
@@ -803,10 +761,6 @@ public class FurnitureSetupScreen extends AppScreen {
             spriteBatch.end();
         }
 
-/*        debugDrawer.begin(camera);
-        collisionWorld.debugDrawWorld();
-        debugDrawer.end();*/
-
         modelBatch.begin(camera);
 
         for (GameObject object : instances) {
@@ -820,6 +774,15 @@ public class FurnitureSetupScreen extends AppScreen {
         modelBatch.end();
         stage.act();
         stage.draw();
+
+        if(showLabels){
+            if(labelDisplayDuration > 5){
+                labels.remove();
+                showLabels = false;
+            } else {
+                labelDisplayDuration += delta;
+            }
+        }
     }
 
     @Override
@@ -832,8 +795,6 @@ public class FurnitureSetupScreen extends AppScreen {
             paintSelectedTile(screenX, screenY);
         } else {
             selecting = getSelectedObject(screenX, screenY);
-
-            System.out.println("Selecting: " + selecting);
 
             selected = selecting;
             if (selecting >= 0) {
@@ -1056,7 +1017,7 @@ public class FurnitureSetupScreen extends AppScreen {
 
     @Override
     public void resize(int width, int height) {
-//        stage.getViewport().update(width, height, true);
+
     }
 
     @Override
@@ -1071,8 +1032,6 @@ public class FurnitureSetupScreen extends AppScreen {
     public void hide() {
 
     }
-
-    private Table overlay;
 
     private void setupOverlay() {
         overlay = new Table(SkinManager.getDefaultSkin());

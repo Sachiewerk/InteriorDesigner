@@ -109,7 +109,6 @@ public class Room {
 
     public RoomDesignData toRoomDesignData(FileHandle fileHandle, float ftWidth, float ftHeight, float ftDepth){
         RoomDesignData data = new RoomDesignData();
-        System.out.println("Saving..");
 
         String name = "Room " + fileHandle.name().replace(".jpg", "").replace("room", "");
         data.setBackgroundImage(fileHandle.file().getAbsolutePath());

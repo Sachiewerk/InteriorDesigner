@@ -61,8 +61,6 @@ public class ToolUtils {
     }
 
     public static FileHandle fetchLatestSnapshot() {
-        System.out.println(Main.screenTemplateSaveDirectory);
-
         FileHandle[] templates = Gdx.files.absolute(Main.screenTemplateSaveDirectory).list();
 
         if (templates == null)
@@ -73,7 +71,6 @@ public class ToolUtils {
         }
         Arrays.sort(templates, new Comparator<FileHandle>() {
             public int compare(FileHandle f1, FileHandle f2) {
-                // sort latest first
                 return Long.compare(f2.lastModified(), f1.lastModified());
             }
         });
@@ -90,17 +87,13 @@ public class ToolUtils {
 
     public static void saveEmptyRoomDataDesign(RoomDesignData data) {
         try {
-            System.out.println("Saving room data design..");
-
             FileHandle directory = Gdx.files.internal(EMPTY_ROOM_DESIGN_DIRECTORY);
             createDirectoryIfNotExists(directory);
 
             String nextFileName = getRoomNextFileName(directory);
-            System.out.println(nextFileName);
 
             FileHandle newFile = Gdx.files.internal(EMPTY_ROOM_DESIGN_DIRECTORY + nextFileName);
 
-            System.out.println("Saving file..");
             Gson gson = new Gson();
             String json = gson.toJson(data);
             newFile.writeString(json, false);
@@ -115,8 +108,6 @@ public class ToolUtils {
 
     public static void saveRoomSetup(String name, GameObject[] gameObjs, RoomDesignData roomDesignData, Collection<SaveFile.TilePaint> tilePaints) {
         try {
-            System.out.println(tilePaints);
-            System.out.println("Saving room setup..");
             FileHandle directory = Gdx.files.external(Main.aoi.getProjectDirectory() + SAVED_FILE_DIRECTORY);
             createDirectoryIfNotExists(directory);
 
@@ -134,15 +125,12 @@ public class ToolUtils {
 
             String json = gson.toJson(saveFile);
             newFile.writeString(json, false);
-
-            System.out.println("File saved to : " + newFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private static String getRoomNextFileName(FileHandle directory) {
-        System.out.println("Getting room next file name..");
         Integer max = 0;
 
         for (FileHandle fileHandle : directory.list()) {
@@ -160,9 +148,7 @@ public class ToolUtils {
     }
 
     private static void createDirectoryIfNotExists(FileHandle directory) throws IOException {
-        System.out.println("Checking directory..");
         if (!directory.exists()) {
-            System.out.println("Creating directory..");
             directory.file().mkdirs();
         }
     }

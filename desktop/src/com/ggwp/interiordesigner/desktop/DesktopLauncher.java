@@ -66,8 +66,7 @@ public class DesktopLauncher implements AndroidOnlyInterface{
 				takeSnapShot(saveDirectory);
 				break;
 			case LOG:
-				String msg2 = params.get("message").toString();
-				System.out.println(msg2);
+				System.out.println(params.get("message"));
 				break;
 		}
 	}

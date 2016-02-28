@@ -20,9 +20,6 @@ public class ViewportManager {
         VIRTUAL_WIDTH = (int) deviceWidth;
         VIRTUAL_HEIGHT = (int) deviceHeight;
 
-        System.out.println("Screen Aspect Ratio: " + getCurrentAspectRatio());
-        System.out.println("Updating..");
-
         if(getCurrentAspectRatio() < getDefaultAspectRatio()){
             VIRTUAL_HEIGHT = (VIRTUAL_WIDTH * 9) / 16;
         } else {
@@ -31,8 +28,6 @@ public class ViewportManager {
 
         VIRTUAL_POS_Y = (int) (deviceHeight - VIRTUAL_HEIGHT) / 2;
         VIRTUAL_POS_X = (int) (deviceWidth - VIRTUAL_WIDTH) / 2;
-
-        System.out.println("New Screen Aspect Ratio: " + getCurrentAspectRatio());
     }
 
     public static float getCurrentAspectRatio(){
